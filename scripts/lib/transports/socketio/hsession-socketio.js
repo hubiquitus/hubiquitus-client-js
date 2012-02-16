@@ -43,7 +43,7 @@ define(
 
             //Listen for an id
             this.socket.on('id', function(data){
-                this.id = data;
+                hSessionSocketIO.id = data;
             });
         };
 
@@ -70,7 +70,7 @@ define(
         };
 
         hSessionSocketIO.prototype.disconnect = function(){
-            this.socket.emit('test', this.options);
+            this.socket.emit('disconnectSession', hSessionSocketIO.id);
         };
 
         //This return is a requireJS way which allows other files to import this specific variable
