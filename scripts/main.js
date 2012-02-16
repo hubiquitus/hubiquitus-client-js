@@ -30,30 +30,49 @@ define(
 
 		var Client = {
 			connect:  function () {
-					//Options of connection
+					//Connection Options
 					var opts = {
 						username : {
-							value: 'login@domain'
+							value: 'username@domain.com'
 						} 
 						,password : {
 							value: 'password'
 						} 
-						,endpoint : {
-							note: 'The BOSH service endpoint (default: http://localhost:5280/http-bind/)', 
-							value: 'http://localhost:5280/http-bind/'
-						}
 						,domain : {
 							note: 'The xmpp domain', 
 							value: 'host.com'
 						}
 						,route : {
 							note: 'XMPP Host and port to connect to Format: host:port. (Optional. only if host != domain and port != default)',
-							value: 'host:port'
+							value: ''
 						}
-						,transport : {
-							note: 'The transport mode',
-							value: 'socketio'
-						} 
+                        ,gateway : {
+                            note: 'Values for the hubiquitus-node gateway'
+                            ,server: {
+                                note: 'Host of the gateway (format protocol://host)',
+                                value: 'http://localhost'
+                            }
+                            ,transport : {
+                                note: 'Transport mode to use to the gateway (bosh or socketio)',
+                                value: 'socketio'
+                            }
+                            ,socketio: {
+                                port: {
+                                    note: 'socket.io listening port in the gateway',
+                                    value: '8080'
+                                },
+                                namespace: {
+                                    note: 'namespace to be used when sending messages (same than in server)',
+                                    value: '/'
+                                }
+                            }
+                            ,bosh: {
+                                port : {
+                                    note: 'bosh listening port in the gateway (default 5280)',
+                                    value: '5280'
+                                }
+                            }
+                        }
 					};
 				
 				// Try to establish a connection according to a special transport mode
@@ -113,6 +132,6 @@ define(
 		
 		//Connection launch
 		Client.connect();
-        var t = setTimeout(Client.disconnect, 15000);
+        var t = setTimeout(Client.disconnect, 25000);
     }
 );

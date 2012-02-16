@@ -18,10 +18,6 @@
  */
 
 
-/**
-['lib/transports/bosh/hsession-bosh', 'lib/transports/socketio/hsession-socketio'],
-	function(hSessionBoshImg, hSessionSocketIOImg)
-*/
 define(
     [],
     function(){
@@ -34,11 +30,11 @@ define(
 
         hSessionSocketIO.prototype.establishConnection = function(){
             var config = {
-                'server': 'http://192.168.2.107',
-                'port': 8080,
-                'namespace': '/'
-            }
-            this.socket = io.connect(config['server']+ ':' + config['port']+ config['namespace']);
+                server: this.options.gateway.server.value || 'http://192.168.2.107',
+                port: this.options.gateway.socketio.port.value || 8080,
+                namespace: this.options.gateway.socketio.namespace.value || '/'
+            };
+            this.socket = io.connect(config.server + ':' + config.port+ config.namespace);
         };
 
         hSessionSocketIO.prototype.connect = function(){
@@ -64,7 +60,7 @@ define(
         };
 
         hSessionSocketIO.prototype.disconnect = function(){
-            this.socket.emit('discxmpp');
+            this.socket.disconnect();
         };
 
         //This return is a requireJS way which allows other files to import this specific variable

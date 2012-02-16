@@ -36,9 +36,9 @@ define(
 			connect: function(opts, onMessage, onStatus) 
 			{
 				//Test the transport value and instantiate the right one
-				if(opts.transport.value=='bosh'){
+				if(opts.gateway.transport.value=='bosh'){
 					transport = new hSessionBosh(opts, onMessage, onStatus);
-				}else if(opts.transport.value=='socketio'){
+				}else if(opts.gateway.transport.value=='socketio'){
 					transport = new hSessionSocketIO(opts, onMessage);
 				}else{
 					alert("Error, no transport");
