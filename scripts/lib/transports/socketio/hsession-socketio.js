@@ -29,7 +29,6 @@ define(
         var hSessionSocketIO = function(opts, onMessage){
             this.options = opts;
             this.callback = onMessage;
-            this.id = null;
             this.establishConnection();
         };
 
@@ -40,11 +39,6 @@ define(
                 'namespace': '/'
             }
             this.socket = io.connect(config['server']+ ':' + config['port']+ config['namespace']);
-
-            //Listen for an id
-            this.socket.on('id', function(data){
-                hSessionSocketIO.id = data;
-            });
         };
 
         hSessionSocketIO.prototype.connect = function(){
@@ -70,7 +64,7 @@ define(
         };
 
         hSessionSocketIO.prototype.disconnect = function(){
-            this.socket.emit('disconnectSession', hSessionSocketIO.id);
+            this.socket.emit('discxmpp');
         };
 
         //This return is a requireJS way which allows other files to import this specific variable
