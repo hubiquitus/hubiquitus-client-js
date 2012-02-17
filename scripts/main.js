@@ -25,7 +25,7 @@ define(
 		
 		console.log("hSession_var",session);
 		
-		var NODE_NAME = "test";
+		var NODE_NAME = "mock14";
 		var query = '';
 
 		var Client = {
@@ -43,33 +43,33 @@ define(
 							value: 'host.com'
 						}
 						,route : {
-							note: 'XMPP Host and port to connect to Format: host:port. (Optional. only if host != domain and port != default)',
+							note: 'XMPP Host and port to connect to Format: host:port. (Only if host != domain or port != default)',
 							value: ''
 						}
                         ,gateway : {
                             note: 'Values for the hubiquitus-node gateway'
-                            ,server: {
-                                note: 'Host of the gateway (format protocol://host)',
-                                value: 'http://localhost'
-                            }
                             ,transport : {
                                 note: 'Transport mode to use to the gateway (bosh or socketio)',
                                 value: 'socketio'
                             }
                             ,socketio: {
+                                host: {
+                                    note: 'Host of the gateway (format protocol://host)',
+                                    value: 'http://localhost'
+                                },
                                 port: {
                                     note: 'socket.io listening port in the gateway',
                                     value: '8080'
                                 },
                                 namespace: {
-                                    note: 'namespace to be used when sending messages (same than in server)',
+                                    note: 'namespace to be used when exchanging messages',
                                     value: '/'
                                 }
                             }
                             ,bosh: {
-                                port : {
-                                    note: 'bosh listening port in the gateway (default 5280)',
-                                    value: '5280'
+                                endpoint : {
+                                    note: 'bosh endpoint (format: http://localhost:5280/http-bind/)',
+                                    value: 'http://localhost:5280/http-bind/'
                                 }
                             }
                         }
@@ -132,6 +132,5 @@ define(
 		
 		//Connection launch
 		Client.connect();
-        var t = setTimeout(Client.disconnect, 25000);
     }
 );

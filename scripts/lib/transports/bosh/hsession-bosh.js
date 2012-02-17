@@ -53,7 +53,7 @@ define(
 
 			connect: function() {
 				//Create a Strophe connection
-				this.conn = new Strophe.Connection(this.options.endpoint.value);
+				this.conn = new Strophe.Connection(this.options.gateway.bosh.endpoint.value);
 				this.conn.rawInput = this.rawInput;
 				this.conn.rawOutput = this.rawOutput;
 				//Build the pubsub var
@@ -66,7 +66,7 @@ define(
 						this.onConnect.bind(this), 
 						null,
 						null, 
-						this.options.route.value);
+						null);
 				
 				return this;
 
