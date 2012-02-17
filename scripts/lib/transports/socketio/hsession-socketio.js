@@ -26,8 +26,12 @@ define(
             this.options = opts;
             this.callback = onMessage;
             this.establishConnection();
+            this.listenSubscriptions(); //Starts listening responses to subscriptions
         };
 
+        /**
+         * Instantiates a socket to talk to the server
+         */
         hSessionSocketIO.prototype.establishConnection = function(){
             var config = {
                 server: this.options.gateway.socketio.host.value || 'http://localhost',
@@ -36,6 +40,10 @@ define(
             };
             this.socket = io.connect(config.server + ':' + config.port+ config.namespace);
         };
+        /**
+         * Normalizes connection options so that they can be used.
+         * They use as a base the given options
+         */
         hSessionSocketIO.prototype.createParameters = function(){
             var parameters = {
                 jid: this.options.username.value,
@@ -55,6 +63,10 @@ define(
 
             return parameters;
         };
+        /**
+         * Asks the server to connect to XMPP, sends the client's presence
+         * and starts listening for messages
+         */
         hSessionSocketIO.prototype.connect = function(){
             var data = {};
             data.parameters = this.createParameters();
@@ -64,21 +76,34 @@ define(
             //Listen for data
             this.socket.on('connect', this.callback);
         };
+        /**
+         * Asks the server to close the XMPP connection and the open socket
+         */
         hSessionSocketIO.prototype.disconnect = function(){
             this.socket.disconnect();
         };
+        /**
+         * Requests a subscription to an XMPP node to the server
+         * The answer of the server is treated by listenSubscriptions
+         * @param nodeName - Name of the node to subscribe
+         */
         hSessionSocketIO.prototype.subscribe = function(nodeName){
-            var data = {};
-            data.parameters = this.createParameters();
-            data.nodeName = nodeName;
+            var data = {
+                parameters: this.createParameters(),
+                nodeName: nodeName
+            };
             //Send data to the server in the correct channel
             this.socket.emit('subscribe', data);
-            //Listen for answer
-            this.socket.on('subscribe', function(res){
-                if(res == 'success')
-                    console.log('Subscribed');
-            });
         };
+        /**
+         * Listens for subscriptions and logs the result
+         */
+        hSessionSocketIO.prototype.listenSubscriptions = function(){
+            this.socket.on('subscribe', function(res){
+                if(res.status == 'success')
+                    console.log('Subscription to node ' + res.node + ' succeeded');
+            });
+        }
 
         //This return is a requireJS way which allows other files to import this specific variable
         return{
