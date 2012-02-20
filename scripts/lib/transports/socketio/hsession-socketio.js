@@ -111,7 +111,6 @@ define(
                 parameters: this.createParameters(),
                 nodeName: nodeName
             };
-            //Send data to the server in the correct channel
             this.socket.emit('subscribe', data);
         };
 
@@ -127,8 +126,21 @@ define(
                 nodeName: nodeName,
                 subID: subID
             };
-            //Send data to the server in the correct channel
             this.socket.emit('unsubscribe', data);
+        };
+
+        /**
+         * Requests to publish entries to an XMPP node
+         * @param nodeName - Node to publish the items
+         * @param items - Array of elements to publish in the node (Optional)
+         */
+        hSessionSocketIO.prototype.publish = function(nodeName, items){
+            var data = {
+              parameters: this.createParameters(),
+              nodeName: nodeName,
+              items: items
+            };
+            this.socket.emit('publish', data);
         };
 
         /**
@@ -148,6 +160,16 @@ define(
             this.socket.on('unsubscribe', function(res){
                 if(res.status == 'success')
                     console.log('Unsubscription to node ' + res.node + ' succeeded');
+            });
+        };
+
+        /**
+         * Listens for publication responses and logs the result
+         */
+        hSessionSocketIO.prototype.on_unsubscribe = function(){
+            this.socket.on('publish', function(res){
+                if(res.status == 'success')
+                    console.log('Publication to node ' + res.node + ' succeeded');
             });
         };
 
