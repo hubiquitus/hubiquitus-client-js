@@ -55,8 +55,8 @@ define(
 				transport.subscribe(nodeName)
 			},
 			
-			unsubscribe : function(nodeName){
-				transport.unsubscribe(nodeName);
+			unsubscribe : function(nodeName, subID){
+				transport.unsubscribe(nodeName, subID);
 			},
 			
 			publish : function(nodeName, items){

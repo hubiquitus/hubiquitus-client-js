@@ -147,7 +147,7 @@ define(
 				return true;
 			},
 			
-			unsubscribe : function(nodeName){
+			unsubscribe : function(nodeName, subID){
 				this.conn.pubsub.unsubscribe(
 					this.options.username.value,
 					this.pubsub,

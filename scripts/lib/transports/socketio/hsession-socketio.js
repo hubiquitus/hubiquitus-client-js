@@ -36,7 +36,8 @@ define(
             this.callback = onMessage;
             this.statusCallback = onStatus;
             this.establishConnection();
-            this.listenSubscriptions(); //Starts listening responses to subscriptions
+            this.on_subscribe(); //Starts listening responses to subscriptions
+            this.on_unsubscribe(); //Starts listening responses to unsubscriptions
         };
 
         /**
@@ -102,7 +103,7 @@ define(
 
         /**
          * Requests a subscription to an XMPP node to the server
-         * The answer of the server is treated by listenSubscriptions
+         * The answer of the server is treated by on_subscribe
          * @param nodeName - Name of the node to subscribe
          */
         hSessionSocketIO.prototype.subscribe = function(nodeName){
@@ -115,14 +116,40 @@ define(
         };
 
         /**
+         * Requests to unsubscribe from an XMPP node
+         * The answer of the server is treated by on_unsubscribe
+         * @param nodeName - Name of the node to unsubscribe
+         * @param subID - Subscription ID of the node to unsubscribe (needed *only* if multiple subscriptions)
+         */
+        hSessionSocketIO.prototype.unsubscribe = function(nodeName, subID){
+            var data = {
+                parameters: this.createParameters(),
+                nodeName: nodeName,
+                subID: subID
+            };
+            //Send data to the server in the correct channel
+            this.socket.emit('unsubscribe', data);
+        };
+
+        /**
          * Listens for subscriptions and logs the result
          */
-        hSessionSocketIO.prototype.listenSubscriptions = function(){
+        hSessionSocketIO.prototype.on_subscribe = function(){
             this.socket.on('subscribe', function(res){
                 if(res.status == 'success')
                     console.log('Subscription to node ' + res.node + ' succeeded');
             });
-        }
+        };
+
+        /**
+         * Listens for unsunscribe responses and logs the result
+         */
+        hSessionSocketIO.prototype.on_unsubscribe = function(){
+            this.socket.on('unsubscribe', function(res){
+                if(res.status == 'success')
+                    console.log('Unsubscription to node ' + res.node + ' succeeded');
+            });
+        };
 
         //This return is a requireJS way which allows other files to import this specific variable
         return{
