@@ -17,14 +17,24 @@
  *     along with Hubiquitus.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 define(
     [],
     function(){
 
-        var hSessionSocketIO = function(opts, onMessage){
+        var statuses = {error: 'Error', connecting: 'Connecting', connected: 'Connected',
+            disconnecting: 'Disconnecting', disconnected: 'Disconnected'};
+
+        /**
+         * Construtctor to establish a connection to the socketIO server.
+         * @param opts - Required options to connect. See main.js to see a list of required elems.
+         * @param onMessage - Callback executed each time a published message is sent from the server
+         * @param onStatus - Callback executed each time there is a change with the state of the connection.
+         * It takes as parameter one element of statuses.
+         */
+        var hSessionSocketIO = function(opts, onMessage, onStatus){
             this.options = opts;
             this.callback = onMessage;
+            this.statusCallback = onStatus;
             this.establishConnection();
             this.listenSubscriptions(); //Starts listening responses to subscriptions
         };
@@ -33,13 +43,16 @@ define(
          * Instantiates a socket to talk to the server
          */
         hSessionSocketIO.prototype.establishConnection = function(){
+            this.statusCallback(statuses.disconnected);
             var config = {
                 server: this.options.gateway.socketio.host.value || 'http://localhost',
                 port: this.options.gateway.socketio.port.value || 8080,
                 namespace: this.options.gateway.socketio.namespace.value || '/'
             };
             this.socket = io.connect(config.server + ':' + config.port+ config.namespace);
+            this.socket.on('status', this.statusCallback);//Listens for status changes
         };
+
         /**
          * Normalizes connection options so that they can be used.
          * They use as a base the given options
@@ -63,6 +76,7 @@ define(
 
             return parameters;
         };
+
         /**
          * Asks the server to connect to XMPP, sends the client's presence
          * and starts listening for messages
@@ -76,12 +90,16 @@ define(
             //Listen for data
             this.socket.on('connect', this.callback);
         };
+
         /**
          * Asks the server to close the XMPP connection and the open socket
          */
         hSessionSocketIO.prototype.disconnect = function(){
+            this.statusCallback(statuses.disconnecting);
             this.socket.disconnect();
+            this.statusCallback(statuses.disconnected);
         };
+
         /**
          * Requests a subscription to an XMPP node to the server
          * The answer of the server is treated by listenSubscriptions
@@ -95,6 +113,7 @@ define(
             //Send data to the server in the correct channel
             this.socket.emit('subscribe', data);
         };
+
         /**
          * Listens for subscriptions and logs the result
          */

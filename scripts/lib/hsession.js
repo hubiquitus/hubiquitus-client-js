@@ -39,7 +39,7 @@ define(
 				if(opts.gateway.transport.value=='bosh'){
 					transport = new hSessionBosh(opts, onMessage, onStatus);
 				}else if(opts.gateway.transport.value=='socketio'){
-					transport = new hSessionSocketIO(opts, onMessage);
+					transport = new hSessionSocketIO(opts, onMessage, onStatus);
 				}else{
 					alert("Error, no transport");
 				}
