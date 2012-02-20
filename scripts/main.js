@@ -113,9 +113,9 @@ define(
 			subscribe: function(nodeName){
 				session.subscribe(nodeName)
 			},
-			
-			unsubscribe : function(nodeName){
-				session.unsubscribe(nodeName);
+
+            unsubscribe : function(nodeName, subID){
+                session.unsubscribe(nodeName, subID);
 			},
 			
 			publish : function(nodeName, items){
