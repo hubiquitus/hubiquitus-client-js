@@ -33,11 +33,11 @@ define(
 		hSession.prototype = {
 			transport: null,
 
-			connect: function(opts, onMessage, onStatus) 
+			connect: function(opts, onMessage, onStatus, onCookie) 
 			{
 				//Test the transport value and instantiate the right one
 				if(opts.gateway.transport.value=='bosh'){
-					transport = new hSessionBosh(opts, onMessage, onStatus);
+					transport = new hSessionBosh(opts, onMessage, onStatus, onCookie);
 				}else if(opts.gateway.transport.value=='socketio'){
 					transport = new hSessionSocketIO(opts, onMessage, onStatus);
 				}else{
@@ -61,7 +61,19 @@ define(
 			
 			publish : function(nodeName, items){
 				transport.publish(nodeName, items);
-			}
+			},
+			
+			getJID: function(){
+                return transport.getJID();
+            },
+
+            getSID: function(){
+                return transport.getSID();
+            },
+
+            getRID: function(){
+                return transport.getRID();
+            }
 		}
 		
 		//This return is a requireJS way which allow other files to import this specific variable 

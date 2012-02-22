@@ -33,12 +33,13 @@ define(
 		var Strophe = Strophe.Strophe;
 			
 		// Constructor
-		var hSessionBosh = function(opts, onMessage, onStatus) {
+		var hSessionBosh = function(opts, onMessage, onStatus, onCookie) {
 			this.options = opts;
 			this.callback = onMessage;
 			this.conn = null;
 			this.suscribed = false;
 			this.currentStatus = onStatus;
+			this.callbackCookie = onCookie;
 		}
 
 		hSessionBosh.prototype = {
@@ -50,6 +51,7 @@ define(
 			pubsub: null,
 			msgReceivedCount: 0,
 			currentStatus: null,
+			callbackCookie: null,
 
 			connect: function() {
 				//Create a Strophe connection
@@ -113,6 +115,7 @@ define(
 				
 				//Calling client callback with the extracted message
 				this.callback(_data);
+				this.callbackCookie();
 				
 				return true;
 			},
@@ -178,6 +181,18 @@ define(
 				//winston.debug("\nSent:", data);
 				return;
 			}	
+			
+			getJID: function(){
+                return this.conn.jid;
+            },
+
+            getSID: function(){
+                return this.conn.sid;
+            },
+
+            getRID: function(){
+                return this.conn.rid;
+            }
 		}
 		
 		//This return is a requireJS way which allow other files to import this specific variable 

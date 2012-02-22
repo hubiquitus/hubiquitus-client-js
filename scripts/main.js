@@ -17,17 +17,24 @@
  *     along with Hubiquitus.  If not, see <http://www.gnu.org/licenses/>.
  */
 define(
-	['jquery','lib/hsession'],
-	function($,hSessionImg){
+	['jquery','lib/hsession', 'cookieshandling'],
+	function($,hSessionImg, cookieImg){
 		
 		//'session' represents the hsession file variable
 		var session = new hSessionImg.hSession();
+		var cookie = new cookieImg.Cookie;
 		
 		console.log("hSession_var",session);
 		
 		var NODE_NAME = "mock14";
 		var query = '';
+		
+		var ports = [5281,5282,5283];
+        var port = ports[Math.floor(Math.random()*ports.length)];
 
+		// number of days before cookie deletion
+		var cookiesValidity = 2;
+		
 		var Client = {
 			connect:  function () {
 					//Connection Options
@@ -69,14 +76,17 @@ define(
                             ,bosh: {
                                 endpoint : {
                                     note: 'bosh endpoint (format: http://localhost:5280/http-bind/)',
-                                    value: 'http://localhost:5280/http-bind/'
+                                    // to connect directly to the XMPP Server
+									//value: 'http://localhost:5280/http-bind/'
+									// to connect using a node.js gateway and allow a load balancing on several ports
+									value: 'http://localhost:'+port+'/http-bind/'
                                 }
                             }
                         }
 					};
 				
 				// Try to establish a connection according to a special transport mode
-				session.connect(opts, Client.onMessage, Client.onStatus);
+				session.connect(opts, Client.onMessage, Client.onStatus, Client.onCookie);
 			},		
 				
 			// Event triggered when a message arrives
@@ -121,6 +131,13 @@ define(
 			publish : function(nodeName, items){
 				session.publish(nodeName, items);
 			},
+			
+			onCookie: function(){
+                // cookies generation
+                cookie.createCookie('JID', session.getJID(), cookiesValidity);
+                cookie.createCookie('SID', session.getSID(), cookiesValidity);
+                cookie.createCookie('RID', session.getRID(), cookiesValidity);
+            },
 
 			// inject html
 			show_html: function (m) {
