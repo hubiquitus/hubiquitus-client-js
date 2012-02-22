@@ -47,7 +47,7 @@ username, password and domain. When you are done, start by running
 `Client.connect()` to establish a connection.
 
 The method `Client.onMessage()` treats the incoming messages, you can define
-in this method how to manage the messages frome the server.
+in this method how to manage them.
 
 After that, you can run the different commands like `Client.publish()`.
 See `main.js` for a list of possible commands and their parameters.
