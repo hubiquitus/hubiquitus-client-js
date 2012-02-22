@@ -47,7 +47,7 @@ username, password and domain. When you are done, start by running
 `Client.connect()` to establish a connection.
 
 After that, you can run the different commands like `Client.publish()`.
-See `main.js` for a list of possible commands and its parameters.
+See `main.js` for a list of possible commands and their parameters.
 
 ## License 
 
