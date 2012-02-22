@@ -59,8 +59,8 @@ define(
                 this.options.gateway.bosh.endpoint.value = content[1] + ':' + this.options.gateway.port + content[2];
 
 				this.conn = new Strophe.Connection(this.options.gateway.bosh.endpoint.value);
-				this.conn.rawInput = this.rawInput;
-				this.conn.rawOutput = this.rawOutput;
+				this.conn.rawInput = this.rawInput.bind(this);
+				this.conn.rawOutput = this.rawOutput.bind(this);
 				//Build the pubsub var
 				this.pubsub =  "pubsub." + this.options.domain.value;
 				
@@ -118,7 +118,6 @@ define(
 				
 				//Calling client callback with the extracted message
 				this.callback(_data);
-				this.callbackCookie();
 				
 				return true;
 			},
@@ -176,6 +175,8 @@ define(
 			rawInput: function(data)
 			{
 				//winston.debug("\nReceived:", data);
+                // set cookies with session data every time the client send a request
+                this.callbackCookie();
 				return;
 			},
 

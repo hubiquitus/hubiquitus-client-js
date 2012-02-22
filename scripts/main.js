@@ -93,14 +93,15 @@ define(
                 session.connect(this.opts, this.onMessage, this.onStatus, this.onCookie);
             },
 
-            // Event triggered when a message arrives
-            // NB: onMessage function retrieve messages coming from all user subscribed nodes
+            /**
+             * When a message is received by the client, do something. in this case show it in a html page
+             * @param message - published message by the server
+             * NB: onMessage function retrieve messages coming from all user subscribed nodes
+             */
             onMessage: function (message) {
-                var _data = message;
-
-                if (_data) {
-                    messageCallback(_data);
-                }
+                var e = document.createElement('div');
+                e.innerHTML = message;
+                document.getElementById("fetched").innerHTML = e.childNodes[0].nodeValue;
                 return true;
             },
 
@@ -142,16 +143,6 @@ define(
                 cookie.createCookie('RID', session.getRID(), cookiesValidity);
             }
         };
-
-        /**
-         * When a message is received by the client, do something. in this case show it
-         * @param message - published message by the server
-         */
-        function messageCallback(message) {
-            var e = document.createElement('div');
-            e.innerHTML = message;
-            document.getElementById("fetched").innerHTML = e.childNodes[0].nodeValue;
-        }
 
         var client = new Client('username@domain.com', 'password', 'host.com');
         client.connect();
