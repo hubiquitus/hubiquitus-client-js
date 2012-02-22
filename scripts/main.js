@@ -33,9 +33,9 @@ define(
 		var cookiesValidity = 2;
 
         var Client = function(username, password, domain){
-            this.opts.username.value = username;
-            this.opts.password.value = password;
-            this.opts.domain.value = domain;
+            this.opts.username.value = username || this.opts.username.value;
+            this.opts.password.value = password || this.opts.password.value;
+            this.opts.domain.value = domain || this.opts.domain.value;
         };
 
         Client.prototype = {
