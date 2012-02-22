@@ -47,7 +47,7 @@ define(
             this.statusCallback(statuses.disconnected);
             var config = {
                 server: this.options.gateway.socketio.host.value || 'http://localhost',
-                port: this.options.gateway.socketio.port.value || 8080,
+                port: this.options.gateway.port || 8080,
                 namespace: this.options.gateway.socketio.namespace.value || '/'
             };
             this.socket = io.connect(config.server + ':' + config.port+ config.namespace);
@@ -63,7 +63,7 @@ define(
                 jid: this.options.username.value,
                 password: this.options.password.value,
                 host: this.options.domain.value,
-                port: 5222, //Default value
+                port: '5222', //Default value
                 domain: this.options.domain.value
             };
 

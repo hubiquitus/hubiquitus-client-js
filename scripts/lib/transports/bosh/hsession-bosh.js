@@ -55,6 +55,9 @@ define(
 
 			connect: function() {
 				//Create a Strophe connection
+                var content = this.options.gateway.bosh.endpoint.value.split(/(\w+:\/\/[\w\.]+)(.*)/);
+                this.options.gateway.bosh.endpoint.value = content[1] + ':' + this.options.gateway.port + content[2];
+
 				this.conn = new Strophe.Connection(this.options.gateway.bosh.endpoint.value);
 				this.conn.rawInput = this.rawInput;
 				this.conn.rawOutput = this.rawOutput;
@@ -180,7 +183,7 @@ define(
 			{
 				//winston.debug("\nSent:", data);
 				return;
-			}	
+			},
 			
 			getJID: function(){
                 return this.conn.jid;
