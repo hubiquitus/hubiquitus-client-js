@@ -138,9 +138,9 @@ define(
 
             onCookie: function(){
                 // cookies generation
-                cookie.createCookie('JID', session.getJID(), cookiesValidity);
-                cookie.createCookie('SID', session.getSID(), cookiesValidity);
-                cookie.createCookie('RID', session.getRID(), cookiesValidity);
+                cookie.createCookie('JID', session.getConnInfo().jid, cookiesValidity);
+                cookie.createCookie('SID', session.getConnInfo().sid, cookiesValidity);
+                cookie.createCookie('RID', session.getConnInfo().rid, cookiesValidity);
             }
         };
 

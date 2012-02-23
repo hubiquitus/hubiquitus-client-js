@@ -186,16 +186,14 @@ define(
 				return;
 			},
 			
-			getJID: function(){
-                return this.conn.jid;
-            },
-
-            getSID: function(){
-                return this.conn.sid;
-            },
-
-            getRID: function(){
-                return this.conn.rid;
+			getConnInfo: function(){
+                var info = {
+                    transport: 'bosh',
+                    jid: this.conn.jid,
+                    sid: this.conn.sid,
+                    rid: this.conn.rid
+                }
+                return info;
             }
 		}
 		

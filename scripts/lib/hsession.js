@@ -63,16 +63,8 @@ define(
 				transport.publish(nodeName, items);
 			},
 			
-			getJID: function(){
-                return transport.getJID();
-            },
-
-            getSID: function(){
-                return transport.getSID();
-            },
-
-            getRID: function(){
-                return transport.getRID();
+			getConnInfo: function(){
+                return transport.getConnInfo();
             }
 		}
 		
