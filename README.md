@@ -40,12 +40,17 @@ If you want to use the Websocket features you need to have a server running
 
 To use it you need to put your account information in `main.js`. For the
 `gateway` part you can choose if you want `bosh` or `socketio`, and fill
-only the corresponding sections.
+only the corresponding sections. 
 
-When you finish first run `Client.connect()` to establish a connection.
+Then, you will create a Client object, you can define dynamically your 
+username, password and domain. When you are done, start by running 
+`Client.connect()` to establish a connection.
+
+The method `Client.onMessage()` treats the incoming messages, you can define
+in this method how to manage them.
 
 After that, you can run the different commands like `Client.publish()`.
-See `main.js` for a list of possible commands and its parameters.
+See `main.js` for a list of possible commands and their parameters.
 
 ## License 
 
