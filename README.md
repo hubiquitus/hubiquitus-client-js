@@ -42,7 +42,7 @@ define(
 
 ```js
 //Import the module
-var hubiquitus = require('hubiquitus');
+var hubiquitus = require('hubiquitusjs');
 
 //Connect to the XMPP Server using default configuration.
 var hub = hubiquitus.connect(username, password, function(msg){
