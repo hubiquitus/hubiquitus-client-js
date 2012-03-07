@@ -1,59 +1,76 @@
-# Hubiquitusjs
+# HubiquitusJS
+Use a simple API to do Publish Subscribe (pubsub) from your **web app** or your
+**Node.JS** project to a **XMPP Server**.
+As transports it can use `BOSH` or `Socket.IO`. To use its full potential, use
+with [hubiquitus-node](https://github.com/hubiquitus/hubiquitus-node).
 
-Hubiquitusjs is a Javascript library that allows a web client to connect to a
-XMPP Server and perform pubsub commands using websockets or BOSH. You won't have
-to worry about  how to make the XMPP stanzas; Just configure `hubiquitusjs` and
-start publishing and subscribing in a flash!
 
-## Features
+## How to Use
 
-* Allows the client to use different transport methods, allowing to use
-the best transport for the client type.
+You can use **HubiquitusJS** in two completely different ways.
 
-* Simplified pubsub library. Do not worry about how a stanza is made! just
-say what you want to publish or to subscribe and `hubiquitusjs` does it for you.
+* Inside your *web-browser* as an API to retrieve data for your web app.
+* As a *node* module for your *Node.JS* project.
 
-## How to Install
-
-To install this library you just download the project and add it to your
-Web project.
-
-1.  $ git clone git://github.com/hubiquitus/hubiquitusjs.git
-	
-2.	Copy the `scripts` folder to your web project.
-
-3.	Add to the header of your HTML file
+### For your web app
+1. Download the code `git://github.com/hubiquitus/hubiquitusjs.git`
+2. In your HTML File add
 
 ```html
-<script src='scripts/socket.io.js'></script>
-<script data-main="scripts/main" src='scripts/require.js'></script>
+<!-- Tag for socket.io is only needed if you will use it as transport-->
+<script src='lib/transports/socketio/socket.io.js'></script>
+<script data-main="my_script.js" src='lib/require.js'></script>
 ```
 
-That's it! you are ready to use `hubiquitusjs`!
+3. In *my_script.js* put the following
+```js
+define(
+    ['/hubiquitus.js'], //Import the API
+    function(hub){
+	//Connect and pass the callback for the messages received.
+	hub.connect(username, password, function(msg){
+            document.getElementById("body").innerHTML = msg.data;
+        });
+    }
+);
+```
 
-## How to use
+### For your Node app
+1. Install using NPM: `npm install git://github.com/hubiquitus/hubiquitusjs.git`
+2. Import the API and use it!
 
-Once you have added the files to your project you are ready to use it.
+```js
+//Import the module
+var hubiquitus = require('hubiquitus');
 
-If you want to use the Websocket features you need to have a server running
-`hubiquitus-node`, take a look at the project to see how to install it.
+//Connect to the XMPP Server using default configuration.
+var hub = hubiquitus.connect(username, password, function(msg){
+	console.log(msg);});
+```
 
-To use it you need to put your account information in `main.js`. For the
-`gateway` part you can choose if you want `bosh` or `socketio`, and fill
-only the corresponding sections. 
+### Details
+The last parameter in connect is the callback that will receive the messages
+sent by the server in the form of:
+`{ type: ('status'|'data'), data: ?}`. If type == status, data contains
+a string with the server status (see `examples/`). If type == data,
+`data` contains the server message.
 
-Then, you will create a Client object, you can define dynamically your 
-username, password and domain. When you are done, start by running 
-`Client.connect()` to establish a connection.
+Once connected it is possible to execute other pubsub commands:
 
-The method `Client.onMessage()` treats the incoming messages, you can define
-in this method how to manage them.
+```js
+hub.subscribe(node); //Node to subscribe to using current credentials.
+hub.unsubscribe(node, subID); //Node to unsubscribe. Optional subID.
+hub.publish(node, item); //Publish string 'item' to 'node'.
+hub.disconnect(); //Disconnects from the XMPP Server and destroys socket.
+```
 
-After that, you can run the different commands like `Client.publish()`.
-See `main.js` for a list of possible commands and their parameters.
+In all cases, `node` is a string with the name that identifies the node.
+
+## Options
+The file `lib/options.js` has all the parameters that can be passed to 
+**HubiquitusJS**. You can see in `examples/` how to apply them.
 
 ## License 
-
 Copyright (c) Novedia Group 2012.
 
 This file is part of Hubiquitus.
