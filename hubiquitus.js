@@ -80,7 +80,7 @@ define(
             var port = ports[Math.floor(Math.random()*ports.length)]; //Randomize used port
 
             //Rewrite Endpoint using the selected port
-            var parts = endpoint.split(/(\w+:\/\/[\w\.]+)(.*)/);
+            var parts = endpoint.split(/(\w+:\/\/[\w\.-]+)(.*)/);
             parts[2] += !parts[2].match(/\/$/) ? '/' : ''; //Normalize endpoint
             return parts[1] + ':' + port + parts[2];
         }
