@@ -23,6 +23,7 @@ You can use **HubiquitusJS** in two completely different ways.
 ```
 
 3. In *my_script.js* put the following
+
 ```js
 define(
     ['/hubiquitus.js'], //Import the API
