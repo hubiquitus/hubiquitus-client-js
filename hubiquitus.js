@@ -34,9 +34,9 @@ define(
          */
         var HubiquitusClient = function(username, password, callback, options){
             options = options || {};
-            options.username = username;
-            options.password = password;
             this.options = createOptions.hub_options(options);
+            this.options.username = username;
+            this.options.password = password;
             this.onMessage = callback;
             this.connect();
         };
@@ -68,11 +68,11 @@ define(
             subscribe : function(node){
                 this.transport.subscribe(node);
             },
-            unsubscribe : function(node, subID){
-                this.transport.unsubscribe(node, subID);
+            unsubscribe : function(node){
+                this.transport.unsubscribe(node);
             },
-            publish : function(node, items){
-                this.transport.publish(node,items);
+            publish : function(node, item){
+                this.transport.publish(node,item);
             }
         };
 
