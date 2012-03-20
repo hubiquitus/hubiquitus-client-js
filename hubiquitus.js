@@ -65,14 +65,17 @@ define(
             disconnect : function(){
                 this.transport.disconnect();
             },
-            subscribe : function(node){
-                this.transport.subscribe(node);
+            subscribe : function(channel){
+                this.transport.subscribe(channel);
             },
-            unsubscribe : function(node){
-                this.transport.unsubscribe(node);
+            unsubscribe : function(channel){
+                this.transport.unsubscribe(channel);
             },
-            publish : function(node, item){
-                this.transport.publish(node,item);
+            publish : function(channel, hMessage){
+                this.transport.publish(channel,hMessage);
+            },
+            getMessages: function(channel){
+                this.transport.getMessages(channel);
             }
         };
 
