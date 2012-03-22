@@ -21,8 +21,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module) }
 
 define(
-    ['./lib/transports/bosh/hsession-bosh', './lib/transports/socketio/hsession-socketio', './lib/options'],
-    function(hSessionBosh, hSessionSocketIO, createOptions){
+    ['./lib/transports/bosh/hsession-bosh', './lib/transports/socketio/hsession-socketio',
+        './lib/options', './lib/codes'],
+    function(hSessionBosh, hSessionSocketIO, createOptions, codes){
 
         /**
          * Creates a new client that manages a connection and connects to the
@@ -91,8 +92,9 @@ define(
         //requireJS way to export
         return{
             connect : function(username, password, callback, options){
-                return new HubiquitusClient(username, password, callback, options);
-            }
+                return new HubiquitusClient(username, password, callback, options);},
+            errors : codes.errors,
+            status : codes.statuses
         }
     }
 );

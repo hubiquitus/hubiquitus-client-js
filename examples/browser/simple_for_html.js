@@ -18,17 +18,22 @@
  */
 
 define(
-    ['../hubiquitus'],
+    ['../../hubiquitus'],
     function(hub){
 
         // Starts a connection to the default XMPP Server using default transport.
         // Everytime the server sends a message/updates his status, the function
         // will be called
-        hub.connect('username', 'password', function(msg){
-            if(msg.type == 'status')
-                document.getElementById("status").innerHTML = msg.data;
-            else if (msg.type == 'data')
-                document.getElementById("fetched").innerHTML = msg.data;
+        var client = hub.connect('username', 'password', function(msg){
+            if(msg.context == 'link')
+                document.getElementById("status").innerHTML = msg.data.status;
+            else if (msg.context == 'message')
+                document.getElementById("fetched").innerHTML = msg.data.message;
+
+            //If we are connected, try to subscribe to a channel
+            if(msg.context == 'link' && msg.data.status == hub.status.Connected){
+                client.subscribe('channelID');
+            }
         });
     }
 );

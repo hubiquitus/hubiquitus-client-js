@@ -18,14 +18,14 @@
  */
 
 // Import the require file
-var hubiquitus = require('../hubiquitus');
+var hub = require('../../hubiquitus.js');
 
 // Starts a connection to the default XMPP Server using default transport.
 // Everytime the server sends a message/updates his status, the function
 // will be called
-hubiquitus.connect('username', 'password', function(msg){
-    if(msg.type == 'status' && msg.data == 'Connected')
-        console.log('You are now connected');
-    else if (msg.type == 'data')
-        console.log(msg.data);
+var client = hub.connect('username', 'password', function(msg){
+    if (msg.context == 'link' && msg.data.status == hub.status.Connected){
+        console.log('Connected, Now we will receive messages and can execute commands');
+        client.subscribe('channelID');
+    }
 });
