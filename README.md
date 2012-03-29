@@ -50,26 +50,27 @@ var hub = hubiquitus.connect(username, password, function(msg){
 ```
 
 ### Details
-The last parameter in connect is the callback that will receive the messages
-sent by the server in the form of:
-`{ type: ('status'|'data'), data: ?}`. If type == status, data contains
-a string with the server status (see `examples/`). If type == data,
-`data` contains the server message.
+The function parameter in connect is the callback that will receive messages
+from the server. See [callback](https://github.com/hubiquitus/hubiquitusjs/wiki/Callback)
+to read what can be sent by the server.
 
-Once connected it is possible to execute other pubsub commands:
+Once connected it is possible to execute other commands:
 
 ```js
-hub.subscribe(node); //Node to subscribe to using current credentials.
-hub.unsubscribe(node, subID); //Node to unsubscribe. Optional subID.
-hub.publish(node, item); //Publish string 'item' to 'node'.
-hub.disconnect(); //Disconnects from the XMPP Server and destroys socket.
+hub.subscribe(channel); //Channel to subscribe to using current credentials.
+hub.unsubscribe(channel); //Channel to unsubscribe. Optional subID.
+hub.publish(channel, item); //Publish 'item' to 'channel'.
+hub.disconnect(); //Disconnects from the Server.
 ```
 
-In all cases, `node` is a string with the name that identifies the node.
+In all cases, `channel` is a string with the name that identifies the node.
 
 ## Options
-The file `lib/options.js` has all the parameters that can be passed to 
-**HubiquitusJS**. You can see in `examples/` how to apply them.
+An `options` object can be sent to the constructor as the last parameter.
+
+The keys in this object and an explanation for each one of them can be
+found in the [options](https://github.com/hubiquitus/hubiquitusjs/wiki/Options) page. 
+There are examples of how to use them in the `examples/` folder.
 
 ## License 
 Copyright (c) Novedia Group 2012.
