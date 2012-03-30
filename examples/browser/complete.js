@@ -49,7 +49,7 @@ function get_messages(){
 }
 
 function callback(msg){
-    if(msg.context == 'link' || msg.context == 'result' || msg.context == 'error')
+    if(msg.context == 'hStatus' || msg.context == 'result' || msg.context == 'error')
         document.getElementById("status").innerHTML = JSON.stringify(msg);
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
