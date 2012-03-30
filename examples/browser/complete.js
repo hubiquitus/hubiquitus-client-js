@@ -49,6 +49,7 @@ function get_messages(){
 }
 
 function callback(msg){
+    console.log(JSON.stringify(msg));
     if(msg.context == 'hStatus' || msg.context == 'result' || msg.context == 'error')
         document.getElementById("status").innerHTML = JSON.stringify(msg);
     else if (msg.context == 'message')
