@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+
+<head>
+    <title>Complete Test</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <script src='../../lib/transports/socketio/socket.io.js'></script>
+    <script data-main="complete.js" src='../../lib/require.js'></script>
+</head>
+
+<body>
+
+<form>
+    Login: <input type="text" id="username"/><br/>
+    Password: <input type="password" id="password"/><br/>
+
+    Channel ID: <input type="text" id="chid"/><br/>
+    Message: <input type="text" id="hMessage"/><br/>
+
+    <button type="button" onclick="connect()">Connect</button>
+    <button type="button" onclick="disconnect()">Disconnect</button>
+    <button type="button" onclick="publish()">Publish</button>
+    <button type="button" onclick="subscribe()">Subscribe</button>
+    <button type="button" onclick="unsubscribe()">Unsubscribe</button>
+    <button type="button" onclick="get_messages()">Get Messages</button>
+</form>
+
+<br/><br/><br/>
+
+<div id="statusTitle">Status</div>
+<div id="status"></div>
+
+
+<div id="messagetitle">Messages</div>
+<div id="fetched"></div>
+</body>
+
+</html>
