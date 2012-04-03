@@ -46,6 +46,17 @@ define(
                     this.transport.disconnect();
                 }
 
+                //Verify is Callback exists
+                if(!hCallback) return;
+                //Verify JID format (must be a@b)
+                if(publisher.split('@').length != 2){
+                    hCallback({
+                        context: codes.contexts.hStatus,
+                        status: codes.statuses.Error,
+                        errorCode: codes.errors.JID_MALFORMAT});
+                    return;
+                }
+
                 this.options = createOptions.hub_options(hOptions || {});
                 this.options.publisher = publisher;
                 this.options.password = password;
