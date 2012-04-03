@@ -33,30 +33,35 @@ define(
          * @param callback - function that receives status/msg sent by the server.
          * @param options - Object with configuration settings. See lib/options.js
          */
-        var HubiquitusClient = function(username, password, callback, options){
-            options = options || {};
-            this.options = createOptions.hub_options(options);
-            this.options.username = username;
-            this.options.password = password;
-            this.onMessage = callback;
-            this.connect();
+        var HubiquitusClient = function(){
         };
 
         HubiquitusClient.prototype = {
-            connect : function(){
-                var selTransport = this.options.gateway.transport;
+            connect : function(publisher, password, hCallback, hOptions){
+                //Cleanup old connection
+                if (this.transport){
+                    //Dummy to not call old callback when disconnecting.
+                    //Delete can generate errors if a async call was made before disconnecting.
+                    this.transport.callback = function(dummy){};
+                    this.transport.disconnect();
+                }
+
+                this.options = createOptions.hub_options(hOptions || {});
+                this.options.publisher = publisher;
+                this.options.password = password;
 
                 //Load Balancing
-                this.options.gateway[selTransport].endpoint = loadBalancing(
-                    this.options.gateway[selTransport].endpoint, this.options.gateway[selTransport].ports);
+                var endpoints = this.options.endpoints;
+                this.options.endpoint =
+                    endpoints[Math.floor(Math.random()*endpoints.length)];
 
-                //Choose Correct transport instance
-                if(selTransport == 'bosh'){
-                    this.transport = new hSessionBosh.hSessionBosh(this.options, this.onMessage);
-                }else if(selTransport =='socketio'){
-                    this.transport = new hSessionSocketIO.hSessionSocketIO(this.options, this.onMessage);
+                //Instantiate correct transport
+                if(this.options.transport == 'bosh'){
+                    this.transport = new hSessionBosh.hSessionBosh(this.options, hCallback);
+                }else if(this.options.transport =='socketio'){
+                    this.transport = new hSessionSocketIO.hSessionSocketIO(this.options, hCallback);
                 }else{
-                    console.log("Error, no transport");
+                    console.error("No transport selected");
                     return;
                 }
 
@@ -64,37 +69,36 @@ define(
                 this.transport.connect();
             },
             disconnect : function(){
-                this.transport.disconnect();
+                if(this.transport)
+                    this.transport.disconnect();
+                delete this['transport'];
             },
             subscribe : function(channel){
-                this.transport.subscribe(channel);
+                if(this.transport)
+                    this.transport.subscribe(channel);
             },
             unsubscribe : function(channel){
-                this.transport.unsubscribe(channel);
+                if(this.transport)
+                    this.transport.unsubscribe(channel);
             },
             publish : function(channel, hMessage){
-                this.transport.publish(channel,hMessage);
+                if(this.transport)
+                    this.transport.publish(channel,hMessage);
             },
             getMessages: function(channel){
-                this.transport.getMessages(channel);
-            }
+                if(this.transport)
+                    this.transport.getMessages(channel);
+            },
+            errors: codes.errors,
+            status: codes.statuses
         };
 
-        function loadBalancing(endpoint, ports){
-            var port = ports[Math.floor(Math.random()*ports.length)]; //Randomize used port
-
-            //Rewrite Endpoint using the selected port
-            var parts = endpoint.split(/(\w+:\/\/[\w\.-]+)(.*)/);
-            parts[2] += !parts[2].match(/\/$/) ? '/' : ''; //Normalize endpoint
-            return parts[1] + ':' + port + parts[2];
-        }
-
-        //requireJS way to export
-        return{
-            connect : function(username, password, callback, options){
-                return new HubiquitusClient(username, password, callback, options);},
-            errors : codes.errors,
-            status : codes.statuses
+        if(typeof module !== 'undefined' && module.exports){
+            //Entrypoint to hClient in Node mode
+            exports.hClient = new HubiquitusClient();
+        }else{
+            //Global entrypoint to hClient in Browser mode
+            hClient = new HubiquitusClient();
         }
     }
 );

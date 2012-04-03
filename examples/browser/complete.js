@@ -20,45 +20,38 @@
 function connect(){
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
-    client = hub.connect(username, password, callback);
+    hClient.connect(username, password, hCallback);
 }
 
 function disconnect(){
-    client.disconnect();
+    hClient.disconnect();
 }
 
 function publish(){
     var chid = document.getElementById('chid').value;
     var msg = document.getElementById('hMessage').value;
-    client.publish(chid, msg);
+    hClient.publish(chid, msg);
 }
 
 function subscribe(){
     var chid = document.getElementById('chid').value;
-    client.subscribe(chid)
+    hClient.subscribe(chid)
 }
 
 function unsubscribe(){
     var chid = document.getElementById('chid').value;
-    client.unsubscribe(chid)
+    hClient.unsubscribe(chid)
 }
 
 function get_messages(){
     var chid = document.getElementById('chid').value;
-    client.getMessages(chid)
+    hClient.getMessages(chid)
 }
 
-function callback(msg){
+function hCallback(msg){
     console.log(JSON.stringify(msg));
     if(msg.context == 'hStatus' || msg.context == 'result' || msg.context == 'error')
         document.getElementById("status").innerHTML = JSON.stringify(msg);
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
 }
-
-define(
-    ['../../hubiquitus'],
-    function(hubi){
-        hub = hubi;
-    }
-);

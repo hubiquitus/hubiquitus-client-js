@@ -17,22 +17,21 @@
  *     along with Hubiquitus.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Import the require file
-var hub = require('../../hubiquitus.js');
+// Import hClient
+var hClient = require('../../hubiquitus.js').hClient;
 
 // Look at the wiki to check possible options
 // To use socketIO as transport, hubiquitus-node is needed.
-var options = {
-    'gateway.transport' : 'socketio',
-    'gateway.socketio.ports' : [8080],
-    'gateway.socketio.endpoint': 'http://localhost'
+var hOptions = {
+    transport : 'socketio',
+    endpoints : ['http://localhost:8080/']
 };
 
 
-var callback = function(msg){
-    if (msg.context == 'link' && msg.data.status == hub.status.Connected){
+var hCallback = function(msg){
+    if (msg.context == 'hStatus' && msg.data.status == hClient.status.Connected){
         console.log('Connected, Now we will receive messages');
-        client.subscribe('channelID'); //Because we are connected, we can subscribe to channels
+        hClient.subscribe('channelID'); //Because we are connected, we can subscribe to channels
     }
 
     if (msg.context == 'message')
@@ -43,9 +42,4 @@ var callback = function(msg){
 // Starts a connection to the XMPP Server using passed options.
 // Everytime the server sends a message/updates his status, callback
 // will be called
-var client = hub.connect(
-    'username',
-    'password',
-    callback,
-    options
-);
+hClient.connect('publisher', 'password', hCallback, hOptions);

@@ -1,8 +1,11 @@
 # HubiquitusJS
-Use a simple API to do Publish Subscribe (pubsub) from your **web app** or your
-**Node.JS** project to a **XMPP Server**.
-As transports it can use `BOSH` or `Socket.IO`. To use its full potential, use
-with [hubiquitus-node](https://github.com/hubiquitus/hubiquitus-node).
+Use a simple API to connect to a hNode and do Publish Subscribe using the 
+*Hubiquitus* protocol. It is compatible with your **web app** and your
+**Node.JS** project.
+
+To communicate with the server it can use *bosh* or 
+[socket.io](http://socket.io/). To use it's full potential, use it with
+[hubiquitus-node](https://github.com/hubiquitus/hubiquitus-node).
 
 
 ## How to Use
@@ -17,23 +20,19 @@ You can use **HubiquitusJS** in two completely different ways.
 2. In your HTML File add
 
 ```html
+<!-- Imports necessary for hAPI -->
 <!-- Tag for socket.io is only needed if you will use it as transport-->
-<script src='lib/transports/socketio/socket.io.js'></script>
-<script data-main="my_script.js" src='lib/require.js'></script>
+<script src='../../lib/transports/socketio/socket.io.js'></script>
+<script data-main="../../hubiquitus.js" src='../../lib/require.js'></script>
+<!-- Your script -->
+<script src="my_script.js"></script>
 ```
 
 3. In *my_script.js* put the following
 
 ```js
-define(
-    ['/hubiquitus.js'], //Import the API
-    function(hub){
-	//Connect and pass the callback for the messages received.
-	hub.connect(username, password, function(msg){
-            document.getElementById("body").innerHTML = msg.data;
-        });
-    }
-);
+//Connect to a hNode
+hClient.connect('username', 'password', function(msg){ console.log(msg); });
 ```
 
 ### For your Node app
@@ -41,36 +40,36 @@ define(
 2. Import the API and use it!
 
 ```js
-//Import the module
-var hubiquitus = require('hubiquitusjs');
+//Import hClient
+var hClient = require('hubiquitusjs').hClient;
 
-//Connect to the XMPP Server using default configuration.
-var hub = hubiquitus.connect(username, password, function(msg){
-	console.log(msg);});
+//Connect to a hNode using default configuration.
+hClient.connect('username', 'password', function(msg){ console.log(msg); });
 ```
 
 ### Details
-The function parameter in connect is the callback that will receive messages
-from the server. See [callback](https://github.com/hubiquitus/hubiquitusjs/wiki/Callback)
+The function parameter in connect is the hCallback that will receive messages
+from the server. See [hCallback](https://github.com/hubiquitus/hubiquitusjs/wiki/hCallback)
 to read what can be sent by the server.
 
 Once connected it is possible to execute other commands:
 
 ```js
-hub.subscribe(channel); //Channel to subscribe to using current credentials.
-hub.unsubscribe(channel); //Channel to unsubscribe. Optional subID.
-hub.publish(channel, item); //Publish 'item' to 'channel'.
-hub.disconnect(); //Disconnects from the Server.
+hClient.subscribe(channel); //Channel to subscribe to using current credentials.
+hClient.unsubscribe(channel); //Channel to unsubscribe.
+hClient.publish(channel, item); //Publish 'item' to 'channel'.
+hClient.getMessages(channel); //Get last messages from 'channel'
+hClient.disconnect(); //Disconnects from the Server.
 ```
 
 In all cases, `channel` is a string with the name that identifies the node.
 
 ## Options
-An `options` object can be sent to the constructor as the last parameter.
+An `hOptions` object can be sent to the connect function as the last argument.
 
 The keys in this object and an explanation for each one of them can be
-found in the [options](https://github.com/hubiquitus/hubiquitusjs/wiki/Options) page. 
-There are examples of how to use them in the `examples/` folder.
+found in the [hOptions](https://github.com/hubiquitus/hubiquitusjs/wiki/hOptions) page. 
+There are examples of how to create a *hOptions* in the `examples/` folder.
 
 ## License 
 Copyright (c) Novedia Group 2012.
