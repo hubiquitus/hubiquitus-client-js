@@ -13,21 +13,33 @@
 
 <body>
 
+<h4>General</h4>
 <form>
     Login: <input type="text" id="username"/><br/>
     Password: <input type="password" id="password"/><br/>
 
     Channel ID: <input type="text" id="chid"/><br/>
     Message: <input type="text" id="hMessage"/><br/>
-
-    <button type="button" onclick="connect()">Connect</button>
-    <button type="button" onclick="disconnect()">Disconnect</button>
-    <button type="button" onclick="publish()">Publish</button>
-    <button type="button" onclick="subscribe()">Subscribe</button>
-    <button type="button" onclick="unsubscribe()">Unsubscribe</button>
-    <button type="button" onclick="get_messages()">Get Messages</button>
 </form>
 
+<h4>hOPTIONS</h4>
+<form>
+    <input type="radio" name="transport" value="bosh" />BOSH<br />
+    <input type="radio" name="transport" value="socketio" />Socket.IO <br />
+
+
+    Route: <input type="text" id="route"/><br/>
+    Endpoint: <input type="text" id="endpoint"/><br/>
+</form>
+
+<h4>Controls</h4>
+<button type="button" onclick="connect()">Connect</button>
+<button type="button" onclick="disconnect()">Disconnect</button>
+<button type="button" onclick="publish()">Publish</button>
+<button type="button" onclick="subscribe()">Subscribe</button>
+<button type="button" onclick="unsubscribe()">Unsubscribe</button>
+<button type="button" onclick="get_messages()">Get Messages</button>
+<button type="button" onclick="clear_divs()">Clear</button>
 <br/><br/><br/>
 
 <div id="statusTitle">Status</div>

@@ -18,9 +18,24 @@
  */
 
 function connect(){
+    var endpoint = document.getElementById('endpoint').value;
+    var endpoints = endpoint ? [endpoint] : undefined;
+
+    var transports =  document.getElementsByName('transport');
+    var transport = undefined;
+    for (var i in transports)
+        if(transports[i].checked)
+            transport = transports[i].value;
+
+    var hOptions = {
+        route: document.getElementById('route').value,
+        transport: transport,
+        endpoints: endpoints
+    };
+
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
-    hClient.connect(username, password, hCallback);
+    hClient.connect(username, password, hCallback, hOptions);
 }
 
 function disconnect(){
@@ -46,6 +61,11 @@ function unsubscribe(){
 function get_messages(){
     var chid = document.getElementById('chid').value;
     hClient.getMessages(chid)
+}
+
+function clear_divs(){
+    document.getElementById("status").innerHTML = '';
+    document.getElementById("fetched").innerHTML = '';
 }
 
 function hCallback(msg){
