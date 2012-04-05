@@ -28,7 +28,8 @@ function connect(){
             transport = transports[i].value;
 
     var hOptions = {
-        route: document.getElementById('route').value,
+        serverHost: document.getElementById('serverHost').value,
+        serverPort: document.getElementById('serverPort').value,
         transport: transport,
         endpoints: endpoints
     };
