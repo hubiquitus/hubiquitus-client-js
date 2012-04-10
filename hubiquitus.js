@@ -38,15 +38,16 @@ define(
 
         HubiquitusClient.prototype = {
             connect : function(publisher, password, hCallback, hOptions){
-                //Cleanup old connection
-                if (this.transport){
-                    //Dummy to not call old callback when disconnecting.
-                    //Delete can generate errors if a async call was made before disconnecting.
-                    this.transport.callback = function(dummy){};
-                    this.transport.disconnect();
+                //If connection exists return error
+                if(this.transport){
+                    this.options.hCallback({
+                        context: codes.contexts.hStatus,
+                        status: codes.statuses.Error,
+                        errorCode: codes.errors.ALREADY_CONNECTED});
+                    return;
                 }
 
-                //Verify is Callback exists
+                //Verify if Callback exists
                 if(!hCallback) return;
                 //Verify JID format (must be a@b)
                 if(publisher.split('@').length != 2){
@@ -60,6 +61,7 @@ define(
                 this.options = createOptions.hub_options(hOptions || {});
                 this.options.publisher = publisher;
                 this.options.password = password;
+                this.options.hCallback = hCallback;
 
                 //Load Balancing
                 var endpoints = this.options.endpoints;
@@ -68,9 +70,9 @@ define(
 
                 //Instantiate correct transport
                 if(this.options.transport == 'bosh'){
-                    this.transport = new hSessionBosh.hSessionBosh(this.options, hCallback);
+                    this.transport = new hSessionBosh.hSessionBosh(this.options);
                 }else if(this.options.transport =='socketio'){
-                    this.transport = new hSessionSocketIO.hSessionSocketIO(this.options, hCallback);
+                    this.transport = new hSessionSocketIO.hSessionSocketIO(this.options);
                 }else{
                     console.error("No transport selected");
                     return;
