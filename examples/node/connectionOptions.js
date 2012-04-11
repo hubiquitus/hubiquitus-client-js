@@ -29,7 +29,7 @@ var hOptions = {
 
 
 var hCallback = function(msg){
-    if (msg.context == 'hStatus' && msg.data.status == hClient.status.Connected){
+    if (msg.context == 'hStatus' && msg.data.status == hClient.status.CONNECTED){
         console.log('Connected, Now we will receive messages');
         hClient.subscribe('channelID'); //Because we are connected, we can subscribe to channels
     }

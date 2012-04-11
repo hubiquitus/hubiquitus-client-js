@@ -41,9 +41,9 @@ define(
                 //If connection exists return error
                 if(this.transport){
                     this.options.hCallback({
-                        context: codes.contexts.hStatus,
-                        data: {
-                            status: codes.statuses.Error,
+                        type: codes.types.hStatus,
+                        data : {
+                            status: codes.statuses.ERROR,
                             errorCode: codes.errors.ALREADY_CONNECTED
                         }
                     });
@@ -55,9 +55,9 @@ define(
                 //Verify JID format (must be a@b)
                 if(publisher.split('@').length != 2){
                     hCallback({
-                        context: codes.contexts.hStatus,
-                        data: {
-                            status: codes.statuses.Error,
+                        type: codes.types.hStatus,
+                        data : {
+                            status: codes.statuses.ERROR,
                             errorCode: codes.errors.JID_MALFORMAT
                         }
                     });

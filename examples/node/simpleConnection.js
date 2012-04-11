@@ -23,7 +23,7 @@ var hClient = require('../../hubiquitus.js').hClient;
 
 function hCallback(msg){
     console.log(msg);
-    if (msg.context == 'hStatus' && msg.data.status == hClient.status.Connected){
+    if (msg.type == 'hStatus' && msg.data.status == hClient.status.CONNECTED){
         console.log('Connected, Now we will receive messages and can execute commands');
     }
 }

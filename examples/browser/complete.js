@@ -71,7 +71,7 @@ function clear_divs(){
 
 function hCallback(msg){
     console.log(JSON.stringify(msg));
-    if(msg.context == 'hStatus' || msg.context == 'result' || msg.context == 'error')
+    if(msg.type == 'hStatus' || msg.type== 'result' || msg.type== 'error')
         document.getElementById("status").innerHTML = JSON.stringify(msg);
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
