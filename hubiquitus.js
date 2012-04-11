@@ -38,16 +38,21 @@ define(
 
         HubiquitusClient.prototype = {
             connect : function(publisher, password, hCallback, hOptions){
-                //If connection exists return error
                 if(this.transport){
-                    this.options.hCallback({
-                        type: codes.types.hStatus,
-                        data : {
-                            status: codes.statuses.ERROR,
-                            errorCode: codes.errors.ALREADY_CONNECTED
-                        }
-                    });
-                    return;
+                    if(this.transport.status == codes.statuses.ERROR){
+                        //If error in current transport, disconnect it first.
+                        this.disconnect();
+                    }else{
+                        //If connection exists return error
+                        this.options.hCallback({
+                            type: codes.types.hStatus,
+                            data : {
+                                status: codes.statuses.ERROR,
+                                errorCode: codes.errors.ALREADY_CONNECTED
+                            }
+                        });
+                        return;
+                    }
                 }
 
                 //Verify if Callback exists
@@ -91,7 +96,7 @@ define(
             disconnect : function(){
                 if(this.transport)
                     this.transport.disconnect();
-                delete this['transport'];
+                delete this.transport;
             },
             subscribe : function(channel){
                 if(this.transport)
