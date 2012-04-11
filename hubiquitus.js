@@ -42,8 +42,11 @@ define(
                 if(this.transport){
                     this.options.hCallback({
                         context: codes.contexts.hStatus,
-                        status: codes.statuses.Error,
-                        errorCode: codes.errors.ALREADY_CONNECTED});
+                        data: {
+                            status: codes.statuses.Error,
+                            errorCode: codes.errors.ALREADY_CONNECTED
+                        }
+                    });
                     return;
                 }
 
@@ -53,8 +56,11 @@ define(
                 if(publisher.split('@').length != 2){
                     hCallback({
                         context: codes.contexts.hStatus,
-                        status: codes.statuses.Error,
-                        errorCode: codes.errors.JID_MALFORMAT});
+                        data: {
+                            status: codes.statuses.Error,
+                            errorCode: codes.errors.JID_MALFORMAT
+                        }
+                    });
                     return;
                 }
 
