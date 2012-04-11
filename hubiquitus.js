@@ -39,8 +39,10 @@ define(
         HubiquitusClient.prototype = {
             connect : function(publisher, password, hCallback, hOptions){
                 if(this.transport){
-                    if(this.transport.status == codes.statuses.ERROR){
+                    if(this.transport.status == codes.statuses.ERROR &&
+                        this.transport.errorCode != codes.errors.ALREADY_CONNECTED){
                         //If error in current transport, disconnect it first.
+                        //Unless it's because it's already connected
                         this.disconnect();
                     }else{
                         //If connection exists return error
