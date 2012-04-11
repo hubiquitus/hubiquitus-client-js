@@ -53,7 +53,8 @@ define(
                 //Verify if Callback exists
                 if(!hCallback) return;
                 //Verify JID format (must be a@b)
-                if(publisher.split('@').length != 2){
+                var jid = publisher.split('@');
+                if(jid.length != 2 || !jid[0] || !jid[1]){
                     hCallback({
                         type: codes.types.hStatus,
                         data : {
