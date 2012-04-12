@@ -71,8 +71,33 @@ function clear_divs(){
 
 function hCallback(msg){
     console.log(JSON.stringify(msg));
-    if(msg.type == 'hStatus' || msg.type== 'result' || msg.type== 'error')
-        document.getElementById("status").innerHTML = JSON.stringify(msg);
+    var status;
+    if(msg.type == 'hStatus'){
+        switch(msg.data.status){
+            case hClient.status.CONNECTED:
+                status = 'Connected';
+                break;
+            case hClient.status.CONNECTING:
+                status = 'Connecting';
+                break;
+            case hClient.status.REATTACHING:
+                status = 'Reattaching';
+                break;
+            case hClient.status.REATTACHED:
+                status = 'Reattached';
+                break;
+            case hClient.status.DISCONNECTING:
+                status = 'Disconnecting';
+                break;
+            case hClient.status.DISCONNECTED:
+                status = 'Disconnected';
+                break;
+            case hClient.status.ERROR:
+                status = 'Error';
+                break;
+        }
+        document.getElementById("status").innerHTML = JSON.stringify(status);
+    }
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
 }
