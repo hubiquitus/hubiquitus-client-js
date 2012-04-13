@@ -71,7 +71,8 @@ function clear_divs(){
 
 function hCallback(msg){
     console.log(JSON.stringify(msg));
-    var status;
+    var status = '';
+    var error = '';
     if(msg.type == 'hStatus'){
         switch(msg.data.status){
             case hClient.status.CONNECTED:
@@ -96,7 +97,31 @@ function hCallback(msg){
                 status = 'Error';
                 break;
         }
-        document.getElementById("status").innerHTML = JSON.stringify(status);
+
+        if(msg.data.errorCode)
+            switch(msg.data.errorCode){
+                case hClient.errors.JID_MALFORMAT:
+                    error = 'JID Malformat';
+                    break;
+                case hClient.errors.CONN_TIMEOUT:
+                    error = 'Connection timed out';
+                    break;
+                case hClient.errors.AUTH_FAILED:
+                    error = 'Authentication failed';
+                    break;
+                case hClient.errors.ATTACH_FAILED:
+                    error = 'Attach failed';
+                    break;
+                case hClient.errors.ALREADY_CONNECTED:
+                    error = 'A connection is already opened';
+                    break;
+                case hClient.errors.TECH_ERROR:
+                    error = 'Technical Error: ';
+                    error += msg.data.errorMsg;
+                    break;
+            }
+
+        document.getElementById("status").innerHTML = JSON.stringify(status + '<br />' + error);
     }
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
