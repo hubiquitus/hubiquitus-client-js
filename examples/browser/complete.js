@@ -132,7 +132,7 @@ function hCallback(msg){
         document.getElementById("status").innerHTML = JSON.stringify(status + '<br />' + error);
     }
     else if (msg.type == 'hResult')
-        document.getElementById("fetched").innerHTML = msg.data;
+        document.getElementById("fetched").innerHTML = JSON.stringify(msg.data);
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
 }
