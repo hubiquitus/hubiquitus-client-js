@@ -128,7 +128,7 @@ define(
                 if(this.transport){
                     var _hCommand = hCommand || {};
                     _hCommand.reqid = 'jscommand' + Math.floor(Math.random()*100001);
-                    _hCommand.sender = this.transport.jid;
+                    _hCommand.sender = this.options.publisher;
                     _hCommand.sent = new Date();
                     return _hCommand;
                 }
