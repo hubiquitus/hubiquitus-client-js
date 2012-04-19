@@ -69,6 +69,14 @@ function clear_divs(){
     document.getElementById("fetched").innerHTML = '';
 }
 
+function send_hEcho(){
+    var echoCmd = {
+        cmd : 'hEcho',
+        params : {hello : 'world'}
+    };
+    hClient.sendhCommand(echoCmd);
+}
+
 function hCallback(msg){
     console.log(JSON.stringify(msg));
     var status = '';
@@ -123,6 +131,8 @@ function hCallback(msg){
 
         document.getElementById("status").innerHTML = JSON.stringify(status + '<br />' + error);
     }
+    else if (msg.type == 'hResult')
+        document.getElementById("fetched").innerHTML = msg.data;
     else if (msg.context == 'message')
         document.getElementById("fetched").innerHTML = msg.data.message;
 }

@@ -116,6 +116,23 @@ define(
                 if(this.transport)
                     this.transport.getMessages(channel);
             },
+            sendhCommand: function(hCommand){
+                if(this.transport){
+                    //Complete hCommand
+                    hCommand = this.hCommandBuilder(hCommand);
+                    //Send it to transport
+                    this.transport.sendhCommand(hCommand);
+                }
+            },
+            hCommandBuilder: function(hCommand){
+                if(this.transport){
+                    var _hCommand = hCommand || {};
+                    _hCommand.reqid = 'jscommand' + Math.floor(Math.random()*100001);
+                    _hCommand.sender = this.transport.jid;
+                    _hCommand.sent = new Date();
+                    return _hCommand;
+                }
+            },
             errors: codes.errors,
             status: codes.statuses
         };
