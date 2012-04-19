@@ -23,7 +23,7 @@ function connect(){
 
     var transports =  document.getElementsByName('transport');
     var transport = undefined;
-    for (var i in transports)
+    for (var i=0; i < transports.length; i++)
         if(transports[i].checked)
             transport = transports[i].value;
 
@@ -71,6 +71,7 @@ function clear_divs(){
 
 function send_hEcho(){
     var echoCmd = {
+        entity : 'hnode.' + hClient.publisher.split('@')[1],
         cmd : 'hEcho',
         params : {hello : 'world'}
     };

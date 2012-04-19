@@ -77,6 +77,8 @@ define(
                 this.options.password = password;
                 this.options.hCallback = hCallback;
 
+                this.publisher = publisher;
+
                 //Load Balancing
                 var endpoints = this.options.endpoints;
                 this.options.endpoint =
@@ -122,13 +124,14 @@ define(
                     hCommand = this.hCommandBuilder(hCommand);
                     //Send it to transport
                     this.transport.sendhCommand(hCommand);
+                    return hCommand.reqid;
                 }
             },
             hCommandBuilder: function(hCommand){
                 if(this.transport){
                     var _hCommand = hCommand || {};
                     _hCommand.reqid = 'jscommand' + Math.floor(Math.random()*100001);
-                    _hCommand.sender = this.options.publisher;
+                    _hCommand.sender = this.publisher;
                     _hCommand.sent = new Date();
                     return _hCommand;
                 }
