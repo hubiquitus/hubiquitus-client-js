@@ -104,19 +104,6 @@ function hCallback(msg){
                 break;
         }
 
-        /*
-         NO_ERROR: 0,
-         JID_MALFORMAT: 1,
-         CONN_TIMEOUT: 2,
-         AUTH_FAILED: 3,
-         ATTACH_FAILED: 4,
-         ALREADY_CONNECTED: 5,
-         TECH_ERROR : 6,
-         NOT_CONNECTED : 7,
-         CONN_PROGRESS : 8,
-         ALREADY_SUBSCRIBED: 1,
-         GET_SUBS_FAILED: 2
-         */
         switch(msg.data.errorCode){
             case hClient.errors.NO_ERROR:
                 error = 'No Error Detected';
