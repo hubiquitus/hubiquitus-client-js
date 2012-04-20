@@ -102,33 +102,51 @@ function hCallback(msg){
             case hClient.status.DISCONNECTED:
                 status = 'Disconnected';
                 break;
-            case hClient.status.ERROR:
-                status = 'Error';
-                break;
         }
 
-        if(msg.data.errorCode)
-            switch(msg.data.errorCode){
-                case hClient.errors.JID_MALFORMAT:
-                    error = 'JID Malformat';
-                    break;
-                case hClient.errors.CONN_TIMEOUT:
-                    error = 'Connection timed out';
-                    break;
-                case hClient.errors.AUTH_FAILED:
-                    error = 'Authentication failed';
-                    break;
-                case hClient.errors.ATTACH_FAILED:
-                    error = 'Attach failed';
-                    break;
-                case hClient.errors.ALREADY_CONNECTED:
-                    error = 'A connection is already opened';
-                    break;
-                case hClient.errors.TECH_ERROR:
-                    error = 'Technical Error: ';
-                    error += msg.data.errorMsg;
-                    break;
-            }
+        /*
+         NO_ERROR: 0,
+         JID_MALFORMAT: 1,
+         CONN_TIMEOUT: 2,
+         AUTH_FAILED: 3,
+         ATTACH_FAILED: 4,
+         ALREADY_CONNECTED: 5,
+         TECH_ERROR : 6,
+         NOT_CONNECTED : 7,
+         CONN_PROGRESS : 8,
+         ALREADY_SUBSCRIBED: 1,
+         GET_SUBS_FAILED: 2
+         */
+        switch(msg.data.errorCode){
+            case hClient.errors.NO_ERROR:
+                error = 'No Error Detected';
+                break;
+            case hClient.errors.JID_MALFORMAT:
+                error = 'JID Malformat';
+                break;
+            case hClient.errors.CONN_TIMEOUT:
+                error = 'Connection timed out';
+                break;
+            case hClient.errors.AUTH_FAILED:
+                error = 'Authentication failed';
+                break;
+            case hClient.errors.ATTACH_FAILED:
+                error = 'Attach failed';
+                break;
+            case hClient.errors.ALREADY_CONNECTED:
+                error = 'A connection is already opened';
+                break;
+            case hClient.errors.TECH_ERROR:
+                error = 'Technical Error: ';
+                error += msg.data.errorMsg;
+                break;
+            case hClient.errors.NOT_CONNECTED:
+                error = 'Not connected';
+                break;
+            case hClient.errors.CONN_PROGRESS:
+                error = 'A connection is already in progress';
+                break;
+        }
 
         document.getElementById("status").innerHTML = JSON.stringify(status + '<br />' + error);
     }
