@@ -129,11 +129,11 @@ define(
             },
             hCommandBuilder: function(hCommand){
                 if(this.transport){
-                    var _hCommand = hCommand || {};
-                    _hCommand.reqid = 'jscommand' + Math.floor(Math.random()*100001);
-                    _hCommand.sender = this.publisher;
-                    _hCommand.sent = new Date();
-                    return _hCommand;
+                    hCommand = hCommand || {};
+                    hCommand.reqid = hCommand.reqid || 'jscommand' + Math.floor(Math.random()*100001);
+                    hCommand.sender = hCommand.sender || this.publisher;
+                    hCommand.sent = hCommand.sent || new Date();
+                    return hCommand;
                 }
             },
             errors: codes.errors,
