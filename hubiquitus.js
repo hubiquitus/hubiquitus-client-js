@@ -34,6 +34,7 @@ define(
          * @param hOptions - Object with configuration settings. See lib/options.js
          */
         var HubiquitusClient = function(){
+            this.options = {};
         };
 
         HubiquitusClient.prototype = {
@@ -143,7 +144,7 @@ define(
                 if(this.transport && this.transport.status == codes.statuses.CONNECTED)
                     return true;
 
-                if(this.options && this.options.hCallback){
+                if(this.options.hCallback){
                     var currentStatus = this.transport ? this.transport.status : codes.statuses.DISCONNECTED;
                     var code = currentStatus == codes.statuses.DISCONNECTED ?
                         codes.errors.NOT_CONNECTED : codes.errors.CONN_PROGRESS;
