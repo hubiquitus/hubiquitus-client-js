@@ -39,7 +39,7 @@ define(
         HubiquitusClient.prototype = {
             connect : function(publisher, password, hCallback, hOptions){
                 if(this.transport){
-                    if(this.transport.status == codes.statuses.ERROR &&
+                    if(this.transport.errorCode != codes.errors.NO_ERROR &&
                         this.transport.errorCode != codes.errors.ALREADY_CONNECTED){
                         //If error in current transport, disconnect it first.
                         //Unless it's because it's already connected
@@ -49,7 +49,7 @@ define(
                         this.options.hCallback({
                             type: codes.types.hStatus,
                             data : {
-                                status: codes.statuses.ERROR,
+                                status: codes.statuses.CONNECTED,
                                 errorCode: codes.errors.ALREADY_CONNECTED
                             }
                         });
@@ -65,7 +65,7 @@ define(
                     hCallback({
                         type: codes.types.hStatus,
                         data : {
-                            status: codes.statuses.ERROR,
+                            status: codes.statuses.DISCONNECTED,
                             errorCode: codes.errors.JID_MALFORMAT
                         }
                     });
