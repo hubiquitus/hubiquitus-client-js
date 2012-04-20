@@ -102,9 +102,18 @@ define(
                 this.transport.connect();
             },
             disconnect : function(){
-                if(this.transport)
+                if(this.transport){
                     this.transport.disconnect();
-                delete this.transport;
+                    delete this.transport;
+                }else if(this.options.hCallback){
+                    this.options.hCallback({
+                        type: codes.types.hStatus,
+                        data : {
+                            status: codes.statuses.DISCONNECTED,
+                            errorCode: codes.errors.NOT_CONNECTED
+                        }
+                    });
+                }
             },
             subscribe : function(channel){
                 if(this._checkConnected())
