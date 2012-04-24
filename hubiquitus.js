@@ -136,7 +136,7 @@ define(
             command: function(hCommand){
                 if(this._checkConnected()){
                     //Complete hCommand
-                    hCommand = this.hCommandBuilder(hCommand);
+                    hCommand = this.commandBuilder(hCommand);
                     var errorCode = undefined;
                     var errorMsg = undefined;
                     //Verify if well formatted
