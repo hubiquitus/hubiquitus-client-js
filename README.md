@@ -60,6 +60,8 @@ hClient.unsubscribe(channel); //Channel to unsubscribe.
 hClient.publish(channel, item); //Publish 'item' to 'channel'.
 hClient.getMessages(channel); //Get last messages from 'channel'
 hClient.disconnect(); //Disconnects from the Server.
+hClient.command(hCommand); //Sends an hCommand to an entity (Will call command builder to fill missing)
+hClient.commandBuilder(hCommand); //Fills command attributes with default values
 ```
 
 In all cases, `channel` is a string with the name that identifies the node.

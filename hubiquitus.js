@@ -41,11 +41,13 @@ define(
             connect : function(publisher, password, hCallback, hOptions){
                 if(this.transport){
                     var currentStatus = this.transport.status;
-                    var code = currentStatus == codes.statuses.CONNECTED ?
+                    var code = currentStatus == codes.statuses.CONNECTED || currentStatus == codes.statuses.REATTACHED ?
                         codes.errors.ALREADY_CONNECTED : codes.errors.CONN_PROGRESS;
 
                     if(currentStatus == codes.statuses.CONNECTED ||
-                        currentStatus == codes.statuses.CONNECTING){
+                        currentStatus == codes.statuses.CONNECTING ||
+                        currentStatus == codes.statuses.REATTACHED ||
+                        currentStatus == codes.statuses.REATTACHING){
                         this.options.hCallback({
                             type: codes.types.hStatus,
                             data : {
@@ -131,16 +133,39 @@ define(
                 if(this._checkConnected())
                     this.transport.getMessages(channel);
             },
-            sendhCommand: function(hCommand){
+            command: function(hCommand){
                 if(this._checkConnected()){
                     //Complete hCommand
                     hCommand = this.hCommandBuilder(hCommand);
-                    //Send it to transport
-                    this.transport.sendhCommand(hCommand);
-                    return hCommand.reqid;
+                    var errorCode = undefined;
+                    var errorMsg = undefined;
+                    //Verify if well formatted
+                    if(!hCommand.entity){
+                        errorCode = codes.hResultStatus.MISSING_ATTR;
+                        errorMsg = 'the attribute entity is missing';
+                    } else if(!hCommand.cmd){
+                        errorCode = codes.hResultStatus.MISSING_ATTR;
+                        errorMsg = 'the attribute cmd is missing';
+                    }
+                    if(!errorCode){
+                        //Send it to transport
+                        this.transport.sendhCommand(hCommand);
+                        return hCommand.reqid;
+                    } else{
+                        this.options.hCallback({
+                            type : codes.types.hResult,
+                            data : {
+                                cmd : hCommand.cmd,
+                                chid : hCommand.chid,
+                                reqid : hCommand.reqid,
+                                status : errorCode,
+                                result : errorMsg
+                            }
+                        })
+                    }
                 }
             },
-            hCommandBuilder: function(hCommand){
+            commandBuilder: function(hCommand){
                 if(this._checkConnected()){
                     hCommand = hCommand || {};
                     hCommand.reqid = hCommand.reqid || 'jscommand' + Math.floor(Math.random()*100001);
@@ -150,7 +175,8 @@ define(
                 }
             },
             _checkConnected: function(){
-                if(this.transport && this.transport.status == codes.statuses.CONNECTED)
+                if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
+                    this.transport.status == codes.statuses.REATTACHED))
                     return true;
 
                 if(this.options.hCallback){
@@ -168,7 +194,8 @@ define(
                 return false;
             },
             errors: codes.errors,
-            status: codes.statuses
+            status: codes.statuses,
+            hResultStatus: codes.hResultStatus
         };
 
         if(typeof module !== 'undefined' && module.exports){

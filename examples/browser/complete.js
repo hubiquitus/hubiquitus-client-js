@@ -70,12 +70,18 @@ function clear_divs(){
 }
 
 function send_hEcho(){
-    var echoCmd = {
-        entity : 'hnode.' + hClient.publisher.split('@')[1],
-        cmd : 'hEcho',
-        params : {hello : 'world'}
-    };
-    hClient.sendhCommand(echoCmd);
+    if(!hClient.publisher || hClient.publisher.split('@').length != 2)
+        alert('Please connect before trying to send an hEcho');
+    else{
+        var value = prompt('Your Name:');
+        var echoCmd = {
+            entity : 'hnode.' + hClient.publisher.split('@')[1],
+            cmd : 'hEcho',
+            params : {hello : value}
+        };
+        hClient.command(echoCmd);
+    }
+
 }
 
 function hCallback(msg){
