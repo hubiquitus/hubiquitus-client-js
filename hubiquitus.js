@@ -122,7 +122,7 @@ define(
             },
             subscribe : function(channel){
                 var hCommand = {
-                    entity: 'hnode.' + this.domain,
+                    entity: this.options.hServer + '.' + this.domain,
                     cmd: 'hSubscribe',
                     params: channel
                 };
