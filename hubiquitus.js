@@ -126,7 +126,7 @@ define(
                     cmd: 'hSubscribe',
                     params: channel
                 };
-                this.command(hCommand);
+                return this.command(hCommand);
             },
             unsubscribe : function(channel){
                 if(this._checkConnected())
