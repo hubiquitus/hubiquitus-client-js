@@ -85,6 +85,9 @@ define(
                     return;
                 }
 
+                //Set Domain
+                this.domain = jid[1];
+
                 //Load Balancing
                 var endpoints = this.options.endpoints;
                 this.options.endpoint =
@@ -118,8 +121,12 @@ define(
                 }
             },
             subscribe : function(channel){
-                if(this._checkConnected())
-                    this.transport.subscribe(channel);
+                var hCommand = {
+                    entity: 'hnode.' + this.domain,
+                    cmd: 'hSubscribe',
+                    params: channel
+                };
+                this.command(hCommand);
             },
             unsubscribe : function(channel){
                 if(this._checkConnected())
