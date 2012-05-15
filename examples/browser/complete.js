@@ -64,6 +64,10 @@ function get_messages(){
     hClient.getMessages(chid)
 }
 
+function get_subscriptions(){
+    hClient.getSubscriptions();
+}
+
 function clear_divs(){
     document.getElementById("status").innerHTML = '';
     document.getElementById("fetched").innerHTML = '';

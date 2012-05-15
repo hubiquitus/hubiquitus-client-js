@@ -106,6 +106,7 @@ define(
                 //Establish the connection
                 this.transport.connect();
             },
+
             disconnect : function(){
                 if(this.transport){
                     this.transport.disconnect();
@@ -120,6 +121,7 @@ define(
                     });
                 }
             },
+
             subscribe : function(channel){
                 var hCommand = {
                     entity: this.options.hServer + '.' + this.domain,
@@ -128,18 +130,30 @@ define(
                 };
                 return this.command(hCommand);
             },
+
             unsubscribe : function(channel){
                 if(this._checkConnected())
                     this.transport.unsubscribe(channel);
             },
+
             publish : function(channel, hMessage){
                 if(this._checkConnected())
                     this.transport.publish(channel,hMessage);
             },
+
             getMessages: function(channel){
                 if(this._checkConnected())
                     this.transport.getMessages(channel);
             },
+
+            getSubscriptions: function(){
+                var hCommand = {
+                    entity: this.options.hServer + '.' + this.domain,
+                    cmd: 'hGetSubscriptions'
+                };
+                return this.command(hCommand);
+            },
+
             command: function(hCommand){
                 if(this._checkConnected()){
                     //Complete hCommand
@@ -172,6 +186,7 @@ define(
                     }
                 }
             },
+
             commandBuilder: function(hCommand){
                 if(this._checkConnected()){
                     hCommand = hCommand || {};
@@ -181,6 +196,7 @@ define(
                     return hCommand;
                 }
             },
+
             _checkConnected: function(){
                 if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
                     this.transport.status == codes.statuses.REATTACHED))
@@ -200,6 +216,7 @@ define(
                 }
                 return false;
             },
+
             errors: codes.errors,
             status: codes.statuses,
             hResultStatus: codes.hResultStatus
