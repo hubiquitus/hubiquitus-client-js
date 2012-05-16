@@ -136,9 +136,12 @@ define(
                     this.transport.unsubscribe(channel);
             },
 
-            publish : function(channel, hMessage){
-                if(this._checkConnected())
-                    this.transport.publish(channel,hMessage);
+            publish : function(hMessage){
+                var hCommand = {
+                    entity: this.options.hServer + '.' + this.domain,
+                    cmd: 'hPublish'
+                };
+                return this.command(hCommand);
             },
 
             getMessages: function(channel){
