@@ -139,7 +139,8 @@ define(
             publish : function(hMessage){
                 var hCommand = {
                     entity: this.options.hServer + '.' + this.domain,
-                    cmd: 'hPublish'
+                    cmd: 'hPublish',
+                    params: hMessage
                 };
                 return this.command(hCommand);
             },
@@ -180,7 +181,6 @@ define(
                             type : codes.types.hResult,
                             data : {
                                 cmd : hCommand.cmd,
-                                chid : hCommand.chid,
                                 reqid : hCommand.reqid,
                                 status : errorCode,
                                 result : errorMsg
@@ -198,6 +198,39 @@ define(
                     hCommand.sent = hCommand.sent || new Date();
                     return hCommand;
                 }
+            },
+
+            buildMessage: function(chid, type, payload, options){
+                options = options || {};
+
+                if(!chid){
+                    if(this.options.hCallback)
+                        this.options.hCallback({
+                            type : codes.types.hResult,
+                            data : {
+                                cmd : 'hPublish',
+                                status : codes.hResultStatus.MISSING_ATTR,
+                                result : 'missing chid'
+                            }
+                        });
+                    return;
+                }
+
+                if(this._checkConnected())
+                    return {
+                        chid: chid,
+                        convid: options.convid,
+                        type: type,
+                        priority: options.priority,
+                        relevance: options.relevance,
+                        transient: options.transient,
+                        location: options.location,
+                        author: options.author,
+                        publisher: this.publisher,
+                        published: new Date(),
+                        headers: options.headers,
+                        payload: payload
+                    };
             },
 
             _checkConnected: function(){

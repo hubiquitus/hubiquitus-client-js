@@ -46,7 +46,7 @@ function disconnect(){
 function publish(){
     var chid = document.getElementById('chid').value;
     var msg = document.getElementById('hMessage').value;
-    hClient.publish(chid, msg);
+    hClient.publish(hClient.buildMessage(chid, 'string', msg));
 }
 
 function subscribe(){
