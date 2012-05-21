@@ -149,6 +149,6 @@ function hCallback(msg){
     }
     else if (msg.type == 'hResult')
         document.getElementById("fetched").innerHTML = JSON.stringify(msg.data);
-    else if (msg.context == 'message')
-        document.getElementById("fetched").innerHTML = msg.data.message;
+    else if (msg.type == 'hMessage')
+        document.getElementById("fetched").innerHTML = JSON.stringify(msg.data);
 }
