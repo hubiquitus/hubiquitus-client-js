@@ -126,7 +126,7 @@ define(
                 var hCommand = {
                     entity: this.options.hServer + '.' + this.domain,
                     cmd: 'hSubscribe',
-                    params: channel
+                    params: {chid: channel}
                 };
                 return this.command(hCommand);
             },
