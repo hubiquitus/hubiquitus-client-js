@@ -149,11 +149,6 @@ define(
                 return this.command(hCommand);
             },
 
-            getMessages: function(channel){
-                if(this._checkConnected())
-                    this.transport.getMessages(channel);
-            },
-
             getSubscriptions: function(){
                 var hCommand = {
                     entity: this.options.hServer + '.' + this.domain,
