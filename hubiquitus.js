@@ -132,8 +132,12 @@ define(
             },
 
             unsubscribe : function(channel){
-                if(this._checkConnected())
-                    this.transport.unsubscribe(channel);
+                var hCommand = {
+                    entity: this.options.hServer + '.' + this.domain,
+                    cmd: 'hUnsubscribe',
+                    params: {chid: channel}
+                };
+                return this.command(hCommand);
             },
 
             publish : function(hMessage){
