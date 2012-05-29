@@ -108,9 +108,19 @@ function build_alert(){
 
 function build_ack(){
     var ackID = prompt('AckID:');
-    var ack= prompt('Ack:');
+    var ack= prompt('Ack (recv|read):');
     var chid = prompt('Channel:');
     var hMessage = hClient.buildAck(chid, ackID, ack);
+    if(hMessage)
+        document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+}
+
+function build_conv(){
+    var topic = prompt('Topic:');
+    var participants = prompt('Participants (comma separated):');
+    participants = participants.replace(/ /g, '').split(',');
+    var chid = prompt('Channel:');
+    var hMessage = hClient.buildConv(chid, topic, participants);
     if(hMessage)
         document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
 }

@@ -295,6 +295,11 @@ define(
                 return this.buildMessage(chid, 'hAck', {ackid: ackid, ack: ack}, options);
             },
 
+            buildConv: function(chid, topic, participants, options){
+
+                return this.buildMessage(chid, 'hConv', {topic: topic, participants: participants}, options);
+            },
+
             _checkConnected: function(){
                 if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
                     this.transport.status == codes.statuses.REATTACHED))
