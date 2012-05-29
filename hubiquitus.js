@@ -232,6 +232,24 @@ define(
                     };
             },
 
+            buildMeasure: function(chid, value, unit, options){
+
+                if(!value || !unit){
+                    if(this.options.hCallback)
+                        this.options.hCallback({
+                            type : codes.types.hResult,
+                            data : {
+                                cmd : 'hPublish',
+                                status : codes.hResultStatus.MISSING_ATTR,
+                                result : 'missing value or unit'
+                            }
+                        });
+                    return;
+                }
+
+                return this.buildMessage(chid, 'hMeasure', {unit: unit, value: value}, options);
+            },
+
             _checkConnected: function(){
                 if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
                     this.transport.status == codes.statuses.REATTACHED))

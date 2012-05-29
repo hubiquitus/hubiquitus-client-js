@@ -89,6 +89,14 @@ function send_hEcho(){
 
 }
 
+function build_measure(){
+    var value = prompt('Value:');
+    var unit = prompt('Unit:');
+    var chid = document.getElementById('chid').value;
+    var hMessage = hClient.buildMeasure(chid, value, unit);
+    document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+}
+
 function hCallback(msg){
     console.log(JSON.stringify(msg));
     var status = '';
