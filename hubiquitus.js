@@ -250,6 +250,23 @@ define(
                 return this.buildMessage(chid, 'hMeasure', {unit: unit, value: value}, options);
             },
 
+            buildAlert: function(chid, alert, options){
+                if(!alert){
+                    if(this.options.hCallback)
+                        this.options.hCallback({
+                            type : codes.types.hResult,
+                            data : {
+                                cmd : 'hPublish',
+                                status : codes.hResultStatus.MISSING_ATTR,
+                                result : 'missing alert'
+                            }
+                        });
+                    return;
+                }
+
+                return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
+            },
+
             _checkConnected: function(){
                 if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
                     this.transport.status == codes.statuses.REATTACHED))
