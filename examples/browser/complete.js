@@ -81,7 +81,8 @@ function send_hEcho(){
         var echoCmd = {
             entity : 'hnode.' + hClient.publisher.split('@')[1],
             cmd : 'hEcho',
-            params : {hello : value}
+            params : {hello : value},
+            transient : !!document.getElementById("transientCheckBox").checked
         };
         hClient.command(echoCmd);
     }
