@@ -106,6 +106,15 @@ function build_alert(){
         document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
 }
 
+function build_ack(){
+    var ackID = prompt('AckID:');
+    var ack= prompt('Ack:');
+    var chid = prompt('Channel:');
+    var hMessage = hClient.buildAck(chid, ackID, ack);
+    if(hMessage)
+        document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+}
+
 function hCallback(msg){
     console.log(JSON.stringify(msg));
     var status = '';

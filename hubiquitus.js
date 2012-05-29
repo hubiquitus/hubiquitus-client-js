@@ -267,6 +267,34 @@ define(
                 return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
             },
 
+            buildAck: function(chid, ackid, ack, options){
+                var status = null;
+                var result = null;
+
+                if(!ackid || !ack){
+                    status = codes.hResultStatus.MISSING_ATTR;
+                    result = 'missing ackid or ack';
+                }else if(!/recv|read/i.test(ack)){
+                    status = codes.hResultStatus.INVALID_ATTR;
+                    result = 'ack does not match "recv" or "read"';
+                }
+
+                if( status != null ){
+                    if(this.options.hCallback)
+                        this.options.hCallback({
+                            type : codes.types.hResult,
+                            data : {
+                                cmd : 'hPublish',
+                                status: status,
+                                result: result
+                            }
+                        });
+                    return;
+                }
+
+                return this.buildMessage(chid, 'hAck', {ackid: ackid, ack: ack}, options);
+            },
+
             _checkConnected: function(){
                 if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
                     this.transport.status == codes.statuses.REATTACHED))
