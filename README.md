@@ -57,7 +57,7 @@ Once connected it is possible to execute other commands:
 ```js
 hClient.subscribe(channel); //Channel to subscribe to using current credentials.
 hClient.unsubscribe(channel); //Channel to unsubscribe.
-hClient.publish(channel, item); //Publish 'item' to 'channel'.
+hClient.publish(hMessage); //Publishes an hMessage.
 hClient.getMessages(channel); //Get last messages from 'channel'
 hClient.disconnect(); //Disconnects from the Server.
 hClient.command(hCommand); //Sends an hCommand to an entity (Will call command builder to fill missing)
@@ -65,6 +65,8 @@ hClient.commandBuilder(hCommand); //Fills command attributes with default values
 ```
 
 In all cases, `channel` is a string with the name that identifies the node.
+
+Note: a list of all available operations is defined in [Functions](https://github.com/hubiquitus/hubiquitusjs/wiki/Functions)
 
 ## Options
 An `hOptions` object can be sent to the connect function as the last argument.
