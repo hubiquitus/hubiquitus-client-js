@@ -157,6 +157,18 @@ define(
                 return this.command(hCommand);
             },
 
+            getLastMessages: function(chid, quantity){
+                var hCommand = {
+                    entity: this.options.hServer + '.' + this.domain,
+                    cmd: 'hGetLastMessages',
+                    params: {
+                        chid: chid,
+                        quant: quantity
+                    }
+                };
+                return this.command(hCommand);
+            },
+
             command: function(hCommand){
                 if(this._checkConnected()){
                     //Complete hCommand

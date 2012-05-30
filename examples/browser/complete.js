@@ -46,7 +46,9 @@ function disconnect(){
 function publish(){
     var chid = document.getElementById('chid').value;
     var msg = document.getElementById('hMessage').value;
-    hClient.publish(hClient.buildMessage(chid, 'string', msg));
+    hClient.publish(hClient.buildMessage(chid, 'string', msg, {
+        transient: !!document.getElementById("hMessageTransient").checked
+    }));
 }
 
 function subscribe(){
@@ -61,7 +63,8 @@ function unsubscribe(){
 
 function get_messages(){
     var chid = document.getElementById('chid').value;
-    hClient.getMessages(chid)
+    var quantity = prompt('Max Messages (can be empty):');
+    hClient.getLastMessages(chid, quantity);
 }
 
 function get_subscriptions(){
