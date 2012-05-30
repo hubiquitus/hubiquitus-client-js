@@ -238,7 +238,6 @@ define(
                         location: options.location,
                         author: options.author,
                         publisher: this.publisher,
-                        published: new Date(),
                         headers: options.headers,
                         payload: payload
                     };
