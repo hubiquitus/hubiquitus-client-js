@@ -29,14 +29,13 @@ var hOptions = {
 
 
 var hCallback = function(msg){
-    if (msg.context == 'hStatus' && msg.data.status == hClient.status.CONNECTED){
+    if (msg.type == 'hStatus' && msg.data.status == hClient.status.CONNECTED){
         console.log('Connected, Now we will receive messages');
         hClient.subscribe('channelID'); //Because we are connected, we can subscribe to channels
     }
 
-    if (msg.context == 'message')
-        console.log('Received a message in channel ' + msg.data.channel +
-            ' with content ' + msg.data.message);
+    if (msg.type == 'hMessage')
+        console.log('Received a message' + JSON.stringify(msg.data));
 };
 
 // Starts a connection to the XMPP Server using passed options.
