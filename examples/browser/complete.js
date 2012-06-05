@@ -96,26 +96,38 @@ function build_measure(){
     var value = prompt('Value:');
     var unit = prompt('Unit:');
     var chid = prompt('Channel:');
-    var hMessage = hClient.buildMeasure(chid, value, unit);
+    var hMessage = hClient.buildMeasure(chid, value, unit, {
+        transient: !!document.getElementById("hMessageTransient").checked
+    });
     if(hMessage)
         document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+    if(document.getElementById("sendBuiltMessage").checked)
+        hClient.publish(hMessage);
 }
 
 function build_alert(){
     var alert = prompt('Alert:');
     var chid = prompt('Channel:');
-    var hMessage = hClient.buildAlert(chid, alert);
+    var hMessage = hClient.buildAlert(chid, alert, {
+        transient: !!document.getElementById("hMessageTransient").checked
+    });
     if(hMessage)
         document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+    if(document.getElementById("sendBuiltMessage").checked)
+        hClient.publish(hMessage);
 }
 
 function build_ack(){
     var ackID = prompt('AckID:');
     var ack= prompt('Ack (recv|read):');
     var chid = prompt('Channel:');
-    var hMessage = hClient.buildAck(chid, ackID, ack);
+    var hMessage = hClient.buildAck(chid, ackID, ack, {
+        transient: !!document.getElementById("hMessageTransient").checked
+    });
     if(hMessage)
         document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+    if(document.getElementById("sendBuiltMessage").checked)
+        hClient.publish(hMessage);
 }
 
 function build_conv(){
@@ -123,9 +135,13 @@ function build_conv(){
     var participants = prompt('Participants (comma separated):');
     participants = participants.replace(/ /g, '').split(',');
     var chid = prompt('Channel:');
-    var hMessage = hClient.buildConv(chid, topic, participants);
+    var hMessage = hClient.buildConv(chid, topic, participants, {
+        transient: !!document.getElementById("hMessageTransient").checked
+    });
     if(hMessage)
         document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+    if(document.getElementById("sendBuiltMessage").checked)
+        hClient.publish(hMessage);
 }
 
 function hCallback(msg){
