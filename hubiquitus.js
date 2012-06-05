@@ -339,6 +339,9 @@ define(
         if(typeof module !== 'undefined' && module.exports){
             //Entrypoint to hClient in Node mode
             exports.hClient = new HubiquitusClient();
+            exports.HubiquitusClient = HubiquitusClient; //Allow access to constructor (used with stress option)
+            exports.status = codes.statuses;
+            exports.hResultStatus = codes.hResultStatus;
         }else{
             //Global entrypoint to hClient in Browser mode
             hClient = new HubiquitusClient();
