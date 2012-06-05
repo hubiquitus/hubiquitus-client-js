@@ -237,6 +237,7 @@ define(
                         transient: options.transient,
                         location: options.location,
                         author: options.author,
+                        published: options.published,
                         publisher: this.publisher,
                         headers: options.headers,
                         payload: payload
