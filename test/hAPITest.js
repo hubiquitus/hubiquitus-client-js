@@ -8,7 +8,7 @@ var hCallback;
 
 describe('Normal Functional Tests', function() {
     //This channel will be used for all the tests
-    var channel = '' + Math.floor(Math.random()*10000);
+    var channel = 'chan' + Math.floor(Math.random()*10000);
     var hNode = conf.hNode;
     var user = conf.logins[0];
 
