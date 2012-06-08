@@ -13,10 +13,17 @@ exports.hOptions = {
 //    endpoints : ['http://localhost:5280/http-bind']
 //};
 
+
 //Array of logins to use (some test need two users)
-exports.logins = [{
-    login: 'u1@localhost',
-    password: 'u1'
-}];
+exports.logins = [
+    {
+        login: 'u1@localhost',
+        password: 'u1'
+    }
+    ,{
+        login: 'u2@localhost',
+        password: 'u2'
+    }
+];
 
 exports.hNode = 'hnode.localhost'; //Address of the hNode entity

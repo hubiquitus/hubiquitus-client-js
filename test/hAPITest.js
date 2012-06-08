@@ -43,7 +43,12 @@ describe('Normal Functional Tests', function() {
     })
 
 
-    after(function(){
+    after(function(done){
+        hCallback = function(msg){
+            if (msg.type == 'hStatus' && msg.data.status == hClient.status.DISCONNECTED)
+                done();
+        };
+
         hClient.disconnect();
     })
 
