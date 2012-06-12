@@ -110,10 +110,10 @@ describe('Normal Functional Tests', function() {
             hClient.subscribe(channel);
         })
 
-        it('should return hResult status NOT_AUTHORIZED and result be a message', function(done) {
+        it('should return hResult status NOT_AVAILABLE and result be a message', function(done) {
             hCallback= function(msg){
                 if(msg.type == 'hResult') {
-                    msg.data.status.should.be.equal(hClient.hResultStatus.NOT_AUTHORIZED);
+                    msg.data.status.should.be.equal(hClient.hResultStatus.NOT_AVAILABLE);
                     should.exist(msg.data.result);
                     msg.data.result.should.be.a('string');
                     done();
@@ -125,6 +125,30 @@ describe('Normal Functional Tests', function() {
 
 
     describe('#getSubscriptionsTest()', function() {
+        var inactiveChannel = 'chan' + Math.floor(Math.random()*10000);
+
+        before(function(done){
+            hCallback = function(msg){
+                if(msg.type == 'hResult') {
+                    msg.data.status.should.be.equal(hClient.hResultStatus.OK);
+                    should.not.exist(msg.data.result);
+                    done();
+                }
+            };
+            var hCommandCreateChannel = {
+                entity: hNode,
+                cmd: "hcreateupdatechannel",
+                params:{
+                    chid: inactiveChannel,
+                    host:"test",
+                    owner: hClient.publisher,
+                    participants: [hClient.publisher],
+                    active: false
+                }
+            };
+            hClient.command(hCommandCreateChannel);
+        })
+
         it('should return the channel called in the result', function(done) {
             hCallback = function(msg){
                 if(msg.type == 'hResult') {
@@ -132,8 +156,17 @@ describe('Normal Functional Tests', function() {
                     done();
                 }
             };
-            var hCommandGetSubscriptions = {entity: hNode, cmd: "hgetsubscriptions"};
-            hClient.command(hCommandGetSubscriptions);
+            hClient.getSubscriptions();
+        })
+
+        it('should not return an inactive channel in the result', function(done) {
+            hCallback = function(msg){
+                if(msg.type == 'hResult') {
+                    msg.data.result.should.not.include(inactiveChannel);
+                    done();
+                }
+            };
+            hClient.getSubscriptions();
         })
     })
 
@@ -158,6 +191,49 @@ describe('Normal Functional Tests', function() {
                     done();
             };
             hClient.publish(hClient.buildMessage(channel, "String", "this is an HMessage" ));
+        })
+
+        it('should allow to set date by API', function(done){
+            var counter = 0;
+            var publishedDate = new Date().setFullYear(2010,0,14);
+            hCallback = function(msg){
+                if(msg.type == 'hResult') {
+                    msg.data.status.should.be.equal(hClient.hResultStatus.OK);
+                    should.not.exist(msg.data.result);
+                    counter++;
+
+                } else if(msg.type == 'hMessage') {
+                    msg.data.chid.should.be.equal(channel);
+                    msg.data.convid.should.be.equal( msg.data.msgid );
+                    msg.data.published.should.be.eql(publishedDate);
+                    counter++;
+                }
+                if(counter == 2)
+                    done();
+            };
+            hClient.publish(hClient.buildMessage(channel, "String", "this is an HMessage",{
+                published: publishedDate
+            }));
+        })
+
+        it('should receive date from server if not set by hAPI', function(done){
+            var counter = 0;
+            hCallback = function(msg){
+                if(msg.type == 'hResult') {
+                    msg.data.status.should.be.equal(hClient.hResultStatus.OK);
+                    should.not.exist(msg.data.result);
+                    counter++;
+
+                } else if(msg.type == 'hMessage') {
+                    msg.data.chid.should.be.equal(channel);
+                    msg.data.convid.should.be.equal( msg.data.msgid );
+                    should.exist(msg.data.published);
+                    counter++;
+                }
+                if(counter == 2)
+                    done();
+            };
+            hClient.publish(hClient.buildMessage(channel, "String", "this is an HMessage"));
         })
     })
 
@@ -266,6 +342,7 @@ describe('Normal Functional Tests', function() {
     describe('#publishHAckTestHMessage()', function() {
         it('should return hResult status ok and correct hMessage with type hAck', function(done) {
             var counter = 0;
+            var convid = '123456789';
             hCallback = function(msg){
                 if(msg.type == 'hResult') {
                     msg.data.status.should.be.equal(hClient.hResultStatus.OK);
@@ -274,7 +351,7 @@ describe('Normal Functional Tests', function() {
 
                 }else if(msg.type == 'hMessage') {
                     msg.data.chid.should.be.equal(channel);
-                    msg.data.convid.should.be.equal( msg.data.msgid );
+                    msg.data.convid.should.be.equal( convid );
                     msg.data.type.should.be.equal("hAck");
                     msg.data.payload.should.be.eql({ ackid: '123456', ack: 'recv' });
                     counter++;
@@ -282,7 +359,9 @@ describe('Normal Functional Tests', function() {
                 if(counter == 2)
                     done();
             };
-            hClient.publish(hClient.buildAck(channel, "123456", "recv"));
+            hClient.publish(hClient.buildAck(channel, "123456", "recv", {
+                convid: convid
+            }));
         })
     })
 
