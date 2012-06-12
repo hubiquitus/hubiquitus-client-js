@@ -172,6 +172,41 @@ describe('Normal Functional Tests', function() {
 
 
     describe('#publishHMessageTestHResultAndHMessage()', function() {
+        var chanNotList = 'chan' + Math.floor(Math.random()*10000);
+
+        before(function(done){
+            hCallback = function(msg){
+                if(msg.type == 'hResult') {
+                    msg.data.status.should.be.equal(hClient.hResultStatus.OK);
+                    should.not.exist(msg.data.result);
+                    done();
+                }
+            };
+            var hCommandCreateChannel = {
+                entity: hNode,
+                cmd: "hcreateupdatechannel",
+                params:{
+                    chid: chanNotList,
+                    host:"test",
+                    owner: hClient.publisher,
+                    participants: ['another@jid'],
+                    active: true
+                }
+            };
+            hClient.command(hCommandCreateChannel);
+        })
+
+        it('should return hResult error NOT_AUTHORIZED if not in participants list', function(done) {
+            hCallback = function(msg){
+                if(msg.type == 'hResult') {
+                    msg.data.status.should.be.equal(hClient.hResultStatus.NOT_AUTHORIZED);
+                    should.exist(msg.data.result);
+                    done();
+                }
+            };
+            hClient.publish(hClient.buildMessage(chanNotList, "String", "this is an HMessage" ));
+        })
+
         it('should return hResult status ok, result empty and a correct hMessage', function(done) {
             var counter = 0;
             hCallback = function(msg){
