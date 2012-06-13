@@ -51,27 +51,27 @@ function publish(){
     var msg = document.getElementById('hMessage').value;
     hClient.publish(hClient.buildMessage(chid, 'string', msg, {
         transient: !!document.getElementById("hMessageTransient").checked
-    }));
+    }), console.log);
 }
 
 function subscribe(){
     var chid = document.getElementById('chid').value;
-    hClient.subscribe(chid)
+    hClient.subscribe(chid, console.log)
 }
 
 function unsubscribe(){
     var chid = document.getElementById('chid').value;
-    hClient.unsubscribe(chid)
+    hClient.unsubscribe(chid, console.log)
 }
 
 function get_messages(){
     var chid = document.getElementById('chid').value;
     var quantity = prompt('Max Messages (can be empty):');
-    hClient.getLastMessages(chid, quantity);
+    hClient.getLastMessages(chid, quantity, console.log);
 }
 
 function get_subscriptions(){
-    hClient.getSubscriptions();
+    hClient.getSubscriptions(console.log);
 }
 
 function clear_divs(){
@@ -90,7 +90,7 @@ function send_hEcho(){
             params : {hello : value},
             transient : !!document.getElementById("transientCheckBox").checked
         };
-        hClient.command(echoCmd);
+        hClient.command(echoCmd, console.log);
     }
 
 }
@@ -103,9 +103,9 @@ function build_measure(){
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
-        document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+        console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage);
+        hClient.publish(hMessage, console.log);
 }
 
 function build_alert(){
@@ -115,9 +115,9 @@ function build_alert(){
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
-        document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+        console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage);
+        hClient.publish(hMessage, console.log);
 }
 
 function build_ack(){
@@ -128,9 +128,9 @@ function build_ack(){
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
-        document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+        console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage);
+        hClient.publish(hMessage, console.log);
 }
 
 function build_conv(){
@@ -142,9 +142,9 @@ function build_conv(){
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
-        document.getElementById("fetched").innerHTML = JSON.stringify(hMessage);
+        console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage);
+        hClient.publish(hMessage, console.log);
 }
 
 function onStatus(hStatus){

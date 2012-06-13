@@ -35,6 +35,8 @@ define(
         var HubiquitusClient = function(){
             this.onStatus = function(hStatus){};
             this.onMessage = function(hMessage){};
+
+            this.openCmds = {};
             this.status = statuses.DISCONNECTED;
         };
 
@@ -53,8 +55,8 @@ define(
                 }
 
                 this.hOptions = createOptions.hub_options(hOptions || {});
-                var transportCB = function(type,value){
-                    console.log('type', type, 'value', value);
+
+                var transportCB = function(type, value){
                     //'this' is correct because of the bind
                     switch(type){
                         case 'hStatus':
@@ -65,7 +67,10 @@ define(
                             this.onMessage(value);
                             break;
                         case 'hResult':
-                        //TODO
+                            var cmdCB = this.openCmds[value.reqid];
+                            delete this.openCmds[value.reqid];
+                            if(cmdCB)
+                                cmdCB(value);
                     }
                 };
 
@@ -114,42 +119,42 @@ define(
                 }
             },
 
-            subscribe : function(channel){
+            subscribe : function(channel, cb){
                 var hCommand = {
                     entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hSubscribe',
                     params: {chid: channel}
                 };
-                return this.command(hCommand);
+                this.command(hCommand, cb);
             },
 
-            unsubscribe : function(channel){
+            unsubscribe : function(channel, cb){
                 var hCommand = {
                     entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hUnsubscribe',
                     params: {chid: channel}
                 };
-                return this.command(hCommand);
+                this.command(hCommand, cb);
             },
 
-            publish : function(hMessage){
+            publish : function(hMessage, cb){
                 var hCommand = {
                     entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hPublish',
                     params: hMessage
                 };
-                return this.command(hCommand);
+                this.command(hCommand, cb);
             },
 
-            getSubscriptions: function(){
+            getSubscriptions: function(cb){
                 var hCommand = {
                     entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hGetSubscriptions'
                 };
-                return this.command(hCommand);
+                this.command(hCommand, cb);
             },
 
-            getLastMessages: function(chid, quantity){
+            getLastMessages: function(chid, quantity, cb){
                 var hCommand = {
                     entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hGetLastMessages',
@@ -158,146 +163,103 @@ define(
                         quant: quantity
                     }
                 };
-                return this.command(hCommand);
+                this.command(hCommand, cb);
             },
 
-            command: function(hCommand){
-                if(this._checkConnected()){
-                    //Complete hCommand
-                    hCommand = this.commandBuilder(hCommand);
-                    var errorCode = undefined;
-                    var errorMsg = undefined;
-                    //Verify if well formatted
-                    if(!hCommand.entity){
-                        errorCode = codes.hResultStatus.MISSING_ATTR;
-                        errorMsg = 'the attribute entity is missing';
-                    } else if(!hCommand.cmd){
-                        errorCode = codes.hResultStatus.MISSING_ATTR;
-                        errorMsg = 'the attribute cmd is missing';
-                    }
-                    if(!errorCode){
-                        //Send it to transport
-                        this.transport.sendhCommand(hCommand);
-                        return hCommand.reqid;
-                    } else{
-//                        this.options.hCallback({
-//                            type : codes.types.hResult,
-//                            data : {
-//                                cmd : hCommand.cmd,
-//                                reqid : hCommand.reqid,
-//                                status : errorCode,
-//                                result : errorMsg
-//                            }
-//                        })
-                    }
+            command: function(hCommand, cb){
+                //Complete hCommand
+                hCommand = this.commandBuilder(hCommand);
+                var errorCode = undefined;
+                var errorMsg = undefined;
+
+                //Verify if well formatted
+                if(!hCommand.entity){
+                    errorCode = codes.hResultStatus.MISSING_ATTR;
+                    errorMsg = 'the entity attribute is missing';
+                } else if(!hCommand.cmd){
+                    errorCode = codes.hResultStatus.MISSING_ATTR;
+                    errorMsg = 'the cmd attribute is missing';
+                } else if(this.status != statuses.CONNECTED && this.status != statuses.REATTACHED){
+                    errorCode = codes.hResultStatus.NOT_CONNECTED;
+                    errorMsg = 'client not connected, cannot send command';
                 }
+
+                if(!errorCode){
+                    //Add it to the open commands to call cb later
+                    this.openCmds[hCommand.reqid] = cb;
+
+                    //Send it to transport
+                    this.transport.sendhCommand(hCommand);
+                } else if(cb)
+                    cb({
+                        cmd : hCommand.cmd,
+                        reqid : hCommand.reqid,
+                        status : errorCode,
+                        result : errorMsg
+                    });
             },
 
             commandBuilder: function(hCommand){
-                if(this._checkConnected()){
-                    hCommand = hCommand || {};
-                    hCommand.reqid = hCommand.reqid || 'jscommand' + Math.floor(Math.random()*100001);
-                    hCommand.sender = hCommand.sender || this.publisher;
-                    hCommand.sent = hCommand.sent || new Date();
-                    return hCommand;
-                }
+                hCommand = hCommand || {};
+                hCommand.reqid = hCommand.reqid || 'jscommand' + Math.floor(Math.random()*100001);
+                hCommand.sender = hCommand.sender || this.publisher;
+                hCommand.sent = hCommand.sent || new Date();
+
+                return hCommand;
             },
 
             buildMessage: function(chid, type, payload, options){
                 options = options || {};
 
-                if(!chid){
-//                    if(this.options.hCallback)
-//                        this.options.hCallback({
-//                            type : codes.types.hResult,
-//                            data : {
-//                                cmd : 'hPublish',
-//                                status : codes.hResultStatus.MISSING_ATTR,
-//                                result : 'missing chid'
-//                            }
-//                        });
-                    return;
-                }
+                if(!chid)
+                    throw 'missing chid';
 
-                if(this._checkConnected())
-                    return {
-                        chid: chid,
-                        convid: options.convid,
-                        type: type,
-                        priority: options.priority,
-                        relevance: options.relevance,
-                        transient: options.transient,
-                        location: options.location,
-                        author: options.author,
-                        published: options.published,
-                        publisher: this.publisher,
-                        headers: options.headers,
-                        payload: payload
-                    };
+                return {
+                    chid: chid,
+                    convid: options.convid,
+                    type: type,
+                    priority: options.priority,
+                    relevance: options.relevance,
+                    transient: options.transient,
+                    location: options.location,
+                    author: options.author,
+                    published: options.published,
+                    publisher: this.publisher,
+                    headers: options.headers,
+                    payload: payload
+                };
             },
 
             buildMeasure: function(chid, value, unit, options){
-
-                if(!value || !unit){
-//                    if(this.options.hCallback)
-//                        this.options.hCallback({
-//                            type : codes.types.hResult,
-//                            data : {
-//                                cmd : 'hPublish',
-//                                status : codes.hResultStatus.MISSING_ATTR,
-//                                result : 'missing value or unit'
-//                            }
-//                        });
-                    return;
-                }
+                if(!value)
+                    throw 'missing value';
+                else if (!unit)
+                    throw 'missing unit';
 
                 return this.buildMessage(chid, 'hMeasure', {unit: unit, value: value}, options);
             },
 
             buildAlert: function(chid, alert, options){
-                if(!alert){
-//                    if(this.options.hCallback)
-//                        this.options.hCallback({
-//                            type : codes.types.hResult,
-//                            data : {
-//                                cmd : 'hPublish',
-//                                status : codes.hResultStatus.MISSING_ATTR,
-//                                result : 'missing alert'
-//                            }
-//                        });
-                    return;
-                }
+                if(!alert)
+                    throw 'missing alert';
 
                 return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
             },
 
             buildAck: function(chid, ackid, ack, options){
-                var status = null;
-                var result = null;
+                var msg = null;
 
-                if(!ackid || !ack){
-                    status = codes.hResultStatus.MISSING_ATTR;
-                    result = 'missing ackid or ack';
-                }else if(!/recv|read/i.test(ack)){
-                    status = codes.hResultStatus.INVALID_ATTR;
-                    result = 'ack does not match "recv" or "read"';
-                }else if(!options || !options.convid){
-                    status = codes.hResultStatus.MISSING_ATTR;
-                    result = 'missing convid in options';
-                }
+                if(!ackid)
+                    msg = 'missing ackid';
+                else if(!ack)
+                    msg = 'missing ack';
+                else if(!/recv|read/i.test(ack))
+                    msg = 'ack does not match "recv" or "read"';
+                else if(!options || !options.convid)
+                    msg = 'missing convid in options';
 
-                if( status != null ){
-//                    if(this.options.hCallback)
-//                        this.options.hCallback({
-//                            type : codes.types.hResult,
-//                            data : {
-//                                cmd : 'hPublish',
-//                                status: status,
-//                                result: result
-//                            }
-//                        });
-                    return;
-                }
+                if(msg)
+                    throw msg;
 
                 return this.buildMessage(chid, 'hAck', {ackid: ackid, ack: ack}, options);
             },
@@ -305,25 +267,6 @@ define(
             buildConv: function(chid, topic, participants, options){
 
                 return this.buildMessage(chid, 'hConv', {topic: topic, participants: participants}, options);
-            },
-
-            _checkConnected: function(){
-                if(this.status == statuses.CONNECTED || this.status == statuses.REATTACHED)
-                    return true;
-
-//                if(this.options.hCallback){
-//                    var currentStatus = this.transport ? this.transport.status : codes.statuses.DISCONNECTED;
-//                    var code = currentStatus == codes.statuses.DISCONNECTED ?
-//                        codes.errors.NOT_CONNECTED : codes.errors.CONN_PROGRESS;
-//                    this.options.hCallback({
-//                        type: codes.types.hStatus,
-//                        data : {
-//                            status: currentStatus,
-//                            errorCode: code
-//                        }
-//                    });
-//                }
-                return false;
             },
 
             errors: codes.errors,
