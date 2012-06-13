@@ -247,24 +247,26 @@ define(
             },
 
             buildAck: function(chid, ackid, ack, options){
-                var msg = null;
-
                 if(!ackid)
-                    msg = 'missing ackid';
+                    throw 'missing ackid';
                 else if(!ack)
-                    msg = 'missing ack';
+                    throw 'missing ack';
                 else if(!/recv|read/i.test(ack))
-                    msg = 'ack does not match "recv" or "read"';
+                    throw 'ack does not match "recv" or "read"';
                 else if(!options || !options.convid)
-                    msg = 'missing convid in options';
-
-                if(msg)
-                    throw msg;
+                    throw 'missing convid in options';
 
                 return this.buildMessage(chid, 'hAck', {ackid: ackid, ack: ack}, options);
             },
 
             buildConv: function(chid, topic, participants, options){
+                if(!topic)
+                    throw 'missing topic';
+                else if(!participants)
+                    throw 'missing participants';
+                else if( !(participants instanceof Array) )
+                    throw 'invalid participants';
+
 
                 return this.buildMessage(chid, 'hConv', {topic: topic, participants: participants}, options);
             },
