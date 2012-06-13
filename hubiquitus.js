@@ -25,6 +25,9 @@ define(
         './lib/options', './lib/codes'],
     function(hSessionBosh, hSessionSocketIO, createOptions, codes){
 
+        var statuses = codes.statuses;
+        var errors = codes.errors;
+
         /**
          * Creates a new client that manages a connection and connects to the
          * hNode Server.
@@ -32,37 +35,31 @@ define(
         var HubiquitusClient = function(){
             this.onStatus = function(hStatus){};
             this.onMessage = function(hMessage){};
+            this.status = statuses.DISCONNECTED;
         };
 
         HubiquitusClient.prototype = {
             connect : function(publisher, password, hOptions){
-                if(this.transport){
-                    var currentStatus = this.transport.status;
-                    var code = currentStatus == codes.statuses.CONNECTED || currentStatus == codes.statuses.REATTACHED ?
-                        codes.errors.ALREADY_CONNECTED : codes.errors.CONN_PROGRESS;
+                var code = this.status == statuses.CONNECTED || this.status == statuses.REATTACHED ?
+                    errors.ALREADY_CONNECTED : errors.CONN_PROGRESS;
 
-                    if(currentStatus == codes.statuses.CONNECTED ||
-                        currentStatus == codes.statuses.CONNECTING ||
-                        currentStatus == codes.statuses.REATTACHED ||
-                        currentStatus == codes.statuses.REATTACHING){
-                        this.onStatus({
-                            status: currentStatus,
-                            errorCode: code
-                        });
-                        return;
-                    }else if(this.transport.errorCode != codes.errors.NO_ERROR){
-                        //If error in current transport, disconnect it first.
-                        //Unless it's because it's already connected (mainly for socketio)
-                        this.disconnect();
-                    }
+                if( this.status == statuses.CONNECTED || this.status == statuses.CONNECTING ||
+                    this.status == statuses.REATTACHED || this.status == statuses.REATTACHING){
+                    this.onStatus({
+                        status: this.status,
+                        errorCode: code
+                    });
+                    return;
                 }
 
                 this.hOptions = createOptions.hub_options(hOptions || {});
                 var transportCB = function(type,value){
                     console.log('type', type, 'value', value);
+                    //'this' is correct because of the bind
                     switch(type){
                         case 'hStatus':
-                            this.onStatus(value); //'this' is correct because of the bind
+                            this.status = value.status;
+                            this.onStatus(value);
                             break;
                         case 'hMessage':
                             this.onMessage(value);
@@ -268,7 +265,7 @@ define(
 //                                result : 'missing alert'
 //                            }
 //                        });
-                        return;
+                    return;
                 }
 
                 return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
@@ -311,8 +308,7 @@ define(
             },
 
             _checkConnected: function(){
-                if(this.transport && (this.transport.status == codes.statuses.CONNECTED ||
-                    this.transport.status == codes.statuses.REATTACHED))
+                if(this.status == statuses.CONNECTED || this.status == statuses.REATTACHED)
                     return true;
 
 //                if(this.options.hCallback){
@@ -331,7 +327,7 @@ define(
             },
 
             errors: codes.errors,
-            status: codes.statuses,
+            statuses: codes.statuses,
             hResultStatus: codes.hResultStatus
         };
 
@@ -339,7 +335,7 @@ define(
             //Entrypoint to hClient in Node mode
             exports.hClient = new HubiquitusClient();
             exports.HubiquitusClient = HubiquitusClient; //Allow access to constructor (used with stress option)
-            exports.status = codes.statuses;
+            exports.statuses = codes.statuses;
             exports.hResultStatus = codes.hResultStatus;
         }else{
             //Global entrypoint to hClient in Browser mode

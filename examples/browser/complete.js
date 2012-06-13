@@ -152,22 +152,22 @@ function onStatus(hStatus){
     var status,error;
 
     switch(hStatus.status){
-        case hClient.status.CONNECTED:
+        case hClient.statuses.CONNECTED:
             status = 'Connected';
             break;
-        case hClient.status.CONNECTING:
+        case hClient.statuses.CONNECTING:
             status = 'Connecting';
             break;
-        case hClient.status.REATTACHING:
+        case hClient.statuses.REATTACHING:
             status = 'Reattaching';
             break;
-        case hClient.status.REATTACHED:
+        case hClient.statuses.REATTACHED:
             status = 'Reattached';
             break;
-        case hClient.status.DISCONNECTING:
+        case hClient.statuses.DISCONNECTING:
             status = 'Disconnecting';
             break;
-        case hClient.status.DISCONNECTED:
+        case hClient.statuses.DISCONNECTED:
             status = 'Disconnected';
             break;
     }
@@ -193,7 +193,7 @@ function onStatus(hStatus){
             break;
         case hClient.errors.TECH_ERROR:
             error = 'Technical Error: ';
-            error += msg.data.errorMsg;
+            error += hStatus.errorMsg;
             break;
         case hClient.errors.NOT_CONNECTED:
             error = 'Not connected';
