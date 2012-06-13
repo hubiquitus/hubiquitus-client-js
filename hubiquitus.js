@@ -289,6 +289,9 @@ define(
                 }else if(!/recv|read/i.test(ack)){
                     status = codes.hResultStatus.INVALID_ATTR;
                     result = 'ack does not match "recv" or "read"';
+                }else if(!options || !options.convid){
+                    status = codes.hResultStatus.MISSING_ATTR;
+                    result = 'missing convid in options';
                 }
 
                 if( status != null ){
