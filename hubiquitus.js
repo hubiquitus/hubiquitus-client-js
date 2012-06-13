@@ -28,17 +28,14 @@ define(
         /**
          * Creates a new client that manages a connection and connects to the
          * hNode Server.
-         * @param publisher- username to login to the server
-         * @param password - password to login with
-         * @param hCallback - function that receives status/msg sent by the server.
-         * @param hOptions - Object with configuration settings. See lib/options.js
          */
         var HubiquitusClient = function(){
-            this.options = {};
+            this.onStatus = function(hStatus){};
+            this.onMessage = function(hMessage){};
         };
 
         HubiquitusClient.prototype = {
-            connect : function(publisher, password, hCallback, hOptions){
+            connect : function(publisher, password, hOptions){
                 if(this.transport){
                     var currentStatus = this.transport.status;
                     var code = currentStatus == codes.statuses.CONNECTED || currentStatus == codes.statuses.REATTACHED ?
@@ -48,12 +45,9 @@ define(
                         currentStatus == codes.statuses.CONNECTING ||
                         currentStatus == codes.statuses.REATTACHED ||
                         currentStatus == codes.statuses.REATTACHING){
-                        this.options.hCallback({
-                            type: codes.types.hStatus,
-                            data : {
-                                status: currentStatus,
-                                errorCode: code
-                            }
+                        this.onStatus({
+                            status: currentStatus,
+                            errorCode: code
                         });
                         return;
                     }else if(this.transport.errorCode != codes.errors.NO_ERROR){
@@ -63,44 +57,48 @@ define(
                     }
                 }
 
-                //Verify if Callback exists
-                if(!hCallback) return;
+                this.hOptions = createOptions.hub_options(hOptions || {});
+                var transportCB = function(type,value){
+                    console.log('type', type, 'value', value);
+                    switch(type){
+                        case 'hStatus':
+                            this.onStatus(value); //'this' is correct because of the bind
+                            break;
+                        case 'hMessage':
+                            this.onMessage(value);
+                            break;
+                        case 'hResult':
+                        //TODO
+                    }
+                };
 
-                this.publisher = publisher;
-                this.options = createOptions.hub_options(hOptions || {});
-                this.options.publisher = publisher;
-                this.options.password = password;
-                this.options.hCallback = hCallback;
 
                 //Verify JID format (must be a@b)
                 var jid = publisher.split('@');
                 if(jid.length != 2 || !jid[0] || !jid[1]){
-                    hCallback({
-                        type: codes.types.hStatus,
-                        data : {
-                            status: codes.statuses.DISCONNECTED,
-                            errorCode: codes.errors.JID_MALFORMAT
-                        }
+                    this.onStatus({
+                        status: codes.statuses.DISCONNECTED,
+                        errorCode: codes.errors.JID_MALFORMAT
                     });
                     return;
                 }
 
-                //Set Domain
+                //Set Domain and publisher
                 this.domain = jid[1];
+                this.publisher = publisher;
 
                 //Load Balancing
-                var endpoints = this.options.endpoints;
-                this.options.endpoint =
+                var endpoints = this.hOptions.endpoints;
+                this.hOptions.endpoint =
                     endpoints[Math.floor(Math.random()*endpoints.length)];
 
                 //Instantiate correct transport
-                if(this.options.transport == 'bosh'){
-                    this.transport = new hSessionBosh.hSessionBosh(this.options);
-                }else if(this.options.transport =='socketio'){
-                    this.transport = new hSessionSocketIO.hSessionSocketIO(this.options);
-                }else{
-                    console.error("No transport selected");
-                    return;
+                switch(this.hOptions.transport){
+                    case 'bosh':
+                        this.transport = new hSessionBosh.hSessionBosh(publisher, password, transportCB.bind(this), this.hOptions);
+                        break;
+                    default:
+                        this.transport = new hSessionSocketIO.hSessionSocketIO(publisher, password, transportCB.bind(this), this.hOptions);
                 }
 
                 //Establish the connection
@@ -111,20 +109,17 @@ define(
                 if(this.transport){
                     this.transport.disconnect();
                     delete this.transport;
-                }else if(this.options.hCallback){
-                    this.options.hCallback({
-                        type: codes.types.hStatus,
-                        data : {
-                            status: codes.statuses.DISCONNECTED,
-                            errorCode: codes.errors.NOT_CONNECTED
-                        }
+                }else{
+                    this.onStatus({
+                        status: codes.statuses.DISCONNECTED,
+                        errorCode: codes.errors.NOT_CONNECTED
                     });
                 }
             },
 
             subscribe : function(channel){
                 var hCommand = {
-                    entity: this.options.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hSubscribe',
                     params: {chid: channel}
                 };
@@ -133,7 +128,7 @@ define(
 
             unsubscribe : function(channel){
                 var hCommand = {
-                    entity: this.options.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hUnsubscribe',
                     params: {chid: channel}
                 };
@@ -142,7 +137,7 @@ define(
 
             publish : function(hMessage){
                 var hCommand = {
-                    entity: this.options.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hPublish',
                     params: hMessage
                 };
@@ -151,7 +146,7 @@ define(
 
             getSubscriptions: function(){
                 var hCommand = {
-                    entity: this.options.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hGetSubscriptions'
                 };
                 return this.command(hCommand);
@@ -159,7 +154,7 @@ define(
 
             getLastMessages: function(chid, quantity){
                 var hCommand = {
-                    entity: this.options.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hGetLastMessages',
                     params: {
                         chid: chid,
@@ -188,15 +183,15 @@ define(
                         this.transport.sendhCommand(hCommand);
                         return hCommand.reqid;
                     } else{
-                        this.options.hCallback({
-                            type : codes.types.hResult,
-                            data : {
-                                cmd : hCommand.cmd,
-                                reqid : hCommand.reqid,
-                                status : errorCode,
-                                result : errorMsg
-                            }
-                        })
+//                        this.options.hCallback({
+//                            type : codes.types.hResult,
+//                            data : {
+//                                cmd : hCommand.cmd,
+//                                reqid : hCommand.reqid,
+//                                status : errorCode,
+//                                result : errorMsg
+//                            }
+//                        })
                     }
                 }
             },
@@ -215,15 +210,15 @@ define(
                 options = options || {};
 
                 if(!chid){
-                    if(this.options.hCallback)
-                        this.options.hCallback({
-                            type : codes.types.hResult,
-                            data : {
-                                cmd : 'hPublish',
-                                status : codes.hResultStatus.MISSING_ATTR,
-                                result : 'missing chid'
-                            }
-                        });
+//                    if(this.options.hCallback)
+//                        this.options.hCallback({
+//                            type : codes.types.hResult,
+//                            data : {
+//                                cmd : 'hPublish',
+//                                status : codes.hResultStatus.MISSING_ATTR,
+//                                result : 'missing chid'
+//                            }
+//                        });
                     return;
                 }
 
@@ -247,15 +242,15 @@ define(
             buildMeasure: function(chid, value, unit, options){
 
                 if(!value || !unit){
-                    if(this.options.hCallback)
-                        this.options.hCallback({
-                            type : codes.types.hResult,
-                            data : {
-                                cmd : 'hPublish',
-                                status : codes.hResultStatus.MISSING_ATTR,
-                                result : 'missing value or unit'
-                            }
-                        });
+//                    if(this.options.hCallback)
+//                        this.options.hCallback({
+//                            type : codes.types.hResult,
+//                            data : {
+//                                cmd : 'hPublish',
+//                                status : codes.hResultStatus.MISSING_ATTR,
+//                                result : 'missing value or unit'
+//                            }
+//                        });
                     return;
                 }
 
@@ -264,16 +259,16 @@ define(
 
             buildAlert: function(chid, alert, options){
                 if(!alert){
-                    if(this.options.hCallback)
-                        this.options.hCallback({
-                            type : codes.types.hResult,
-                            data : {
-                                cmd : 'hPublish',
-                                status : codes.hResultStatus.MISSING_ATTR,
-                                result : 'missing alert'
-                            }
-                        });
-                    return;
+//                    if(this.options.hCallback)
+//                        this.options.hCallback({
+//                            type : codes.types.hResult,
+//                            data : {
+//                                cmd : 'hPublish',
+//                                status : codes.hResultStatus.MISSING_ATTR,
+//                                result : 'missing alert'
+//                            }
+//                        });
+                        return;
                 }
 
                 return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
@@ -295,15 +290,15 @@ define(
                 }
 
                 if( status != null ){
-                    if(this.options.hCallback)
-                        this.options.hCallback({
-                            type : codes.types.hResult,
-                            data : {
-                                cmd : 'hPublish',
-                                status: status,
-                                result: result
-                            }
-                        });
+//                    if(this.options.hCallback)
+//                        this.options.hCallback({
+//                            type : codes.types.hResult,
+//                            data : {
+//                                cmd : 'hPublish',
+//                                status: status,
+//                                result: result
+//                            }
+//                        });
                     return;
                 }
 
@@ -320,18 +315,18 @@ define(
                     this.transport.status == codes.statuses.REATTACHED))
                     return true;
 
-                if(this.options.hCallback){
-                    var currentStatus = this.transport ? this.transport.status : codes.statuses.DISCONNECTED;
-                    var code = currentStatus == codes.statuses.DISCONNECTED ?
-                        codes.errors.NOT_CONNECTED : codes.errors.CONN_PROGRESS;
-                    this.options.hCallback({
-                        type: codes.types.hStatus,
-                        data : {
-                            status: currentStatus,
-                            errorCode: code
-                        }
-                    });
-                }
+//                if(this.options.hCallback){
+//                    var currentStatus = this.transport ? this.transport.status : codes.statuses.DISCONNECTED;
+//                    var code = currentStatus == codes.statuses.DISCONNECTED ?
+//                        codes.errors.NOT_CONNECTED : codes.errors.CONN_PROGRESS;
+//                    this.options.hCallback({
+//                        type: codes.types.hStatus,
+//                        data : {
+//                            status: currentStatus,
+//                            errorCode: code
+//                        }
+//                    });
+//                }
                 return false;
             },
 
