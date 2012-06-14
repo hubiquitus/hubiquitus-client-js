@@ -27,3 +27,61 @@ exports.logins = [
 ];
 
 exports.hNode = 'hnode.localhost'; //Address of the hNode entity
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////// DO NOT MODIFY BELOW THIS LINE ///////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+var should = require('should');
+var hClient = require('../hubiquitus.js').hClient;
+
+exports.connect = function(done, user, hOptions, instance){
+    var client = instance || hClient;
+    var login = user ? user.login : exports.logins[0].login;
+    var password = user ? user.password : exports.logins[0].password;
+    var opts = hOptions || exports.hOptions;
+    opts.stress = instance ? true : opts.stress;
+
+    client.onStatus = function(hStatus){
+        if(hStatus.status == client.statuses.CONNECTED){
+            done();
+        }
+    };
+
+    client.connect(login, password, opts);
+};
+
+exports.disconnect = function(done, instance){
+    var client = instance || hClient;
+
+    client.onStatus = function(hStatus){
+        if(hStatus.status == client.statuses.DISCONNECTED){
+            done();
+        }
+    };
+
+    client.disconnect();
+};
+
+exports.createChannel = function(chid, owner, participants, active, done, instance){
+    var client = instance || hClient;
+    var hCommandCreateChannel = {
+        entity: exports.hNode,
+        cmd: "hcreateupdatechannel",
+        params:{
+            chid: chid,
+            host:"test",
+            owner: owner,
+            participants: participants,
+            active: active
+        }
+    };
+    client.command(hCommandCreateChannel, function(hResult){
+        hResult.status.should.be.eql(client.hResultStatus.OK);
+        done();
+    });
+};
