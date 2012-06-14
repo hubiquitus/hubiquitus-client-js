@@ -212,7 +212,7 @@ define(
                 options = options || {};
 
                 if(!chid)
-                    throw 'missing chid';
+                    throw new Error('missing chid');
 
                 return {
                     chid: chid,
@@ -232,40 +232,40 @@ define(
 
             buildMeasure: function(chid, value, unit, options){
                 if(!value)
-                    throw 'missing value';
+                    throw new Error('missing value');
                 else if (!unit)
-                    throw 'missing unit';
+                    throw new Error('missing unit');
 
                 return this.buildMessage(chid, 'hMeasure', {unit: unit, value: value}, options);
             },
 
             buildAlert: function(chid, alert, options){
                 if(!alert)
-                    throw 'missing alert';
+                    throw new Error('missing alert');
 
                 return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
             },
 
             buildAck: function(chid, ackid, ack, options){
                 if(!ackid)
-                    throw 'missing ackid';
+                    throw new Error('missing ackid');
                 else if(!ack)
-                    throw 'missing ack';
+                    throw new Error('missing ack');
                 else if(!/recv|read/i.test(ack))
-                    throw 'ack does not match "recv" or "read"';
+                    throw new Error('ack does not match "recv" or "read"');
                 else if(!options || !options.convid)
-                    throw 'missing convid in options';
+                    throw new Error('missing convid in options');
 
                 return this.buildMessage(chid, 'hAck', {ackid: ackid, ack: ack}, options);
             },
 
             buildConv: function(chid, topic, participants, options){
                 if(!topic)
-                    throw 'missing topic';
+                    throw new Error('missing topic');
                 else if(!participants)
-                    throw 'missing participants';
+                    throw new Error('missing participants');
                 else if( !(participants instanceof Array) )
-                    throw 'invalid participants';
+                    throw new Error('invalid participants');
 
 
                 return this.buildMessage(chid, 'hConv', {topic: topic, participants: participants}, options);

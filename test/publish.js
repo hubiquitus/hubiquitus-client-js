@@ -177,4 +177,38 @@ describe('#publish()', function() {
         });
     })
 
+    describe('#publish()', function(){
+        before(function(done){
+            hClient2.unsubscribe(chanActive, function(hResult){
+                hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+                done();
+            })
+        })
+
+        it('should not receive published message after unsubscribe', function(done){
+            var msg = hClient1.buildMessage(chanActive, undefined, undefined);
+            hClient2.onMessage = function(hMessage){
+                hMessage.publisher.should.not.be.eql(hClient1.publisher);
+            };
+
+            hClient1.publish(msg, function(hResult){
+                hResult.status.should.be.eql(hClient1.hResultStatus.OK);
+                setTimeout(done, 800); //Set a timeout to test if the message is received
+            });
+
+        })
+    })
+
+})
+
+describe('#publish()', function() {
+    it('should return NOT_CONNECTED if user tries to publish message while not connected', function(done){
+        var msg = hClient2.buildMessage('invalid channel chid', undefined, undefined);
+        hClient2.publish(msg, function(hResult){
+            hResult.status.should.be.eql(hClient2.hResultStatus.NOT_CONNECTED);
+            hResult.result.should.be.a('string');
+            done();
+        });
+    })
+
 })
