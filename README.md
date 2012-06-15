@@ -32,7 +32,7 @@ You can use **HubiquitusJS** in two completely different ways.
 
 ```js
 //Connect to a hNode
-hClient.connect('username', 'password', function(msg){ console.log(msg); });
+hClient.connect('username', 'password');
 ```
 
 ### For your Node app
@@ -44,36 +44,36 @@ hClient.connect('username', 'password', function(msg){ console.log(msg); });
 var hClient = require('hubiquitusjs').hClient;
 
 //Connect to a hNode using default configuration.
-hClient.connect('username', 'password', function(msg){ console.log(msg); });
+hClient.connect('username', 'password');
 ```
 
 ### Details
-The function parameter in connect is the hCallback that will receive messages
-from the server. See [hCallback](https://github.com/hubiquitus/hubiquitusjs/wiki/hCallback)
-to read what can be sent by the server.
+To receive messages in realtime, use `hClient.onMessage`, you can set this function that
+receives a message to whatever you like. For more information about available data received
+in real time see [hCallback](https://github.com/hubiquitus/hubiquitusjs/wiki/hCallback)
 
-Once connected it is possible to execute other commands:
+Once connected it is also possible to execute other commands:
 
 ```js
-hClient.subscribe(channel); //Channel to subscribe to using current credentials.
-hClient.unsubscribe(channel); //Channel to unsubscribe.
-hClient.publish(hMessage); //Publishes an hMessage.
-hClient.getMessages(channel); //Get last messages from 'channel'
+hClient.subscribe(channel, cb); //Channel to subscribe to using current credentials.
+hClient.unsubscribe(channel, cb); //Channel to unsubscribe.
+hClient.publish(hMessage, cb); //Publishes an hMessage.
+hClient.getMessages(channel, cb); //Get last messages from 'channel'
 hClient.disconnect(); //Disconnects from the Server.
-hClient.command(hCommand); //Sends an hCommand to an entity (Will call command builder to fill missing)
+hClient.command(hCommand, cb); //Sends an hCommand to an entity (Will call command builder to fill missing)
 hClient.commandBuilder(hCommand); //Fills command attributes with default values
 ```
 
 In all cases, `channel` is a string with the name that identifies the node.
 
-Note: a list of all available operations is defined in [Functions](https://github.com/hubiquitus/hubiquitusjs/wiki/Functions)
+Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitusjs/wiki/Functions)
 
 ## Options
 An `hOptions` object can be sent to the connect function as the last argument.
 
 The keys in this object and an explanation for each one of them can be
 found in the [hOptions](https://github.com/hubiquitus/hubiquitusjs/wiki/hOptions) page. 
-There are examples of how to create a *hOptions* in the `examples/` folder.
+There are examples of how to create a *hOptions* object in the `examples/` folder.
 
 ## License 
 Copyright (c) Novedia Group 2012.
