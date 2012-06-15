@@ -138,6 +138,9 @@ define(
             },
 
             publish : function(hMessage, cb){
+                if(hMessage instanceof Object)
+                    hMessage.publisher = this.publisher;
+
                 var hCommand = {
                     entity: this.hOptions.hServer + '.' + this.domain,
                     cmd: 'hPublish',
@@ -224,7 +227,6 @@ define(
                     location: options.location,
                     author: options.author,
                     published: options.published,
-                    publisher: this.publisher,
                     headers: options.headers,
                     payload: payload
                 };

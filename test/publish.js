@@ -33,6 +33,12 @@ describe('#publish()', function() {
     var chanInactive = 'chan' + Math.floor(Math.random()*10000);
     var chanNotInPart = 'chan' + Math.floor(Math.random()*10000);
 
+    var msgCreatedOffline;
+
+    before(function(){
+        msgCreatedOffline = hClient1.buildMessage(chanActive, null, null, null);
+    })
+
     before(function(done){
         conf.connect(done, user1, conf.hOptions, hClient1);
     })
@@ -91,16 +97,6 @@ describe('#publish()', function() {
         });
     })
 
-    it('should return NOT_AUTHORIZED if user tries to publish with sender != publisher', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined);
-        msg.publisher = user1.login;
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
-            done();
-        });
-    })
-
     it('should return MISSING_ATTR if user tries to publish a null message', function(done){
         hClient2.publish(undefined, function(hResult){
             hResult.status.should.be.eql(hClient2.hResultStatus.MISSING_ATTR);
@@ -119,21 +115,18 @@ describe('#publish()', function() {
         });
     })
 
-    it('should return MISSING_ATTR if user tries to publish message without publisher', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined);
-        delete msg.publisher;
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.MISSING_ATTR);
-            hResult.result.should.be.a('string');
-            done();
-        });
-    })
-
     it('should return NOT_AVAILABLE if user tries to publish message to a channel that does not exist', function(done){
         var msg = hClient2.buildMessage('invalid channel chid', undefined, undefined);
         hClient2.publish(msg, function(hResult){
             hResult.status.should.be.eql(hClient2.hResultStatus.NOT_AVAILABLE);
             hResult.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return OK if user tries to publish a message created offline', function(done){
+        hClient1.publish(msgCreatedOffline, function(hResult){
+            hResult.status.should.be.eql(hClient1.hResultStatus.OK);
             done();
         });
     })
