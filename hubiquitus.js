@@ -121,7 +121,7 @@ define(
 
             subscribe : function(channel, cb){
                 var hCommand = {
-                    entity: this.hOptions.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hSubscribe',
                     params: {chid: channel}
                 };
@@ -130,7 +130,7 @@ define(
 
             unsubscribe : function(channel, cb){
                 var hCommand = {
-                    entity: this.hOptions.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hUnsubscribe',
                     params: {chid: channel}
                 };
@@ -142,7 +142,7 @@ define(
                     hMessage.publisher = this.publisher;
 
                 var hCommand = {
-                    entity: this.hOptions.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hPublish',
                     params: hMessage
                 };
@@ -151,7 +151,7 @@ define(
 
             getSubscriptions: function(cb){
                 var hCommand = {
-                    entity: this.hOptions.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hGetSubscriptions'
                 };
                 this.command(hCommand, cb);
@@ -159,7 +159,7 @@ define(
 
             getLastMessages: function(chid, quantity, cb){
                 var hCommand = {
-                    entity: this.hOptions.hServer + '.' + this.domain,
+                    entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hGetLastMessages',
                     params: {
                         chid: chid,

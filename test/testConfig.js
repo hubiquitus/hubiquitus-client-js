@@ -26,7 +26,7 @@ exports.logins = [
     }
 ];
 
-exports.hNode = 'hnode.localhost'; //Address of the hNode entity
+exports.hNode = 'hnode@localhost'; //Address of the hNode entity
 
 
 
