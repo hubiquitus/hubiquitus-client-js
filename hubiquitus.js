@@ -163,7 +163,7 @@ define(
                     cmd: 'hGetLastMessages',
                     params: {
                         chid: chid,
-                        quant: quantity
+                        nbLastMsg: quantity
                     }
                 };
                 return this.command(hCommand);
