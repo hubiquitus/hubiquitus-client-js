@@ -71,6 +71,9 @@ describe('#subscribe()', function() {
     it('should return hResult status OK if not subscribed and in participants list', function(done) {
         hClient.subscribe(chanActive, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
+            hClient.getSubscriptions(function(hResult) {
+                hResult.result.should.include(chanActive);
+            });
             done();
         });
     })

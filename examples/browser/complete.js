@@ -17,6 +17,10 @@
  *     along with Hubiquitus.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+var callback = function(hresult) {
+    console.log(hresult);
+}
+
 function connect(){
     var endpoint = document.getElementById('endpoint').value;
     var endpoints = endpoint ? [endpoint] : undefined;
@@ -51,27 +55,27 @@ function publish(){
     var msg = document.getElementById('hMessage').value;
     hClient.publish(hClient.buildMessage(chid, 'string', msg, {
         transient: !!document.getElementById("hMessageTransient").checked
-    }), console.log);
+    }), callback);
 }
 
 function subscribe(){
     var chid = document.getElementById('chid').value;
-    hClient.subscribe(chid, console.log)
+    hClient.subscribe(chid, callback)
 }
 
 function unsubscribe(){
     var chid = document.getElementById('chid').value;
-    hClient.unsubscribe(chid, console.log)
+    hClient.unsubscribe(chid, callback)
 }
 
 function get_messages(){
     var chid = document.getElementById('chid').value;
     var quantity = prompt('Max Messages (can be empty):');
-    hClient.getLastMessages(chid, quantity, console.log);
+    hClient.getLastMessages(chid, quantity, callback);
 }
 
 function get_subscriptions(){
-    hClient.getSubscriptions(console.log);
+    hClient.getSubscriptions(callback);
 }
 
 function clear_divs(){
@@ -90,7 +94,7 @@ function send_hEcho(){
             params : {hello : value},
             transient : !!document.getElementById("transientCheckBox").checked
         };
-        hClient.command(echoCmd, console.log);
+        hClient.command(echoCmd, callback);
     }
 
 }
@@ -105,7 +109,7 @@ function build_measure(){
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, console.log);
+        hClient.publish(hMessage, callback);
 }
 
 function build_alert(){
@@ -117,7 +121,7 @@ function build_alert(){
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, console.log);
+        hClient.publish(hMessage, callback);
 }
 
 function build_ack(){
@@ -130,7 +134,7 @@ function build_ack(){
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, console.log);
+        hClient.publish(hMessage, callback);
 }
 
 function build_conv(){
@@ -144,7 +148,7 @@ function build_conv(){
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, console.log);
+        hClient.publish(hMessage, callback);
 }
 
 function onStatus(hStatus){
