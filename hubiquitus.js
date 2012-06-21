@@ -74,19 +74,14 @@ define(
                     }
                 };
 
-
-                //Verify JID format (must be a@b)
-                var jid = publisher.split('@');
-                if(jid.length != 2 || !jid[0] || !jid[1]){
-                    this.onStatus({
+                if(!this.checkJID(publisher))
+                    return this.onStatus({
                         status: codes.statuses.DISCONNECTED,
                         errorCode: codes.errors.JID_MALFORMAT
                     });
-                    return;
-                }
 
                 //Set Domain and publisher
-                this.domain = jid[1];
+                this.domain = this.splitJID(publisher)[1];
                 this.publisher = publisher;
 
                 //Load Balancing
@@ -271,6 +266,14 @@ define(
 
 
                 return this.buildMessage(chid, 'hConv', {topic: topic, participants: participants}, options);
+            },
+
+            checkJID: function(jid){
+                return new RegExp("^(?:([^@/<>'\"]+)@)([^@/<>'\"]+)(?:/([^/<>'\"]*))?$").test(jid);
+            },
+
+            splitJID: function(jid){
+                return jid.match(new RegExp("^(?:([^@/<>'\"]+)@)([^@/<>'\"]+)(?:/([^/<>'\"]*))?$")).splice(1, 3);
             },
 
             errors: codes.errors,
