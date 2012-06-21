@@ -41,7 +41,7 @@ describe('#unsubscribe()', function() {
     })
 
     before(function(done){
-        conf.createChannel(chanInactiveNotSubscribed, user.login, [conf.logins[1]], false, done);
+        conf.createChannel(chanInactiveNotSubscribed, user.login, [conf.logins[1].login], false, done);
     })
 
     before(function(done){

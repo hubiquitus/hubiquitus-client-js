@@ -156,7 +156,7 @@ describe('#getLastMessages()', function() {
                 owner: user.login,
                 participants: [user.login],
                 active: true,
-                headers: [{hKey: 'maxMsgRetrieval', hValue: ''+maxMsgRetrieval}]
+                headers: [{hK: 'MAX_MSG_RETRIEVAL', hV: ''+maxMsgRetrieval}]
             }
         }, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
