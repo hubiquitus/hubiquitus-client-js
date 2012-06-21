@@ -89,7 +89,7 @@ function send_hEcho(){
     else{
         var value = prompt('Your Name:');
         var echoCmd = {
-            entity : 'hnode.' + hClient.publisher.split('@')[1],
+            entity : 'hnode@' + hClient.domain,
             cmd : 'hEcho',
             params : {hello : value},
             transient : !!document.getElementById("transientCheckBox").checked

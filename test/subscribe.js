@@ -41,7 +41,7 @@ describe('#subscribe()', function() {
     })
 
     before(function(done){
-        conf.createChannel(chanNotInPart, user.login, [conf.logins[1]], true, done);
+        conf.createChannel(chanNotInPart, user.login, [conf.logins[1].login], true, done);
     })
 
     it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
