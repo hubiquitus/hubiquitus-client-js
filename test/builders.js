@@ -172,42 +172,51 @@ describe('#buildAck()', function() {
 
 })
 
-describe('#buildConv()', function() {
+describe('#buildConvState()', function() {
 
     var chid = 'chan';
-    var topic = 'topic';
-    var participants = [];
+    var convid = 'convid';
+    var status = 'status';
+    var options = {convid : "convidOpt"};
 
     it('should throw an error if nothing provided', function(done) {
         try {
-            hClient.buildConv();
+            hClient.buildConvState();
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if topic not provided but chid provided', function(done) {
+    it('should throw an error if convid not provided but chid provided', function(done) {
         try {
-            hClient.buildConv(chid);
+            hClient.buildConvState(chid);
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if participants not provided but chid, topic provided', function(done) {
+    it('should throw an error if status not provided but chid, convid provided', function(done) {
         try {
-            hClient.buildConv(chid,topic);
+            hClient.buildConvState(chid,convid);
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should create an ack if all provided', function(done) {
+    it('should create a ConvState if only options not provided', function(done) {
         try {
-            hClient.buildConv(chid,topic,participants);
+            hClient.buildConvState(chid,convid,status);
+            done();
+        } catch (error) {
+        }
+    });
+
+    it('should create a ConvState if all provided', function(done) {
+        try {
+            hClient.buildConvState(chid,convid,status,options);
             done();
         } catch (error) {
         }
