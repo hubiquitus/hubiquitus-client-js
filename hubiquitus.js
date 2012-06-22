@@ -164,6 +164,18 @@ define(
                 this.command(hCommand, cb);
             },
 
+            getThread: function(chid, convid, cb){
+                var hCommand = {
+                    entity: this.hOptions.hServer + '@' + this.domain,
+                    cmd: 'hGetThread',
+                    params: {
+                        chid: chid,
+                        convid: convid
+                    }
+                };
+                this.command(hCommand, cb);
+            },
+
             command: function(hCommand, cb){
                 //Complete hCommand
                 hCommand = this.commandBuilder(hCommand);
