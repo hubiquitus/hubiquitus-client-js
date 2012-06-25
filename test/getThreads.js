@@ -155,7 +155,7 @@ describe('#getThreads()', function() {
 
 })
 
-describe('#getThread()', function() {
+describe('#getThreads()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to getThreads while disconnected', function(done){
         hClient.getThreads('this channel does not exist', 'this is not a good status', function(hResult){
