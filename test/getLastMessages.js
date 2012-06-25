@@ -48,7 +48,7 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return an empty array of messages if nothing has been saved', function(done){
-        hClient.getLastMessages(channel, undefined, function(hResult){
+        hClient.getLastMessages(channel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(msgQuantity);
             done();
@@ -56,7 +56,7 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return a hResult with NOT_AUTHORIZED status if user not in participants list', function(done){
-        hClient.getLastMessages(notInPartChannel, undefined, function(hResult){
+        hClient.getLastMessages(notInPartChannel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hResult.result.should.be.a('string');
             done();
@@ -64,7 +64,7 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return a hResult with NOT_AUTHORIZED status if channel is inactive', function(done){
-        hClient.getLastMessages(inactiveChannel, undefined, function(hResult){
+        hClient.getLastMessages(inactiveChannel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hResult.result.should.be.a('string');
             done();
@@ -72,14 +72,14 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return a hResult with NOT_AVAILABLE status if channel does not exist', function(done){
-        hClient.getLastMessages('this chan does not exist', undefined, function(hResult){
+        hClient.getLastMessages('this chan does not exist', function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
     })
 
     it('should return a hResult with MISSING_ATTR status if channel was not sent', function(done){
-        hClient.getLastMessages(undefined, undefined, function(hResult){
+        hClient.getLastMessages(undefined, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             hResult.result.should.be.a('string');
             done();
@@ -187,7 +187,7 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return msg quantity specified in headers if not specified in function', function(done){
-        hClient.getLastMessages(chanWithHeader, undefined, function(hResult){
+        hClient.getLastMessages(chanWithHeader, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(maxMsgRetrieval);
             done();
@@ -203,7 +203,7 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return msg quantity specified in ref if nothing is defined in function or channel', function(done){
-        hClient.getLastMessages(channel, undefined, function(hResult){
+        hClient.getLastMessages(channel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(10);
             done();
@@ -224,7 +224,7 @@ describe('#getLastMessages()', function() {
 describe('#getLastMessages()', function() {
 
     it('should return a hResult status NOT_CONNECTED if trying getLastMessages while not connected', function(done){
-        hClient.getLastMessages(channel, undefined, function(hResult){
+        hClient.getLastMessages(channel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })

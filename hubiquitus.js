@@ -153,6 +153,9 @@ define(
             },
 
             getLastMessages: function(chid, quantity, cb){
+                //Allow not to specify quantity and pass a callback directly
+                if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
+
                 var hCommand = {
                     entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hGetLastMessages',
