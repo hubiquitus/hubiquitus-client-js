@@ -176,6 +176,18 @@ define(
                 this.command(hCommand, cb);
             },
 
+            getThreads: function(chid, status, cb){
+                var hCommand = {
+                    entity: this.hOptions.hServer + '@' + this.domain,
+                    cmd: 'hGetThreads',
+                    params: {
+                        chid: chid,
+                        status: status
+                    }
+                };
+                this.command(hCommand, cb);
+            },
+
             command: function(hCommand, cb){
                 //Complete hCommand
                 hCommand = this.commandBuilder(hCommand);

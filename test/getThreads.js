@@ -21,12 +21,13 @@ var should = require("should");
 var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
-describe('#getThread()', function() {
+describe('#getThreads()', function() {
     var activeChannel = 'chan' + Math.floor(Math.random()*10000),
         inactiveChannel = 'chan' + Math.floor(Math.random()*10000),
         notInPartChannel = 'chan' + Math.floor(Math.random()*10000),
-        convid,
-        publishedMessages = 0;
+        status = 'status' + Math.floor(Math.random()*10000),
+        shouldNotAppearConvids = [],
+        shouldAppearConvids = [];
 
     var user = conf.logins[0];
 
@@ -46,87 +47,107 @@ describe('#getThread()', function() {
         conf.createChannel(notInPartChannel, user.login, [], false, done);
     })
 
-    //First message to get convid
-    before(function(done){
-        hClient.publish(hClient.buildMessage(activeChannel, undefined, undefined,
-            {transient: false}), function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            convid = hResult.result.convid;
-            publishedMessages++;
-            done();
-        })
-    })
-
-    for(var i = 0; i < 5; i++)
+    //Root messages with different status
+    for(var i = 0; i < 2; i++)
         before(function(done){
-            hClient.publish(hClient.buildMessage(activeChannel, undefined, undefined,
-                {transient: false, convid: convid}), function(hResult){
+            hClient.publish(hClient.buildConvState(activeChannel, Math.floor(Math.random()*10000), 'status' + Math.floor(Math.random()*10000),
+                {transient: false}), function(hResult){
                 hResult.status.should.be.eql(hClient.hResultStatus.OK);
-                publishedMessages++;
+                shouldNotAppearConvids.push(hResult.result.convid);
                 done();
             })
         })
 
-    it('should return status OK with empty array if no messages with sent convid', function(done){
-        hClient.getThread(activeChannel, '' + Math.floor(Math.random()*10000), function(hResult){
+    //Change state of one of the previous convstate to a good one
+    before(function(done){
+        hClient.publish(hClient.buildConvState(activeChannel, shouldNotAppearConvids.pop(), status,
+            {transient: false}), function(hResult){
+            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+            shouldAppearConvids.push('' + hResult.result.convid);
+            done();
+        })
+    })
+
+    //Add a new conversation with good status
+    before(function(done){
+        hClient.publish(hClient.buildConvState(activeChannel, Math.floor(Math.random()*10000), status,
+            {transient: false}), function(hResult){
+            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+            shouldAppearConvids.push('' + hResult.result.convid);
+            done();
+        })
+    })
+
+    it('should return status OK with empty array if no messages with sent status', function(done){
+        hClient.getThreads(activeChannel, '' + Math.floor(Math.random()*10000), function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
             done();
         })
     })
 
-    it('should return status OK with array with all messages with same convid sent', function(done){
-        hClient.getThread(activeChannel, convid, function(hResult){
+    it('should return status OK with array with all convids that correspond to the status sent', function(done){
+        hClient.getThreads(activeChannel, status, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(publishedMessages);
+            for(var i = 0; i < shouldAppearConvids.length; i++)
+                hResult.result.should.include(shouldAppearConvids[i]);
+            done();
+        })
+    })
+
+    it('should return status OK with array without elements that HAD the status but then changed', function(done){
+        hClient.getThreads(activeChannel, status, function(hResult){
+            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+            for(var i = 0; i < shouldNotAppearConvids.length; i++)
+                hResult.result.should.not.include(shouldNotAppearConvids[i]);
             done();
         })
     })
 
     it('should return status error NOT_AUTHORIZED if channel is inactive', function(done){
-        hClient.getThread(inactiveChannel, convid, function(hResult){
+        hClient.getThreads(inactiveChannel, status, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();
         })
     })
 
     it('should return status error NOT_AUTHORIZED if sender not in participants list', function(done){
-        hClient.getThread(notInPartChannel, convid, function(hResult){
+        hClient.getThreads(notInPartChannel, status, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();
         })
     })
 
     it('should return status error MISSING_ATTR if chid is not passed', function(done){
-        hClient.getThread(undefined, convid, function(hResult){
+        hClient.getThreads(undefined, status, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             done();
         })
     })
 
-    it('should return status error MISSING_ATTR if convid is not passed', function(done){
-        hClient.getThread(activeChannel, undefined, function(hResult){
+    it('should return status error MISSING_ATTR if status is not passed', function(done){
+        hClient.getThreads(activeChannel, undefined, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             done();
         })
     })
 
     it('should return status error INVALID_ATTR if chid is not a string', function(done){
-        hClient.getThread([], convid, function(hResult){
+        hClient.getThreads([], status, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             done();
         })
     })
 
-    it('should return status error INVALID_ATTR if convid is not a string', function(done){
-        hClient.getThread(activeChannel, [], function(hResult){
+    it('should return status error INVALID_ATTR if status is not a string', function(done){
+        hClient.getThreads(activeChannel, [], function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             done();
         })
     })
 
     it('should return status error NOT_AVAILABLE if chid does not correspond to a valid hChannel', function(done){
-        hClient.getThread('this does not exist', convid, function(hResult){
+        hClient.getThreads('this does not exist', status, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
@@ -136,8 +157,8 @@ describe('#getThread()', function() {
 
 describe('#getThread()', function() {
 
-    it('should return a hResult with status NOT_CONNECTED if user tries to getThread while disconnected', function(done){
-        hClient.getThread('this channel does not exist', 'this is not a convid', function(hResult){
+    it('should return a hResult with status NOT_CONNECTED if user tries to getThreads while disconnected', function(done){
+        hClient.getThreads('this channel does not exist', 'this is not a good status', function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
