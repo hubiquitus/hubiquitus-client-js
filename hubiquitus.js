@@ -191,6 +191,15 @@ define(
                 this.command(hCommand, cb);
             },
 
+            setFilter: function(filter, cb){
+                var hCommand = {
+                    entity: this.hOptions.hServer + '@' + this.domain,
+                    cmd: 'hSetFilter',
+                    params: filter
+                };
+                this.command(hCommand, cb);
+            },
+
             command: function(hCommand, cb){
                 //Complete hCommand
                 hCommand = this.commandBuilder(hCommand);

@@ -187,6 +187,46 @@ describe('#publish()', function() {
         });
     })
 
+    it('should receive published message that passes through a filter', function(done){
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 3});
+        var hFilterTemplate = {
+            name: 'filter' + Math.floor(Math.random()*10000),
+            chid: chanActive,
+            template: {priority: 3}
+        };
+
+        hClient2.setFilter(hFilterTemplate, function(hResult){
+            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+
+            var counter = 0;
+            hClient2.onMessage = function(hMessage){
+                hMessage.publisher.should.be.eql(hClient2.publisher);
+                if(++counter == 2)
+                    done();
+            };
+
+            hClient2.publish(msg, function(hResult){
+                hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+                if(++counter == 2)
+                    done();
+            });
+        })
+    })
+
+    it('should not receive published message that does not pass through a filter', function(done){
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4});
+
+        hClient2.onMessage = function(hMessage){
+            hMessage.publisher.should.not.be.eql(hClient2.publisher);
+        };
+
+        hClient2.publish(msg, function(hResult){
+            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        });
+
+        setTimeout(done, 800);
+    })
+
     describe('#publish()', function(){
         before(function(done){
             hClient2.unsubscribe(chanActive, function(hResult){
