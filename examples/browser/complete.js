@@ -84,7 +84,7 @@ function clear_divs(){
 }
 
 function send_hEcho(){
-    if(!hClient.publisher || hClient.publisher.split('@').length != 2)
+    if( hClient.status != hClient.statuses.CONNECTED && hClient.status != hClient.statuses.REATTACHED )
         alert('Please connect before trying to send an hEcho');
     else{
         var value = prompt('Your Name:');
