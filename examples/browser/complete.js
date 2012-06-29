@@ -102,7 +102,7 @@ function send_hEcho(){
 function listFilters(){
     var chid = document.getElementById('chid').value;
     chid = chid != '' ? chid : undefined;
-    hClient.listFilters(callback);
+    hClient.listFilters(chid, callback);
 }
 
 function setFilter(){
@@ -122,7 +122,7 @@ function setFilter(){
 function unsetFilter(){
     var name = prompt('Filter Name:');
 
-    hClient.unsetFilter(name, callback);
+    hClient.unsetFilter(name, document.getElementById('chid').value, callback);
 }
 
 function build_measure(){

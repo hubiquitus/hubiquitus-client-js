@@ -231,7 +231,7 @@ describe('#publish()', function() {
         var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4});
         var counter = 0;
 
-        hClient2.unsetFilter('a filter', function(hResult){
+        hClient2.unsetFilter('a filter', chanActive, function(hResult){
             hResult.status.should.be.eql(hClient2.hResultStatus.OK);
 
             hClient2.onMessage = function(hMessage){

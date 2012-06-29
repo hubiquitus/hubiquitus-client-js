@@ -200,19 +200,23 @@ define(
                 this.command(hCommand, cb);
             },
 
-            unsetFilter: function(name, cb){
+            unsetFilter: function(name, chid, cb){
                 var hCommand = {
                     entity: this.hOptions.hServer + '@' + this.domain,
                     cmd: 'hUnsetFilter',
-                    params: {name: name}
+                    params: {name: name, chid: chid}
                 };
                 this.command(hCommand, cb);
             },
 
-            listFilters: function(cb){
+            listFilters: function(chid, cb){
+                //Allow not to specify chid and pass a callback directly
+                if(typeof chid === 'function'){ cb = chid; chid = undefined; }
+
                 var hCommand = {
                     entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hListFilters'
+                    cmd: 'hListFilters',
+                    params: {chid: chid}
                 };
                 this.command(hCommand, cb);
             },

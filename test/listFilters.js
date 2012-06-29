@@ -55,6 +55,14 @@ describe('#listFilters()', function() {
                     done();
         })
     })
+
+    it('should return OK without filters if chid set and does not have', function(done){
+        hClient.listFilters('i dont have filters', function(hResult){
+            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+            hResult.result.should.have.length(0);
+            done();
+        })
+    })
 })
 
 describe('#listFilters()', function() {

@@ -47,16 +47,16 @@ describe('#unsetFilter()', function() {
 
     })
 
-//    it('should return MISSING_ATTR if chid is missing', function(done){
-//        hClient.unsetFilter(name, undefined, function(hResult){
-//            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-//            hResult.result.should.be.a('string');
-//            done();
-//        })
-//    })
-
     it('should return MISSING_ATTR if name is missing', function(done){
-        hClient.unsetFilter(undefined, function(hResult){
+        hClient.unsetFilter(undefined, activeChannel, function(hResult){
+            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+            hResult.result.should.be.a('string');
+            done();
+        })
+    })
+
+    it('should return MISSING_ATTR if chid is missing', function(done){
+        hClient.unsetFilter(name, undefined, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             hResult.result.should.be.a('string');
             done();
@@ -64,7 +64,7 @@ describe('#unsetFilter()', function() {
     })
 
     it('should return NOT_AVAILABLE if filter does not exist', function(done){
-        hClient.unsetFilter('this does not exist', function(hResult){
+        hClient.unsetFilter('this does not exist', activeChannel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             hResult.result.should.be.a('string');
             done();
@@ -72,7 +72,7 @@ describe('#unsetFilter()', function() {
     })
 
     it('should return OK with correct filter', function(done){
-        hClient.unsetFilter(name, function(hResult){
+        hClient.unsetFilter(name, activeChannel, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
@@ -82,7 +82,7 @@ describe('#unsetFilter()', function() {
 describe('#unsetFilter()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to remove filter while disconnected', function(done){
-        hClient.unsetFilter('a filter', function(hResult){
+        hClient.unsetFilter('a filter', 'a channel', function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
