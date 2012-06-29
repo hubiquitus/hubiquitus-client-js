@@ -99,6 +99,26 @@ function send_hEcho(){
 
 }
 
+function setFilter(){
+    var name = prompt('Filter Name:');
+    var attr = prompt('Attribute to filter:');
+    var value = prompt('Value of the attribute:');
+    var filterTemplate = {
+        name: name,
+        chid: document.getElementById('chid').value,
+        template: {}
+    };
+    filterTemplate.template[attr] = value;
+
+    hClient.setFilter(filterTemplate, callback);
+}
+
+function unsetFilter(){
+    var name = prompt('Filter Name:');
+
+    hClient.unsetFilter(name, callback);
+}
+
 function build_measure(){
     var value = prompt('Value:');
     var unit = prompt('Unit:');
