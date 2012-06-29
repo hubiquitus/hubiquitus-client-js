@@ -99,6 +99,20 @@ function send_hEcho(){
 
 }
 
+function getThread(){
+    var chid = prompt('Channel to search the messages:');
+    var convid = prompt('Convid to recover:');
+
+    hClient.getThread(chid, convid, callback);
+}
+
+function getThreads(){
+    var chid = prompt('Channel to search the hConvStates:');
+    var status = prompt('Matching status to recover:');
+
+    hClient.getThreads(chid, status, callback);
+}
+
 function listFilters(){
     var chid = document.getElementById('chid').value;
     chid = chid != '' ? chid : undefined;
