@@ -190,7 +190,7 @@ describe('#publish()', function() {
     it('should receive published message that passes through a filter', function(done){
         var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 3});
         var hFilterTemplate = {
-            name: 'filter' + Math.floor(Math.random()*10000),
+            name: 'a filter',
             chid: chanActive,
             template: {priority: 3}
         };
@@ -225,6 +225,28 @@ describe('#publish()', function() {
         });
 
         setTimeout(done, 800);
+    })
+
+    it('should receive published message that was filtered before but unset', function(done){
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4});
+        var counter = 0;
+
+        hClient2.unsetFilter('a filter', function(hResult){
+            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+
+            hClient2.onMessage = function(hMessage){
+                hMessage.publisher.should.be.eql(hClient2.publisher);
+                if(++counter == 2)
+                    done();
+            };
+
+            hClient2.publish(msg, function(hResult){
+                hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+                if(++counter == 2)
+                    done();
+            });
+        })
+
     })
 
     describe('#publish()', function(){

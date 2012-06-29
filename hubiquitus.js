@@ -200,6 +200,15 @@ define(
                 this.command(hCommand, cb);
             },
 
+            unsetFilter: function(name, cb){
+                var hCommand = {
+                    entity: this.hOptions.hServer + '@' + this.domain,
+                    cmd: 'hUnsetFilter',
+                    params: {name: name}
+                };
+                this.command(hCommand, cb);
+            },
+
             command: function(hCommand, cb){
                 //Complete hCommand
                 hCommand = this.commandBuilder(hCommand);
