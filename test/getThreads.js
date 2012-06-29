@@ -27,7 +27,8 @@ describe('#getThreads()', function() {
         notInPartChannel = 'chan' + Math.floor(Math.random()*10000),
         status = 'status' + Math.floor(Math.random()*10000),
         shouldNotAppearConvids = [],
-        shouldAppearConvids = [];
+        shouldAppearConvids = [],
+        initialConvids = [];
 
     var user = conf.logins[0];
 
@@ -47,10 +48,21 @@ describe('#getThreads()', function() {
         conf.createChannel(notInPartChannel, user.login, [], false, done);
     })
 
+
+    for(var i = 0; i < 10; i++)
+        before(function(done){
+            hClient.publish(hClient.buildMessage(activeChannel, undefined, undefined, {transient: false}), function(hResult){
+                hResult.status.should.be.eql(hClient.hResultStatus.OK);
+                initialConvids.push(hResult.result.convid);
+                done();
+            });
+
+        })
+
     //Root messages with different status
     for(var i = 0; i < 2; i++)
         before(function(done){
-            hClient.publish(hClient.buildConvState(activeChannel, Math.floor(Math.random()*10000), 'status' + Math.floor(Math.random()*10000),
+            hClient.publish(hClient.buildConvState(activeChannel, initialConvids.pop(), 'status' + Math.floor(Math.random()*10000),
                 {transient: false}), function(hResult){
                 hResult.status.should.be.eql(hClient.hResultStatus.OK);
                 shouldNotAppearConvids.push(hResult.result.convid);
@@ -70,7 +82,7 @@ describe('#getThreads()', function() {
 
     //Add a new conversation with good status
     before(function(done){
-        hClient.publish(hClient.buildConvState(activeChannel, Math.floor(Math.random()*10000), status,
+        hClient.publish(hClient.buildConvState(activeChannel, initialConvids.pop(), status,
             {transient: false}), function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             shouldAppearConvids.push('' + hResult.result.convid);
