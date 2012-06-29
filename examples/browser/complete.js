@@ -99,6 +99,12 @@ function send_hEcho(){
 
 }
 
+function listFilters(){
+    var chid = document.getElementById('chid').value;
+    chid = chid != '' ? chid : undefined;
+    hClient.listFilters(callback);
+}
+
 function setFilter(){
     var name = prompt('Filter Name:');
     var attr = prompt('Attribute to filter:');
