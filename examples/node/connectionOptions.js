@@ -27,18 +27,18 @@ var hOptions = {
     endpoints : ['http://localhost:8080/']
 };
 
+//Sets a listener for incoming real time messages
+hClient.onMessage = function(hMessage){
+    console.log('Received a message', hMessage);
+};
 
-var hCallback = function(msg){
-    if (msg.type == 'hStatus' && msg.data.status == hClient.status.CONNECTED){
-        console.log('Connected, Now we will receive messages');
-        hClient.subscribe('channelID'); //Because we are connected, we can subscribe to channels
-    }
+//Sets a listener for real time status
+hClient.onStatus = function(hStatus){
+    console.log('New Status', hStatus);
 
-    if (msg.type == 'hMessage')
-        console.log('Received a message' + JSON.stringify(msg.data));
+    if(hStatus == hClient.statuses.CONNECTED)
+        console.log('You are connected, now you can execute commands. Look at the browser example!');
 };
 
 // Starts a connection to the XMPP Server using passed options.
-// Everytime the server sends a message/updates his status, callback
-// will be called
-hClient.connect('publisher', 'password', hCallback, hOptions);
+hClient.connect('publisher', 'password', hOptions);

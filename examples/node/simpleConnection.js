@@ -21,14 +21,18 @@
 var hClient = require('../../hubiquitus.js').hClient;
 
 
-function hCallback(msg){
-    console.log(msg);
-    if (msg.type == 'hStatus' && msg.data.status == hClient.status.CONNECTED){
-        console.log('Connected, Now we will receive messages and can execute commands');
-    }
-}
+//Sets a listener for incoming real time messages
+hClient.onMessage = function(hMessage){
+    console.log('Received a message', hMessage);
+};
+
+//Sets a listener for real time status
+hClient.onStatus = function(hStatus){
+    console.log('New Status', hStatus);
+
+    if(hStatus == hClient.statuses.CONNECTED)
+        console.log('You are connected, now you can execute commands. Look at the browser example!');
+};
 
 // Starts a connection to the default XMPP Server using default transport.
-// Everytime the server sends a message/updates his status, the function
-// will be called
-hClient.connect('publisher', 'password', hCallback);
+hClient.connect('publisher', 'password');
