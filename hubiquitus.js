@@ -221,6 +221,15 @@ define(
                 this.command(hCommand, cb);
             },
 
+            getRelevantMessages: function(chid, cb){
+                var hCommand = {
+                    entity: this.hOptions.hServer + '@' + this.domain,
+                    cmd: 'hRelevantMessages',
+                    params: {chid: chid}
+                };
+                this.command(hCommand, cb);
+            },
+
             command: function(hCommand, cb){
                 //Complete hCommand
                 hCommand = this.commandBuilder(hCommand);
