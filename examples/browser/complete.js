@@ -51,11 +51,22 @@ function disconnect(){
 }
 
 function publish(){
+    var relevance;
     var chid = document.getElementById('chid').value;
     var msg = document.getElementById('hMessage').value;
+
+    if(document.getElementById("relevanceOn").checked)
+        relevance = parseInt(prompt('Relevance Offset:'));
+
     hClient.publish(hClient.buildMessage(chid, 'string', msg, {
-        transient: !!document.getElementById("hMessageTransient").checked
+        transient: !!document.getElementById("hMessageTransient").checked,
+        headers: { RELEVANCE_OFFSET: relevance}
     }), callback);
+}
+
+function relevantMessages(){
+    var chid = document.getElementById('chid').value;
+    hClient.getRelevantMessages(chid, callback);
 }
 
 function subscribe(){
