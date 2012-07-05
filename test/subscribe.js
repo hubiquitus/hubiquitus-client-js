@@ -72,7 +72,8 @@ describe('#subscribe()', function() {
         hClient.subscribe(chanActive, function(hResult){
             hResult.status.should.be.eql(hClient.hResultStatus.OK);
             hClient.getSubscriptions(function(hResult) {
-                hResult.result.should.include(chanActive);
+                var normalizedChanActive = '#' + chanActive + '@' + hClient.domain;
+                hResult.result.should.include(normalizedChanActive);
             });
             done();
         });
