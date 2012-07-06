@@ -35,6 +35,7 @@ define(
         var HubiquitusClient = function(){
             this.onStatus = function(hStatus){};
             this.onMessage = function(hMessage){};
+            this.onCommand = function(command){};
 
             this.openCmds = {};
             this.status = statuses.DISCONNECTED;
@@ -65,6 +66,9 @@ define(
                             break;
                         case 'hMessage':
                             this.onMessage(value);
+                            break;
+                        case 'hCommand':
+                            this.onCommand(value);
                             break;
                         case 'hResult':
                             var cmdCB = this.openCmds[value.reqid];

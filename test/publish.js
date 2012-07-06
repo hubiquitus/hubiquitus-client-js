@@ -249,6 +249,24 @@ describe('#publish()', function() {
 
     })
 
+    it('should publish message to another user and the other should receive it', function(done){
+        var msg = hClient2.buildMessage(hClient2.publisher, undefined, undefined, {priority: 4});
+        var counter = 0;
+
+        hClient2.onMessage = function(hMessage){
+            hMessage.chid.should.be.eql(hClient2.publisher);
+            if(++counter == 2)
+                done();
+        };
+
+        hClient2.publish(msg, function(hResult){
+            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+            if(++counter == 2)
+                done();
+        });
+
+    })
+
     describe('#publish()', function(){
         before(function(done){
             hClient2.unsubscribe(chanActive, function(hResult){
