@@ -15,8 +15,8 @@
 
 <h4>General</h4>
 <form>
-    Login: <input type="text" id="username"/><br/>
-    Password: <input type="password" id="password"/><br/>
+    Login: <input type="text" id="username" value="u1@localhost"/><br/>
+    Password: <input type="password" id="password" value="u1"/><br/>
 
     Channel ID: <input type="text" id="chid"/><br/>
     Message: <input type="text" id="hMessage"/><br/>
@@ -24,13 +24,13 @@
 
 <h4>hOPTIONS</h4>
 <form>
-    <input type="radio" name="transport" value="bosh" checked/>BOSH<br />
-    <input type="radio" name="transport" value="socketio" />Socket.IO <br />
+    <input type="radio" name="transport" value="bosh" />BOSH<br />
+    <input type="radio" name="transport" value="socketio" checked/>Socket.IO <br />
 
 
     Server Host: <input type="text" id="serverHost"/><br/>
     Server Port: <input type="text" id="serverPort"/><br/>
-    Endpoint: <input type="text" id="endpoint"/><br/>
+    Endpoint: <input type="text" id="endpoint" value="http://localhost:8080"/><br/>
 </form>
 
 <h4>Controls</h4>

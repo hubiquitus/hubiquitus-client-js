@@ -100,12 +100,16 @@ function send_hEcho(){
     else{
         var value = prompt('Your Name:');
         var echoCmd = {
-            entity : 'hnode@' + hClient.domain,
             cmd : 'hEcho',
             params : {hello : value},
-            transient : !!document.getElementById("transientCheckBox").checked
         };
-        hClient.command(echoCmd, callback);
+        var hMessage = {};
+        hMessage.actor = 'hnode@' + hClient.domain;
+        hMessage.type = 'hCommand';
+        hMessage.payload = echoCmd;
+        hMessage.transient = !!document.getElementById("transientCheckBox").checked;
+        hClient.send(hMessage);
+        //hClient.command(echoCmd, callback);
     }
 
 }

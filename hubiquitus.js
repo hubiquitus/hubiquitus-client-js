@@ -35,9 +35,8 @@ define(
         var HubiquitusClient = function(){
             this.onStatus = function(hStatus){};
             this.onMessage = function(hMessage){};
-            this.onCommand = function(command){};
 
-            this.openCmds = {};
+            this.msgToBeAnswered = {};
             this.status = statuses.DISCONNECTED;
         };
 
@@ -65,16 +64,7 @@ define(
                             this.onStatus(value);
                             break;
                         case 'hMessage':
-                            this.onMessage(value);
-                            break;
-                        case 'hCommand':
-                            this.onCommand(value);
-                            break;
-                        case 'hResult':
-                            var cmdCB = this.openCmds[value.reqid];
-                            delete this.openCmds[value.reqid];
-                            if(cmdCB)
-                                cmdCB(value);
+                            this.onMessageInternal(value);
                     }
                 };
 
@@ -104,6 +94,17 @@ define(
 
                 //Establish the connection
                 this.transport.connect();
+            },
+
+            onMessageInternal : function(hMessage) {
+                if (hMessage && hMessage.ref)
+                    var cb = this.msgToBeAnswered[hMessage.ref];
+
+                if (cb) {
+                    delete this.msgToBeAnswered[hMessage.ref];
+                    cb(hMessage);
+                } else
+                    this.onMessage(hMessage);
             },
 
             disconnect : function(){
@@ -146,6 +147,17 @@ define(
                     params: hMessage
                 };
                 this.command(hCommand, cb);
+            },
+
+            send : function(hMessage, cb){
+                if(!(hMessage instanceof Object))
+                    return;
+
+                hMessage.publisher = this.publisher;
+                hMessage.msgid = UUID.generate();
+
+                this.transport.sendhMessage(hMessage);
+                this.msgToBeAnswered[hMessage.msgId] = cb;
             },
 
             getSubscriptions: function(cb){
@@ -276,14 +288,14 @@ define(
                 return hCommand;
             },
 
-            buildMessage: function(chid, type, payload, options){
+            buildMessage: function(actor, type, payload, options){
                 options = options || {};
 
-                if(!chid)
-                    throw new Error('missing chid');
+                if(!actor)
+                    throw new Error('missing actor');
 
                 return {
-                    chid: chid,
+                    actor: actor,
                     convid: options.convid,
                     type: type,
                     priority: options.priority,
@@ -364,4 +376,6 @@ define(
         }
     }
 );
+
+function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(32),8)+"-"+b(a(16),4)+"-"+b(16384|a(12),4)+"-"+b(32768|a(14),4)+"-"+b(a(48),12)};UUID._gri=function(a){return 0>a?NaN:30>=a?0|Math.random()*(1<<a):53>=a?(0|1073741824*Math.random())+1073741824*(0|Math.random()*(1<<a-30)):NaN};UUID._ha=function(a,b){for(var c=a.toString(16),d=b-c.length,e="0";0<d;d>>>=1,e+=e)d&1&&(c=e+c);return c};
 
