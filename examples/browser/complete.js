@@ -17,8 +17,8 @@
  *     along with Hubiquitus.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var callback = function(hresult) {
-    console.log(hresult);
+var callback = function(hMessage) {
+    console.log("Received callback : ", hMessage);
 }
 
 function connect(){
@@ -50,39 +50,41 @@ function disconnect(){
     hClient.disconnect();
 }
 
-function publish(){
+function send(){
     var relevance;
-    var chid = document.getElementById('chid').value;
+    var actor = document.getElementById('actor').value;
     var msg = document.getElementById('hMessage').value;
 
     if(document.getElementById("relevanceOn").checked)
         relevance = parseInt(prompt('Relevance Offset:'));
 
-    hClient.publish(hClient.buildMessage(chid, 'string', msg, {
+    var timeout = document.getElementById("timeout").value;
+    hClient.send(hClient.buildMessage(actor, 'string', msg, {
         transient: !!document.getElementById("hMessageTransient").checked,
-        headers: { RELEVANCE_OFFSET: relevance}
+        headers: { RELEVANCE_OFFSET: relevance},
+        timeout: timeout
     }), callback);
 }
 
 function relevantMessages(){
-    var chid = document.getElementById('chid').value;
-    hClient.getRelevantMessages(chid, callback);
+    var actor = document.getElementById('actor').value;
+    hClient.getRelevantMessages(actor, callback);
 }
 
 function subscribe(){
-    var chid = document.getElementById('chid').value;
-    hClient.subscribe(chid, callback)
+    var actor = document.getElementById('actor').value;
+    hClient.subscribe(actor, callback)
 }
 
 function unsubscribe(){
-    var chid = document.getElementById('chid').value;
-    hClient.unsubscribe(chid, callback)
+    var actor = document.getElementById('actor').value;
+    hClient.unsubscribe(actor, callback)
 }
 
 function get_messages(){
-    var chid = document.getElementById('chid').value;
+    var actor = document.getElementById('actor').value;
     var quantity = prompt('Max Messages (can be empty):');
-    hClient.getLastMessages(chid, quantity, callback);
+    hClient.getLastMessages(actor, quantity, callback);
 }
 
 function get_subscriptions(){
@@ -99,39 +101,42 @@ function send_hEcho(){
         alert('Please connect before trying to send an hEcho');
     else{
         var value = prompt('Your Name:');
-        var echoCmd = {
-            cmd : 'hEcho',
-            params : {hello : value},
-        };
-        var hMessage = {};
-        hMessage.actor = 'hnode@' + hClient.domain;
-        hMessage.type = 'hCommand';
-        hMessage.payload = echoCmd;
-        hMessage.transient = !!document.getElementById("transientCheckBox").checked;
-        hClient.send(hMessage);
-        //hClient.command(echoCmd, callback);
+        var msgOptions = {};
+        msgOptions.transient = !!document.getElementById("transientCheckBox").checked;
+        msgOptions.timeout = document.getElementById("timeout").value;
+        var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hEcho', {hello : value}, msgOptions);
+        hClient.send(hMessage, callback);
     }
 
 }
 
 function getThread(){
-    var chid = prompt('Channel to search the messages:');
+    var actor = prompt('Channel to search the messages:');
     var convid = prompt('Convid to recover:');
 
-    hClient.getThread(chid, convid, callback);
+    hClient.getThread(actor, convid, callback);
+}
+
+function createChannel(){
+    var actor = prompt('Channel to create:');
+    var participants = prompt('Participants to the channel :');
+
+    var params = {owner: document.getElementById('username').value, actor: actor, participants: participants.split(","), active: true};
+    var hMessage = hClient.buildCommand(hClient.hOptions.hServer + '@' + hClient.domain, 'hCreateUpdateChannel', params);
+    hClient.send(hMessage, callback);
 }
 
 function getThreads(){
-    var chid = prompt('Channel to search the hConvStates:');
+    var actor = prompt('Channel to search the hConvStates:');
     var status = prompt('Matching status to recover:');
 
-    hClient.getThreads(chid, status, callback);
+    hClient.getThreads(actor, status, callback);
 }
 
 function listFilters(){
-    var chid = document.getElementById('chid').value;
-    chid = chid != '' ? chid : undefined;
-    hClient.listFilters(chid, callback);
+    var actor = document.getElementById('actor').value;
+    actor = actor != '' ? actor : undefined;
+    hClient.listFilters(actor, callback);
 }
 
 function setFilter(){
@@ -140,7 +145,7 @@ function setFilter(){
     var value = prompt('Value of the attribute:');
     var filterTemplate = {
         name: name,
-        chid: document.getElementById('chid').value,
+        actor: document.getElementById('actor').value,
         template: {}
     };
     filterTemplate.template[attr] = value;
@@ -151,58 +156,58 @@ function setFilter(){
 function unsetFilter(){
     var name = prompt('Filter Name:');
 
-    hClient.unsetFilter(name, document.getElementById('chid').value, callback);
+    hClient.unsetFilter(name, document.getElementById('actor').value, callback);
 }
 
 function build_measure(){
     var value = prompt('Value:');
     var unit = prompt('Unit:');
-    var chid = prompt('Channel:');
-    var hMessage = hClient.buildMeasure(chid, value, unit, {
+    var actor = prompt('Channel:');
+    var hMessage = hClient.buildMeasure(actor, value, unit, {
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function build_alert(){
     var alert = prompt('Alert:');
-    var chid = prompt('Channel:');
-    var hMessage = hClient.buildAlert(chid, alert, {
+    var actor = prompt('Channel:');
+    var hMessage = hClient.buildAlert(actor, alert, {
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function build_ack(){
     var ackID = prompt('AckID:');
     var ack= prompt('Ack (recv|read):');
-    var chid = prompt('Channel:');
-    var hMessage = hClient.buildAck(chid, ackID, ack, {
+    var actor = prompt('Channel:');
+    var hMessage = hClient.buildAck(actor, ackID, ack, {
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function build_convstate(){
-    var chid = prompt('Channel:');
+    var actor = prompt('Channel:');
     var convid = prompt('Convid:');
     var status = prompt('Status:');
-    var hMessage = hClient.buildConvState(chid, convid, status, {
+    var hMessage = hClient.buildConvState(actor, convid, status, {
         transient: !!document.getElementById("hMessageTransient").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function onStatus(hStatus){

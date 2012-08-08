@@ -18,7 +18,8 @@
     Login: <input type="text" id="username" value="u1@localhost"/><br/>
     Password: <input type="password" id="password" value="u1"/><br/>
 
-    Channel ID: <input type="text" id="chid"/><br/>
+    Actor ID: <input type="text" id="actor"/><br/>
+    Timeout: <input type="text" id="timeout"/><br/>
     Message: <input type="text" id="hMessage"/><br/>
 </form>
 
@@ -36,7 +37,7 @@
 <h4>Controls</h4>
 <button type="button" onclick="connect()">Connect</button>
 <button type="button" onclick="disconnect()">Disconnect</button>
-<button type="button" onclick="publish()">Publish</button>
+<button type="button" onclick="send()">Send</button>
 <button type="button" onclick="subscribe()">Subscribe</button>
 <button type="button" onclick="unsubscribe()">Unsubscribe</button>
 <button type="button" onclick="get_messages()">Get Messages</button>
@@ -48,6 +49,7 @@
 <button type="button" onclick="setFilter()">Set Filter</button>
 <button type="button" onclick="unsetFilter()">Unset Filter</button>
 <button type="button" onclick="relevantMessages()">Get Relevant</button>
+<button type="button" onclick="createChannel()">Create Channel</button>
 <br/>
 Transient hEcho<input type="checkbox" checked="checked" id="transientCheckBox"/>
 <br/>

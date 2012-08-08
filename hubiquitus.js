@@ -97,11 +97,15 @@ define(
             },
 
             onMessageInternal : function(hMessage) {
-                if (hMessage && hMessage.ref)
-                    var cb = this.msgToBeAnswered[hMessage.ref];
+                var ref;
+                if (hMessage && hMessage.ref && typeof hMessage.ref === 'string')
+                    ref = hMessage.ref.split("#")[0];
+
+                if (ref)
+                    var cb = this.msgToBeAnswered[ref];
 
                 if (cb) {
-                    delete this.msgToBeAnswered[hMessage.ref];
+                    delete this.msgToBeAnswered[ref];
                     cb(hMessage);
                 } else
                     this.onMessage(hMessage);
@@ -119,34 +123,14 @@ define(
                 }
             },
 
-            subscribe : function(channel, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hSubscribe',
-                    params: {chid: channel}
-                };
-                this.command(hCommand, cb);
+            subscribe : function(actor, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hSubscribe', {actor: actor});
+                this.send(hMessage, cb);
             },
 
-            unsubscribe : function(channel, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hUnsubscribe',
-                    params: {chid: channel}
-                };
-                this.command(hCommand, cb);
-            },
-
-            publish : function(hMessage, cb){
-                if(hMessage instanceof Object)
-                    hMessage.publisher = this.publisher;
-
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hPublish',
-                    params: hMessage
-                };
-                this.command(hCommand, cb);
+            unsubscribe : function(actor, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hUnsubscribe', {actor: actor});
+                this.send(hMessage, cb);
             },
 
             send : function(hMessage, cb){
@@ -155,137 +139,122 @@ define(
 
                 hMessage.publisher = this.publisher;
                 hMessage.msgid = UUID.generate();
+                hMessage.published = hMessage.published || new Date();
 
-                this.transport.sendhMessage(hMessage);
-                this.msgToBeAnswered[hMessage.msgId] = cb;
-            },
-
-            getSubscriptions: function(cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hGetSubscriptions'
-                };
-                this.command(hCommand, cb);
-            },
-
-            getLastMessages: function(chid, quantity, cb){
-                //Allow not to specify quantity and pass a callback directly
-                if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
-
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hGetLastMessages',
-                    params: {
-                        chid: chid,
-                        nbLastMsg: quantity
-                    }
-                };
-                this.command(hCommand, cb);
-            },
-
-            getThread: function(chid, convid, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hGetThread',
-                    params: {
-                        chid: chid,
-                        convid: convid
-                    }
-                };
-                this.command(hCommand, cb);
-            },
-
-            getThreads: function(chid, status, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hGetThreads',
-                    params: {
-                        chid: chid,
-                        status: status
-                    }
-                };
-                this.command(hCommand, cb);
-            },
-
-            setFilter: function(filter, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hSetFilter',
-                    params: filter
-                };
-                this.command(hCommand, cb);
-            },
-
-            unsetFilter: function(name, chid, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hUnsetFilter',
-                    params: {name: name, chid: chid}
-                };
-                this.command(hCommand, cb);
-            },
-
-            listFilters: function(chid, cb){
-                //Allow not to specify chid and pass a callback directly
-                if(typeof chid === 'function'){ cb = chid; chid = undefined; }
-
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hListFilters',
-                    params: {chid: chid}
-                };
-                this.command(hCommand, cb);
-            },
-
-            getRelevantMessages: function(chid, cb){
-                var hCommand = {
-                    entity: this.hOptions.hServer + '@' + this.domain,
-                    cmd: 'hRelevantMessages',
-                    params: {chid: chid}
-                };
-                this.command(hCommand, cb);
-            },
-
-            command: function(hCommand, cb){
                 //Complete hCommand
-                hCommand = this.commandBuilder(hCommand);
                 var errorCode = undefined;
                 var errorMsg = undefined;
 
                 //Verify if well formatted
-                if(!hCommand.entity){
+                if(!hMessage.actor){
                     errorCode = codes.hResultStatus.MISSING_ATTR;
-                    errorMsg = 'the entity attribute is missing';
-                } else if(!hCommand.cmd){
-                    errorCode = codes.hResultStatus.MISSING_ATTR;
-                    errorMsg = 'the cmd attribute is missing';
-                } else if(this.status != statuses.CONNECTED && this.status != statuses.REATTACHED){
+                    errorMsg = 'the actor attribute is missing';
+                }else if(this.status != statuses.CONNECTED && this.status != statuses.REATTACHED){
                     errorCode = codes.hResultStatus.NOT_CONNECTED;
                     errorMsg = 'client not connected, cannot send command';
                 }
 
                 if(!errorCode){
-                    //Add it to the open commands to call cb later
-                    this.openCmds[hCommand.reqid] = cb;
+                    //if there is a callback and no timeout, timeout is set to default value of 30s
+
+                    //Add it to the open message to call cb later
+                    if(cb) {
+                        this.msgToBeAnswered[hMessage.msgid] = cb;
+                        var timeout = hMessage.timeout || this.hOptions.msgTimeout;
+                        var self = this;
+                        //if no response in time we call a timeout
+                        setInterval(function(){
+                            if(self.msgToBeAnswered[hMessage.msgid]) {
+                                delete self.msgToBeAnswered[hMessage.msgid];
+                                if(hMessage.payload && typeof hMessage.payload === 'object')
+                                    cmd = hMessage.payload.cmd;
+                                errCode = codes.hResultStatus.EXEC_TIMEOUT;
+                                errMsg = 'No response was received within the ' + timeout + ' timeout';
+                                var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
+                                cb(resultMsg);
+                            }
+                        },timeout);
+                    }
+
+                    //set a timeout if no response is getting back on time
 
                     //Send it to transport
-                    this.transport.sendhCommand(hCommand);
-                } else if(cb)
-                    cb({
-                        cmd : hCommand.cmd,
-                        reqid : hCommand.reqid,
-                        status : errorCode,
-                        result : errorMsg
-                    });
+                    this.transport.sendhMessage(hMessage);
+                } else if(cb) {
+                    var cmd;
+                    if(hMessage.payload && typeof hMessage.payload === 'string')
+                        cmd = hMessage.payload.cmd;
+                    var resultMsg = this.buildResult(hMessage.msgid, hMessage.msgid, cmd, errorCode, errorMsg);
+                    cb(resultMsg);
+                }
             },
 
-            commandBuilder: function(hCommand){
-                hCommand = hCommand || {};
-                hCommand.reqid = hCommand.reqid || 'jscommand' + Math.floor(Math.random()*100001);
-                hCommand.sender = hCommand.sender || this.publisher;
-                hCommand.sent = hCommand.sent || new Date();
+            getSubscriptions: function(cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetSubscriptions');
+                this.send(hMessage, cb);
+            },
 
-                return hCommand;
+            getLastMessages: function(actor, quantity, cb){
+                //Allow not to specify quantity and pass a callback directly
+                if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
+
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetLastMessages', {actor: actor, nbLastMsg: quantity});
+                this.send(hMessage, cb);
+            },
+
+            getThread: function(actor, convid, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetThread', {actor: actor, convid: convid});
+                this.send(hMessage, cb);
+            },
+
+            getThreads: function(actor, status, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetThreads', {actor: actor, status: status});
+                this.send(hMessage, cb);
+            },
+
+            setFilter: function(filter, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hSetFilter', filter);
+                this.send(hMessage, cb);
+            },
+
+            unsetFilter: function(name, actor, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hUnsetFilter', {name: name, actor: actor});
+                this.send(hMessage, cb);
+            },
+
+            listFilters: function(actor, cb){
+                //Allow not to specify actor and pass a callback directly
+                if(typeof actor === 'function'){ cb = actor; actor = undefined; }
+
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hListFilters', {actor: actor});
+                this.send(hMessage, cb);
+            },
+
+            getRelevantMessages: function(actor, cb){
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hRelevantMessages', {actor: channel});
+                this.send(hMessage, cb);
+            },
+
+            buildCommand: function(actor, cmd, params, options){
+                options = options || {};
+                if(!cmd)
+                    throw new Error('missing cmd');
+
+                var hCommand = {cmd: cmd, params:params};
+                return this.buildMessage(actor, 'hCommand', hCommand, options);
+            },
+
+            buildResult: function(actor, ref, cmd, status, result, options) {
+                options = options || {};
+                if(!status)
+                    throw new Error('missing status');
+
+                if(!ref)
+                    throw new Error('missing ref');
+
+                var hResult = {cmd: cmd, status: status, result: result};
+                options.ref = ref;
+                return this.buildMessage(actor, 'hResult', hResult, options);
             },
 
             buildMessage: function(actor, type, payload, options){
@@ -294,51 +263,76 @@ define(
                 if(!actor)
                     throw new Error('missing actor');
 
-                return {
-                    actor: actor,
-                    convid: options.convid,
-                    type: type,
-                    priority: options.priority,
-                    relevance: options.relevance,
-                    transient: options.transient,
-                    location: options.location,
-                    author: options.author,
-                    published: options.published,
-                    headers: options.headers,
-                    payload: payload
-                };
+                var hMessage = {};
+                hMessage.actor = actor;
+
+                if(options.ref)
+                    hMessage.ref = options.ref;
+
+                if(options.convid)
+                    hMessage.convid = options.convid;
+
+                if(type)
+                    hMessage.type = type;
+
+                if(options.priority)
+                    hMessage.priority = options.priority;
+
+                if(options.relevance)
+                    hMessage.relevance = options.relevance;
+
+                if(options.transient)
+                    hMessage.transient = options.transient;
+
+                if(options.location)
+                    hMessage.location = options.location;
+
+                if(options.author)
+                    hMessage.author = options.author;
+
+                if(options.published)
+                    hMessage.published = options.published;
+
+                if(options.headers)
+                    hMessage.headers = options.headers;
+
+                if(payload)
+                    hMessage.payload = payload;
+
+                if(options.timeout)
+                    hMessage.timeout = options.timeout;
+
+                return hMessage;
             },
 
-            buildMeasure: function(chid, value, unit, options){
+            buildMeasure: function(actor, value, unit, options){
                 if(!value)
                     throw new Error('missing value');
                 else if (!unit)
                     throw new Error('missing unit');
 
-                return this.buildMessage(chid, 'hMeasure', {unit: unit, value: value}, options);
+                return this.buildMessage(actor, 'hMeasure', {unit: unit, value: value}, options);
             },
 
-            buildAlert: function(chid, alert, options){
+            buildAlert: function(actor, alert, options){
                 if(!alert)
                     throw new Error('missing alert');
 
-                return this.buildMessage(chid, 'hAlert', {alert: alert}, options);
+                return this.buildMessage(actor, 'hAlert', {alert: alert}, options);
             },
 
-            buildAck: function(chid, ackid, ack, options){
-                if(!ackid)
-                    throw new Error('missing ackid');
-                else if(!ack)
+            buildAck: function(actor, ack, options){
+                if(!ack)
                     throw new Error('missing ack');
                 else if(!/recv|read/i.test(ack))
                     throw new Error('ack does not match "recv" or "read"');
-                else if(!options || !options.convid)
-                    throw new Error('missing convid in options');
+                else if(!options || !options.ref)
+                    throw new Error('missing ref in options');
 
-                return this.buildMessage(chid, 'hAck', {ackid: ackid, ack: ack}, options);
+                return this.buildMessage(actor, 'hAck', {ack: ack}, options);
             },
 
-            buildConvState: function(chid, convid, status, options){
+            buildConvState: function(actor, convid, status, options){
                 if(!convid)
                     throw new Error('missing convid');
                 else if(!status)
@@ -348,7 +342,7 @@ define(
 
                 options.convid = convid;
 
-                return this.buildMessage(chid, 'hConvState', {status: status}, options);
+                return this.buildMessage(actor, 'hConvState', {status: status}, options);
             },
 
             checkJID: function(jid){
