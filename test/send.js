@@ -30,8 +30,7 @@ describe('#send()', function() {
     after(conf.disconnect)
 
     it('should send a message to another user and receive it', function(done){
-        //this.timeout(5000);
-       /* hClient.onMessage = function(message){
+        hClient.onMessage = function(message){
             message.payload.cmd.should.be.eql('hEcho');
             done();
         };
@@ -42,7 +41,7 @@ describe('#send()', function() {
             payload : {
                 cmd : 'hEcho'
             }
-        }, function(hMessage){})  */
+        }, function(hMessage){})
         done();
 
     })

@@ -38,42 +38,42 @@ describe('#unsetFilter()', function() {
     before(function(done){
         hClient.setFilter({
             name: name,
-            chid: activeChannel,
+            actor: activeChannel,
             template: {priority: 2}
-        }, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+        }, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
 
     })
 
     it('should return MISSING_ATTR if name is missing', function(done){
-        hClient.unsetFilter(undefined, activeChannel, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hResult.result.should.be.a('string');
+        hClient.unsetFilter(undefined, activeChannel, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.be.a('string');
             done();
         })
     })
 
-    it('should return MISSING_ATTR if chid is missing', function(done){
-        hClient.unsetFilter(name, undefined, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hResult.result.should.be.a('string');
+    it('should return MISSING_ATTR if actor is missing', function(done){
+        hClient.unsetFilter(name, undefined, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.be.a('string');
             done();
         })
     })
 
     it('should return NOT_AVAILABLE if filter does not exist', function(done){
-        hClient.unsetFilter('this does not exist', activeChannel, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
-            hResult.result.should.be.a('string');
+        hClient.unsetFilter('this does not exist', activeChannel, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
+            hMessage.payload.result.should.be.a('string');
             done();
         })
     })
 
     it('should return OK with correct filter', function(done){
-        hClient.unsetFilter(name, activeChannel, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+        hClient.unsetFilter(name, activeChannel, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
     })
@@ -82,8 +82,8 @@ describe('#unsetFilter()', function() {
 describe('#unsetFilter()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to remove filter while disconnected', function(done){
-        hClient.unsetFilter('a filter', 'a channel', function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
+        hClient.unsetFilter('a filter', 'a channel', function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
     })

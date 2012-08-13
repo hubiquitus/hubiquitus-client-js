@@ -38,28 +38,28 @@ describe('#listFilters()', function() {
     before(function(done){
         hClient.setFilter({
             name: name,
-            chid: activeChannel,
+            actor: activeChannel,
             template: {priority: 2}
-        }, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+        }, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
 
     })
 
     it('should return OK with the filter in the array', function(done){
-        hClient.listFilters(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            for(var i = 0; i < hResult.result.length; i++)
-                if(hResult.result[i].name == name)
+        hClient.listFilters(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            for(var i = 0; i < hMessage.payload.result.length; i++)
+                if(hMessage.payload.result[i].name == name)
                     done();
         })
     })
 
-    it('should return OK without filters if chid set and does not have', function(done){
-        hClient.listFilters('i dont have filters', function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.have.length(0);
+    it('should return OK without filters if actor set and does not have', function(done){
+        hClient.listFilters('i dont have filters', function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hMessage.payload.result.should.have.length(0);
             done();
         })
     })
@@ -68,8 +68,8 @@ describe('#listFilters()', function() {
 describe('#listFilters()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to recover filters while disconnected', function(done){
-        hClient.listFilters(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
+        hClient.listFilters(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
     })

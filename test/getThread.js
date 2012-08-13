@@ -48,10 +48,10 @@ describe('#getThread()', function() {
 
     //First message to get convid
     before(function(done){
-        hClient.publish(hClient.buildMessage(activeChannel, undefined, undefined,
-            {transient: false}), function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            convid = hResult.result.convid;
+        hClient.send(hClient.buildMessage(activeChannel, undefined, undefined,
+            {transient: false}), function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            convid = hMessage.payload.result.convid;
             publishedMessages++;
             done();
         })
@@ -59,75 +59,75 @@ describe('#getThread()', function() {
 
     for(var i = 0; i < 5; i++)
         before(function(done){
-            hClient.publish(hClient.buildMessage(activeChannel, undefined, undefined,
-                {transient: false, convid: convid}), function(hResult){
-                hResult.status.should.be.eql(hClient.hResultStatus.OK);
+            hClient.send(hClient.buildMessage(activeChannel, undefined, undefined,
+                {transient: false, convid: convid}), function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 publishedMessages++;
                 done();
             })
         })
 
     it('should return status OK with empty array if no messages with sent convid', function(done){
-        hClient.getThread(activeChannel, '' + Math.floor(Math.random()*10000), function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
+        hClient.getThread(activeChannel, '' + Math.floor(Math.random()*10000), function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
             done();
         })
     })
 
     it('should return status OK with array with all messages with same convid sent', function(done){
-        hClient.getThread(activeChannel, convid, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(publishedMessages);
+        hClient.getThread(activeChannel, convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(publishedMessages);
             done();
         })
     })
 
     it('should return status error NOT_AUTHORIZED if channel is inactive', function(done){
-        hClient.getThread(inactiveChannel, convid, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+        hClient.getThread(inactiveChannel, convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();
         })
     })
 
     it('should return status error NOT_AUTHORIZED if sender not in participants list', function(done){
-        hClient.getThread(notInPartChannel, convid, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+        hClient.getThread(notInPartChannel, convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();
         })
     })
 
-    it('should return status error MISSING_ATTR if chid is not passed', function(done){
-        hClient.getThread(undefined, convid, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+    it('should return status error MISSING_ATTR if actor is not passed', function(done){
+        hClient.getThread(undefined, convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             done();
         })
     })
 
     it('should return status error MISSING_ATTR if convid is not passed', function(done){
-        hClient.getThread(activeChannel, undefined, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+        hClient.getThread(activeChannel, undefined, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             done();
         })
     })
 
-    it('should return status error INVALID_ATTR if chid is not a string', function(done){
-        hClient.getThread([], convid, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+    it('should return status error INVALID_ATTR if actor is not a string', function(done){
+        hClient.getThread([], convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             done();
         })
     })
 
     it('should return status error INVALID_ATTR if convid is not a string', function(done){
-        hClient.getThread(activeChannel, [], function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+        hClient.getThread(activeChannel, [], function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             done();
         })
     })
 
-    it('should return status error NOT_AVAILABLE if chid does not correspond to a valid hChannel', function(done){
-        hClient.getThread('this does not exist', convid, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
+    it('should return status error NOT_AVAILABLE if actor does not correspond to a valid hChannel', function(done){
+        hClient.getThread('this does not exist', convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
     })
@@ -136,9 +136,9 @@ describe('#getThread()', function() {
 
 describe('#getThread()', function() {
 
-    it('should return a hResult with status NOT_CONNECTED if user tries to getThread while disconnected', function(done){
-        hClient.getThread('this channel does not exist', 'this is not a convid', function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
+    it('should return a hMessage with status NOT_CONNECTED if user tries to getThread while disconnected', function(done){
+        hClient.getThread('this channel does not exist', 'this is not a convid', function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
     })

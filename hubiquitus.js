@@ -135,7 +135,7 @@ define(
 
             send : function(hMessage, cb){
                 if(!(hMessage instanceof Object))
-                    return;
+                    return cb(this.buildResult("Unkonwn", "Unknown", 'send', codes.hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
                 hMessage.publisher = this.publisher;
                 hMessage.msgid = UUID.generate();
@@ -184,7 +184,8 @@ define(
                     var cmd;
                     if(hMessage.payload && typeof hMessage.payload === 'string')
                         cmd = hMessage.payload.cmd;
-                    var resultMsg = this.buildResult(hMessage.msgid, hMessage.msgid, cmd, errorCode, errorMsg);
+                    var actor = hMessage.actor || 'Unknown';
+                    var resultMsg = this.buildResult(actor, hMessage.msgid, cmd, errorCode, errorMsg);
                     cb(resultMsg);
                 }
             },
@@ -231,7 +232,7 @@ define(
             },
 
             getRelevantMessages: function(actor, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hRelevantMessages', {actor: channel});
+                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hRelevantMessages', {actor: actor});
                 this.send(hMessage, cb);
             },
 
@@ -246,7 +247,7 @@ define(
 
             buildResult: function(actor, ref, cmd, status, result, options) {
                 options = options || {};
-                if(!status)
+                if(status === undefined || status === null)
                     throw new Error('missing status');
 
                 if(!ref)
@@ -281,7 +282,7 @@ define(
                 if(options.relevance)
                     hMessage.relevance = options.relevance;
 
-                if(options.transient)
+                if(options.transient !== null || options.transient !== undefined)
                     hMessage.transient = options.transient;
 
                 if(options.location)
