@@ -26,9 +26,9 @@ var conf = require('./testConfig.js');
  */
 describe('#buildMessage()', function() {
 
-    var chid = 'chan';
+    var actor = 'chan';
 
-    it('should throw an error if chid not provided', function(done) {
+    it('should throw an error if actor not provided', function(done) {
         try {
             hClient.buildMessage();
         } catch (error) {
@@ -37,9 +37,9 @@ describe('#buildMessage()', function() {
         }
     });
 
-    it('should create a message if chid provided', function(done) {
+    it('should create a message if actor provided', function(done) {
         try {
-            hClient.buildMessage(chid);
+            hClient.buildMessage(actor);
             done();
         } catch (error) {
         }
@@ -51,7 +51,7 @@ describe('#buildMessage()', function() {
 
 describe('#buildMeasure()', function() {
 
-    var chid = 'chan';
+    var actor = 'chan';
     var value = 10;
     var unit = 'meter';
 
@@ -64,25 +64,25 @@ describe('#buildMeasure()', function() {
         }
     });
 
-    it('should throw an error if value not provided but chid provided', function(done) {
+    it('should throw an error if value not provided but actor provided', function(done) {
         try {
-            hClient.buildMeasure(chid);
+            hClient.buildMeasure(actor);
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if unit not provided but chid and value provided', function(done) {
+    it('should throw an error if unit not provided but actor and value provided', function(done) {
         try {
-            hClient.buildMeasure(chid,value);
+            hClient.buildMeasure(actor,value);
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if chid not provided but value and unit provided', function(done) {
+    it('should throw an error if actor not provided but value and unit provided', function(done) {
         try {
             hClient.buildMeasure(undefined,value,unit);
         } catch (error) {
@@ -91,9 +91,9 @@ describe('#buildMeasure()', function() {
         }
     });
 
-    it('should throw an error if unit not provided but chid and unit provided', function(done) {
+    it('should throw an error if unit not provided but actor and unit provided', function(done) {
         try {
-            hClient.buildMeasure(chid,undefined,unit);
+            hClient.buildMeasure(actor,undefined,unit);
         } catch (error) {
             should.exist(error.message);
             done();
@@ -111,7 +111,7 @@ describe('#buildMeasure()', function() {
 
     it('should create a measure if all provided', function(done) {
         try {
-            hClient.buildMessage(chid,value,unit);
+            hClient.buildMessage(actor,value,unit);
             done();
         } catch (error) {
         }
@@ -121,9 +121,9 @@ describe('#buildMeasure()', function() {
 
 describe('#buildAck()', function() {
 
-    var chid = 'chan';
-    var ackid = 'ackid';
+    var actor = 'chan';
     var ack = 'recv';
+    var ref = 'aRef';
     var options = {convid : "convid"};
 
     it('should throw an error if nothing provided', function(done) {
@@ -135,36 +135,35 @@ describe('#buildAck()', function() {
         }
     });
 
-    it('should throw an error if ackid not provided but chid provided', function(done) {
+    it('should throw an error if ref not provided but actor provided', function(done) {
         try {
-            hClient.buildAck(chid);
+            hClient.buildAck(actor);
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if ack not provided but chid, ackid provided', function(done) {
+    it('should throw an error if ack not provided but actor and ref provided', function(done) {
         try {
-            hClient.buildAck(chid,ackid);
+            hClient.buildAck(actor,ack);
         } catch (error) {
-            should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if options not provided but chid, ackid and ack provided', function(done) {
+    it('should not throw an error if options not provided but actor, ref, ack provided', function(done) {
         try {
-            hClient.buildAck(chid,ackid,ack);
-        } catch (error) {
-            should.exist(error.message);
+            hClient.buildAck(actor,ref,ack);
             done();
+        } catch (error) {
+            console.log("error : ", error);
         }
     });
 
     it('should create an ack if all provided', function(done) {
         try {
-            hClient.buildAck(chid,ackid,ack,options);
+            hClient.buildAck(actor,ref,ack,options);
             done();
         } catch (error) {
         }
@@ -174,7 +173,7 @@ describe('#buildAck()', function() {
 
 describe('#buildConvState()', function() {
 
-    var chid = 'chan';
+    var actor = 'chan';
     var convid = 'convid';
     var status = 'status';
     var options = {convid : "convidOpt"};
@@ -188,18 +187,18 @@ describe('#buildConvState()', function() {
         }
     });
 
-    it('should throw an error if convid not provided but chid provided', function(done) {
+    it('should throw an error if convid not provided but actor provided', function(done) {
         try {
-            hClient.buildConvState(chid);
+            hClient.buildConvState(actor);
         } catch (error) {
             should.exist(error.message);
             done();
         }
     });
 
-    it('should throw an error if status not provided but chid, convid provided', function(done) {
+    it('should throw an error if status not provided but actor, convid provided', function(done) {
         try {
-            hClient.buildConvState(chid,convid);
+            hClient.buildConvState(actor,convid);
         } catch (error) {
             should.exist(error.message);
             done();
@@ -208,7 +207,7 @@ describe('#buildConvState()', function() {
 
     it('should create a ConvState if only options not provided', function(done) {
         try {
-            hClient.buildConvState(chid,convid,status);
+            hClient.buildConvState(actor,convid,status);
             done();
         } catch (error) {
         }
@@ -216,7 +215,7 @@ describe('#buildConvState()', function() {
 
     it('should create a ConvState if all provided', function(done) {
         try {
-            hClient.buildConvState(chid,convid,status,options);
+            hClient.buildConvState(actor,convid,status,options);
             done();
         } catch (error) {
         }
@@ -227,7 +226,7 @@ describe('#buildConvState()', function() {
 
 describe('#buildAlert()', function() {
 
-    var chid = 'chan';
+    var actor = 'chan';
     var alert = 'alert';
 
     it('should throw an error if nothing provided', function(done) {
@@ -239,9 +238,9 @@ describe('#buildAlert()', function() {
         }
     });
 
-    it('should throw an error if alert not provided but chid provided', function(done) {
+    it('should throw an error if alert not provided but actor provided', function(done) {
         try {
-            hClient.buildAlert(chid);
+            hClient.buildAlert(actor);
         } catch (error) {
             should.exist(error.message);
             done();
@@ -250,7 +249,7 @@ describe('#buildAlert()', function() {
 
     it('should create an ack if all provided', function(done) {
         try {
-            hClient.buildAlert(chid,alert);
+            hClient.buildAlert(actor,alert);
             done();
         } catch (error) {
         }

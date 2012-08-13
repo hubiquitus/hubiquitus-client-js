@@ -321,14 +321,17 @@ define(
                 return this.buildMessage(actor, 'hAlert', {alert: alert}, options);
             },
 
-            buildAck: function(actor, ack, options){
+            buildAck: function(actor, ref, ack, options){
                 if(!ack)
                     throw new Error('missing ack');
+                if(!ref)
+                    throw new Error('missing ref');
                 else if(!/recv|read/i.test(ack))
                     throw new Error('ack does not match "recv" or "read"');
-                else if(!options || !options.ref)
-                    throw new Error('missing ref in options');
+                if(typeof  options !== 'object')
+                    options = {};
 
+                options.ref = ref;
                 return this.buildMessage(actor, 'hAck', {ack: ack}, options);
             },
 
