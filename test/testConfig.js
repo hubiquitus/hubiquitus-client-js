@@ -67,21 +67,23 @@ exports.disconnect = function(done, instance){
     client.disconnect();
 };
 
-exports.createChannel = function(chid, owner, participants, active, done, instance){
+exports.createChannel = function(actor, owner, participants, active, done, instance){
     var client = instance || hClient;
     var hCommandCreateChannel = {
-        entity: exports.hNode,
-        cmd: "hcreateupdatechannel",
-        params:{
-            chid: chid,
-            host:"test",
-            owner: owner,
-            participants: participants,
-            active: active
+        actor: exports.hNode,
+        type: 'hcommand',
+        payload: {
+            cmd: "hcreateupdatechannel",
+            params:{
+                actor: actor,
+                owner: owner,
+                participants: participants,
+                active: active
+            }
         }
     };
-    client.command(hCommandCreateChannel, function(hResult){
-        hResult.status.should.be.eql(client.hResultStatus.OK);
+    client.send(hCommandCreateChannel, function(hMessage){
+        hMessage.payload.status.should.be.eql(client.hResultStatus.OK);
         done();
     });
 };

@@ -45,13 +45,13 @@ describe('#unsubscribe()', function() {
     })
 
     before(function(done){
-        hClient.subscribe(chanActive, function(hResult){
+        hClient.subscribe(chanActive, function(hMessage){
             done();
         });
     })
 
     before(function(done){
-        hClient.subscribe(chanInactive, function(hResult){
+        hClient.subscribe(chanInactive, function(hMessage){
             done();
         });
     })
@@ -61,51 +61,51 @@ describe('#unsubscribe()', function() {
     });
 
     it('should return hResult status NOT_AUTHORIZED and result be a message if channel does not exist', function(done) {
-        hClient.unsubscribe("This chan does not exist", function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.unsubscribe("This chan does not exist", function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return hResult status NOT_AUTHORIZED and result be a message if channel inactive and user was subscribed', function(done) {
-        hClient.unsubscribe(chanInactive, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.unsubscribe(chanInactive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return hResult status NOT_AUTHORIZED and result be a message if channel inactive and user not subscribed', function(done) {
-        hClient.unsubscribe(chanInactiveNotSubscribed, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.unsubscribe(chanInactiveNotSubscribed, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
-    it('should return hResult status MISSING_ATTR and result be a message if chid not provided', function(done) {
-        hClient.unsubscribe(undefined, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hResult.result.should.be.a('string');
+    it('should return hResult status MISSING_ATTR and result be a message if actor not provided', function(done) {
+        hClient.unsubscribe(undefined, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return hResult status OK if subscribed and in participants list', function(done) {
-        hClient.unsubscribe(chanActive, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hClient.getSubscriptions(function(hResult) {
-                hResult.result.should.not.include(chanActive);
+        hClient.unsubscribe(chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hClient.getSubscriptions(function(hMessage) {
+                hMessage.payload.result.should.not.include(chanActive);
             });
             done();
         });
     })
 
     it('should return hResult status NOT_AUTHORIZED and result be a message if user not subscribed', function(done) {
-        hClient.unsubscribe(chanActive, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.unsubscribe(chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
@@ -118,9 +118,9 @@ describe('#unsubscribe()', function() {
     var chanActive = 'chan' + Math.floor(Math.random()*10000);
 
     it('should return hResult status NOT_CONNECTED and result be a message if user not connected', function(done) {
-        hClient.unsubscribe(chanActive, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
-            hResult.result.should.be.a('string');
+        hClient.unsubscribe(chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
@@ -141,9 +141,9 @@ describe('#unsubscribe()', function() {
     })
 
     it('should return hResult status NOT_AUTHORIZED and result be a message if user not subscribed', function(done) {
-        hClient.unsubscribe(chanActive, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.unsubscribe(chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })

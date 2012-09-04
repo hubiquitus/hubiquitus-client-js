@@ -41,26 +41,26 @@ describe('#getRelevantMessages()', function(){
 
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
-            hClient.publish(hClient.buildMessage(activeChan, undefined, undefined,
+            hClient.send(hClient.buildMessage(activeChan, undefined, undefined,
                 {   transient: false,
                     relevance: new Date( new Date().getTime() + 1000000 )}), function(a){
-                a.status.should.be.eql(hClient.hResultStatus.OK);
+                a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
 
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
-            hClient.publish(hClient.buildMessage(activeChan, undefined, undefined,
+            hClient.send(hClient.buildMessage(activeChan, undefined, undefined,
                 {   transient: false,
                     relevance: new Date( new Date().getTime() - 100000 )}), function(a){
-                a.status.should.be.eql(hClient.hResultStatus.OK);
+                a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
 
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
-            hClient.publish(hClient.buildMessage(activeChan, undefined, undefined, {transient: false}), function(a){
-                a.status.should.be.eql(hClient.hResultStatus.OK);
+            hClient.send(hClient.buildMessage(activeChan, undefined, undefined, {transient: false}), function(a){
+                a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
 
@@ -77,60 +77,60 @@ describe('#getRelevantMessages()', function(){
     })
 
 
-    it('should return hResult error MISSING_ATTR if chid is missing', function(done){
-        hClient.getRelevantMessages(undefined, function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.MISSING_ATTR);
-            hResult.result.should.match(/chid/);
+    it('should return hResult error MISSING_ATTR if actor is missing', function(done){
+        hClient.getRelevantMessages(undefined, function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.match(/actor/);
             done();
         });
     })
 
-    it('should return hResult error INVALID_ATTR if chid is not a string', function(done){
-        hClient.getRelevantMessages([], function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.INVALID_ATTR);
-            hResult.result.should.match(/chid/);
+    it('should return hResult error INVALID_ATTR if actor is not a string', function(done){
+        hClient.getRelevantMessages([], function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.match(/actor/);
             done();
         });
     })
 
     it('should return hResult error NOT_AVAILABLE if channel was not found', function(done){
-        hClient.getRelevantMessages('not a valid channel', function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.NOT_AVAILABLE);
-            hResult.result.should.be.a('string');
+        hClient.getRelevantMessages('not a valid channel', function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AVAILABLE);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return hResult error NOT_AUTHORIZED if not in participants list', function(done){
-        hClient.getRelevantMessages(notInPart, function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.getRelevantMessages(notInPart, function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return hResult error NOT_AUTHORIZED if channel is inactive', function(done){
-        hClient.getRelevantMessages(inactiveChan, function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient.getRelevantMessages(inactiveChan, function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return hResult OK with an array of valid messages and without msgs missing relevance', function(done){
-        hClient.getRelevantMessages(activeChan, function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.OK);
-            hResult.result.length.should.be.eql(nbMsgs);
-            for(var i = 0; i < hResult.result.length; i++)
-                new Date(hResult.result[i].relevance).getTime().should.be.above(new Date().getTime());
+        hClient.getRelevantMessages(activeChan, function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.OK);
+            hMessage.payload.result.length.should.be.eql(nbMsgs);
+            for(var i = 0; i < hMessage.payload.result.length; i++)
+                new Date(hMessage.payload.result[i].relevance).getTime().should.be.above(new Date().getTime());
             done();
         });
     })
 
     it('should return hResult OK with an empty array if no matching msgs found', function(done){
-        hClient.getRelevantMessages(emptyChannel, function(hResult){
-            hResult.should.have.property('status', hClient.hResultStatus.OK);
-            hResult.result.length.should.be.eql(0);
+        hClient.getRelevantMessages(emptyChannel, function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.OK);
+            hMessage.payload.result.length.should.be.eql(0);
             done();
         });
     })
