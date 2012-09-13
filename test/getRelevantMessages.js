@@ -42,7 +42,7 @@ describe('#getRelevantMessages()', function(){
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
             hClient.send(hClient.buildMessage(activeChan, undefined, undefined,
-                {   transient: false,
+                {   persistent: true,
                     relevance: new Date( new Date().getTime() + 1000000 )}), function(a){
                 a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
@@ -51,7 +51,7 @@ describe('#getRelevantMessages()', function(){
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
             hClient.send(hClient.buildMessage(activeChan, undefined, undefined,
-                {   transient: false,
+                {   persistent: true,
                     relevance: new Date( new Date().getTime() - 100000 )}), function(a){
                 a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
@@ -59,7 +59,7 @@ describe('#getRelevantMessages()', function(){
 
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
-            hClient.send(hClient.buildMessage(activeChan, undefined, undefined, {transient: false}), function(a){
+            hClient.send(hClient.buildMessage(activeChan, undefined, undefined, {persistent: true}), function(a){
                 a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
@@ -101,7 +101,7 @@ describe('#getRelevantMessages()', function(){
         });
     })
 
-    it('should return hResult error NOT_AUTHORIZED if not in participants list', function(done){
+    it('should return hResult error NOT_AUTHORIZED if not in subscribers list', function(done){
         hClient.getRelevantMessages(notInPart, function(hMessage){
             hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');

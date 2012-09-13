@@ -55,7 +55,7 @@ describe('#getLastMessages()', function() {
         })
     })
 
-    it('should return a hResult with NOT_AUTHORIZED status if user not in participants list', function(done){
+    it('should return a hResult with NOT_AUTHORIZED status if user not in subscribers list', function(done){
         hClient.getLastMessages(notInPartChannel, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
@@ -95,7 +95,7 @@ describe('#getLastMessages()', function() {
     after(conf.disconnect)
 
     before(function(done){
-        var msgToPublish = hClient.buildMessage(channel, undefined, undefined, {transient: false});
+        var msgToPublish = hClient.buildMessage(channel, undefined, undefined, {persistent: true});
         hClient.send(msgToPublish, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             msgQuantity++;
@@ -120,13 +120,13 @@ describe('#getLastMessages()', function() {
     after(conf.disconnect)
 
     before(function(done){
-        hClient.send(hClient.buildMessage(channel, undefined, undefined, {transient: true}), function(hMessage){
+        hClient.send(hClient.buildMessage(channel, undefined, undefined, {persistent: false}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
     })
 
-    it('should return an array of messages with old length after a transient message is published', function(done){
+    it('should return an array of messages with old length after a not persistent message is published', function(done){
         hClient.getLastMessages(channel, undefined, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(msgQuantity);
@@ -151,7 +151,7 @@ describe('#getLastMessages()', function() {
         var params ={
                 actor: chanWithHeader,
                 owner: user.login,
-                participants: [user.login],
+                subscribers: [user.login],
                 active: true,
                 headers: {'MAX_MSG_RETRIEVAL': ''+maxMsgRetrieval}
         }
@@ -166,7 +166,7 @@ describe('#getLastMessages()', function() {
     before(function(done){
         var counter = 0;
         for(var i = 0; i < 20; i++)
-            hClient.send(hClient.buildMessage(channel, undefined, undefined, {transient: false}), function(hMessage){
+            hClient.send(hClient.buildMessage(channel, undefined, undefined, {persistent: true}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 msgQuantity++;
                 if(++counter == 20)
@@ -177,7 +177,7 @@ describe('#getLastMessages()', function() {
     before(function(done){
         var counter = 0;
         for(var i = 0; i < 20; i++)
-            hClient.send(hClient.buildMessage(chanWithHeader, undefined, undefined, {transient: false}), function(hMessage){
+            hClient.send(hClient.buildMessage(chanWithHeader, undefined, undefined, {persistent: true}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 msgInChanHeader++;
                 if(++counter == 20)
@@ -243,7 +243,7 @@ describe('#getLastMessages()', function() {
     before(function(done){
         var counter = 0;
         for(var i = 0; i < msgFiltered; i++)
-            hClient.send(hClient.buildMessage(channel, 'a type', undefined, {transient: false}), function(hMessage){
+            hClient.send(hClient.buildMessage(channel, 'a type', undefined, {persistent: true}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 if(++counter == msgFiltered)
                     done();

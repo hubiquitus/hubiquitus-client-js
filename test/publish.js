@@ -81,7 +81,7 @@ describe('#publish()', function() {
         hClient2.onStatus = function(hStatus){};
     })
 
-    it('should return NOT_AUTHORIZED if user tries to publish and not in participants list', function(done){
+    it('should return NOT_AUTHORIZED if user tries to publish and not in subscribers list', function(done){
         hClient2.send(hClient2.buildMessage(chanNotInPart, undefined, undefined, undefined), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient2.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
@@ -131,7 +131,7 @@ describe('#publish()', function() {
         });
     })
 
-    it('should return OK if user tries to publish when in participants list but not subscribed and should not receive msg', function(done){
+    it('should return OK if user tries to publish when in subscribers list but not subscribed and should not receive msg', function(done){
         var msg = hClient1.buildMessage(chanActive, undefined, undefined);
 
         hClient1.onMessage = function(hMessage){
@@ -171,7 +171,7 @@ describe('#publish()', function() {
     })
 
     it('should receive published message and hResult when published message is persistent', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {transient: false});
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {persistent: true});
 
         var counter = 0;
         hClient2.onMessage = function(hMessage){

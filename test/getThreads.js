@@ -51,7 +51,7 @@ describe('#getThreads()', function() {
 
     for(var i = 0; i < 10; i++)
         before(function(done){
-            hClient.send(hClient.buildMessage(activeChannel, undefined, undefined, {transient: false}), function(hMessage){
+            hClient.send(hClient.buildMessage(activeChannel, undefined, undefined, {persistent: true}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 initialConvids.push(hMessage.payload.result.convid);
                 done();
@@ -63,7 +63,7 @@ describe('#getThreads()', function() {
     for(var i = 0; i < 2; i++)
         before(function(done){
             hClient.send(hClient.buildConvState(activeChannel, initialConvids.pop(), 'status' + Math.floor(Math.random()*10000),
-                {transient: false}), function(hMessage){
+                {persistent: true}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 shouldNotAppearConvids.push(hMessage.payload.result.convid);
                 done();
@@ -73,7 +73,7 @@ describe('#getThreads()', function() {
     //Change state of one of the previous convstate to a good one
     before(function(done){
         hClient.send(hClient.buildConvState(activeChannel, shouldNotAppearConvids.pop(), status,
-            {transient: false}), function(hMessage){
+            {persistent: true}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             shouldAppearConvids.push('' + hMessage.payload.result.convid);
             done();
@@ -83,7 +83,7 @@ describe('#getThreads()', function() {
     //Add a new conversation with good status
     before(function(done){
         hClient.send(hClient.buildConvState(activeChannel, initialConvids.pop(), status,
-            {transient: false}), function(hMessage){
+            {persistent: true}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             shouldAppearConvids.push('' + hMessage.payload.result.convid);
             done();
@@ -123,7 +123,7 @@ describe('#getThreads()', function() {
         })
     })
 
-    it('should return status error NOT_AUTHORIZED if sender not in participants list', function(done){
+    it('should return status error NOT_AUTHORIZED if sender not in subscribers list', function(done){
         hClient.getThreads(notInPartChannel, status, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();

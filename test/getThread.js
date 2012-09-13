@@ -49,7 +49,7 @@ describe('#getThread()', function() {
     //First message to get convid
     before(function(done){
         hClient.send(hClient.buildMessage(activeChannel, undefined, undefined,
-            {transient: false}), function(hMessage){
+            {persistent: true}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             convid = hMessage.payload.result.convid;
             publishedMessages++;
@@ -60,7 +60,7 @@ describe('#getThread()', function() {
     for(var i = 0; i < 5; i++)
         before(function(done){
             hClient.send(hClient.buildMessage(activeChannel, undefined, undefined,
-                {transient: false, convid: convid}), function(hMessage){
+                {persistent: true, convid: convid}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 publishedMessages++;
                 done();
@@ -90,7 +90,7 @@ describe('#getThread()', function() {
         })
     })
 
-    it('should return status error NOT_AUTHORIZED if sender not in participants list', function(done){
+    it('should return status error NOT_AUTHORIZED if sender not in subscribers list', function(done){
         hClient.getThread(notInPartChannel, convid, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();

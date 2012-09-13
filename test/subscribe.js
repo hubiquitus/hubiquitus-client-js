@@ -60,7 +60,7 @@ describe('#subscribe()', function() {
         });
     })
 
-    it('should return hResult status NOT_AUTHORIZED and result be a message if user not in participants list', function(done) {
+    it('should return hResult status NOT_AUTHORIZED and result be a message if user not in subscribers list', function(done) {
         hClient.subscribe(chanNotInPart, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
@@ -68,7 +68,7 @@ describe('#subscribe()', function() {
         });
     })
 
-    it('should return hResult status OK if not subscribed and in participants list', function(done) {
+    it('should return hResult status OK if not subscribed and in subscribers list', function(done) {
         hClient.subscribe(chanActive, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             hClient.getSubscriptions(function(hMessage) {
@@ -79,7 +79,7 @@ describe('#subscribe()', function() {
         });
     })
 
-    it('should return hResult status NOT_AUTHORIZED and result be a message if user not in participants list', function(done) {
+    it('should return hResult status NOT_AUTHORIZED and result be a message if user not in subscribers list', function(done) {
         hClient.subscribe(chanActive, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');

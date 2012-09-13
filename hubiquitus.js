@@ -282,8 +282,8 @@ define(
                 if(options.relevance)
                     hMessage.relevance = options.relevance;
 
-                if(options.transient !== null || options.transient !== undefined)
-                    hMessage.transient = options.transient;
+                if(options.persistant !== null || options.persistent !== undefined)
+                    hMessage.persistent = options.persistent;
 
                 if(options.location)
                     hMessage.location = options.location;

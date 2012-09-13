@@ -92,7 +92,7 @@ describe('#unsubscribe()', function() {
         });
     })
 
-    it('should return hResult status OK if subscribed and in participants list', function(done) {
+    it('should return hResult status OK if subscribed and in subscribers list', function(done) {
         hClient.unsubscribe(chanActive, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             hClient.getSubscriptions(function(hMessage) {

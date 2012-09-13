@@ -67,7 +67,7 @@ exports.disconnect = function(done, instance){
     client.disconnect();
 };
 
-exports.createChannel = function(actor, owner, participants, active, done, instance){
+exports.createChannel = function(actor, owner, subscribers, active, done, instance){
     var client = instance || hClient;
     var hCommandCreateChannel = {
         actor: exports.hNode,
@@ -77,7 +77,7 @@ exports.createChannel = function(actor, owner, participants, active, done, insta
             params:{
                 actor: actor,
                 owner: owner,
-                participants: participants,
+                subscribers: subscribers,
                 active: active
             }
         }

@@ -62,7 +62,7 @@ describe('#setFilter()', function() {
         })
     })
 
-    it('should return NOT_AUTHORIZED if user not in participants list', function(done){
+    it('should return NOT_AUTHORIZED if user not in subscribers list', function(done){
         hFilterTemplate.actor = notInPartChannel;
         hClient.setFilter(hFilterTemplate, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
@@ -106,8 +106,8 @@ describe('#setFilter()', function() {
         })
     })
 
-    it('should return INVALID_ATTR if transient is sent', function(done){
-        hFilterTemplate.template.transient = true;
+    it('should return INVALID_ATTR if not persistent is sent', function(done){
+        hFilterTemplate.template.persistent = false;
 
         hClient.setFilter(hFilterTemplate, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);

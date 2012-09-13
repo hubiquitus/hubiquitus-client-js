@@ -60,7 +60,7 @@ function send(){
 
     var timeout = document.getElementById("timeout").value;
     hClient.send(hClient.buildMessage(actor, 'string', msg, {
-        transient: !!document.getElementById("hMessageTransient").checked,
+        persistent: !!document.getElementById("hMessagePersistent").checked,
         headers: { RELEVANCE_OFFSET: relevance},
         timeout: timeout
     }), callback);
@@ -102,7 +102,7 @@ function send_hEcho(){
     else{
         var value = prompt('Your Name:');
         var msgOptions = {};
-        msgOptions.transient = !!document.getElementById("transientCheckBox").checked;
+        msgOptions.persistent = !!document.getElementById("persistentCheckBox").checked;
         msgOptions.timeout = document.getElementById("timeout").value;
         var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hEcho', {hello : value}, msgOptions);
         hClient.send(hMessage, callback);
@@ -119,9 +119,9 @@ function getThread(){
 
 function createChannel(){
     var actor = prompt('Channel to create:');
-    var participants = prompt('Participants to the channel :');
+    var subscribers = prompt('Subscriber to the channel :');
 
-    var params = {owner: document.getElementById('username').value, actor: actor, participants: participants.split(","), active: true};
+    var params = {owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
     var hMessage = hClient.buildCommand(hClient.hOptions.hServer + '@' + hClient.domain, 'hCreateUpdateChannel', params);
     hClient.send(hMessage, callback);
 }
@@ -164,7 +164,7 @@ function build_measure(){
     var unit = prompt('Unit:');
     var actor = prompt('Channel:');
     var hMessage = hClient.buildMeasure(actor, value, unit, {
-        transient: !!document.getElementById("hMessageTransient").checked
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
@@ -176,7 +176,7 @@ function build_alert(){
     var alert = prompt('Alert:');
     var actor = prompt('Channel:');
     var hMessage = hClient.buildAlert(actor, alert, {
-        transient: !!document.getElementById("hMessageTransient").checked
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
@@ -189,7 +189,7 @@ function build_ack(){
     var ack= prompt('Ack (recv|read):');
     var actor = prompt('Channel:');
     var hMessage = hClient.buildAck(actor, ackID, ack, {
-        transient: !!document.getElementById("hMessageTransient").checked
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
@@ -202,7 +202,7 @@ function build_convstate(){
     var convid = prompt('Convid:');
     var status = prompt('Status:');
     var hMessage = hClient.buildConvState(actor, convid, status, {
-        transient: !!document.getElementById("hMessageTransient").checked
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
