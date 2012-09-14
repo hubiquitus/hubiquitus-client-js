@@ -10,7 +10,6 @@
   , "dependencies": {
 	    "amdefine" : ">=0.0.1"
       , "socket.io-client": "=0.9.10"
-      , "node-xmpp-bosh" : "=0.5.6"
       , "jsdom" : ">=0.2.13"
     }
   , "devDependencies": {

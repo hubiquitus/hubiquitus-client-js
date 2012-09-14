@@ -21,9 +21,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module) }
 
 define(
-    ['./lib/transports/bosh/hsession-bosh', './lib/transports/socketio/hsession-socketio',
+    ['./lib/transports/socketio/hsession-socketio',
         './lib/options', './lib/codes'],
-    function(hSessionBosh, hSessionSocketIO, createOptions, codes){
+    function(hSessionSocketIO, createOptions, codes){
 
         var statuses = codes.statuses;
         var errors = codes.errors;
@@ -85,9 +85,6 @@ define(
 
                 //Instantiate correct transport
                 switch(this.hOptions.transport){
-                    case 'bosh':
-                        this.transport = new hSessionBosh.hSessionBosh(publisher, password, transportCB.bind(this), this.hOptions);
-                        break;
                     default:
                         this.transport = new hSessionSocketIO.hSessionSocketIO(publisher, password, transportCB.bind(this), this.hOptions);
                 }
@@ -125,7 +122,7 @@ define(
 
             subscribe : function(actor, cb){
                 var hMessage = this.buildCommand(actor, 'hSubscribe');
-                this.send(hMessage);
+                this.send(hMessage, cb);
             },
 
             unsubscribe : function(actor, cb){
@@ -305,8 +302,8 @@ define(
                 if(payload)
                     hMessage.payload = payload;
 
-                //if(options.timeout)
-                    hMessage.timeout = 0;
+                if(options.timeout)
+                    hMessage.timeout = options.timeout;
 
                 return hMessage;
             },

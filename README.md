@@ -3,7 +3,7 @@ Use a simple API to connect to a hNode and do Publish Subscribe using the
 *Hubiquitus* protocol. It is compatible with your **web app** and your
 **Node.JS** project.
 
-To communicate with the server it can use *bosh* or 
+To communicate with the server it can use
 [socket.io](http://socket.io/). To use it's full potential, use it with
 [hubiquitus-node](https://github.com/hubiquitus/hubiquitus-node).
 
