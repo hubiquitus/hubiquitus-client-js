@@ -124,12 +124,12 @@ define(
             },
 
             subscribe : function(actor, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hSubscribe', {actor: actor});
+                var hMessage = this.buildCommand(actor, 'hSubscribe');
                 this.send(hMessage, cb);
             },
 
             unsubscribe : function(actor, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hUnsubscribe', {actor: actor});
+                var hMessage = this.buildCommand(actor, 'hUnsubscribe');
                 this.send(hMessage, cb);
             },
 
@@ -199,17 +199,17 @@ define(
                 //Allow not to specify quantity and pass a callback directly
                 if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
 
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetLastMessages', {actor: actor, nbLastMsg: quantity});
+                var hMessage = this.buildCommand(actor, 'hGetLastMessages', {nbLastMsg: quantity});
                 this.send(hMessage, cb);
             },
 
             getThread: function(actor, convid, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetThread', {actor: actor, convid: convid});
+                var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid});
                 this.send(hMessage, cb);
             },
 
             getThreads: function(actor, status, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetThreads', {actor: actor, status: status});
+                var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
                 this.send(hMessage, cb);
             },
 
@@ -232,11 +232,12 @@ define(
             },
 
             getRelevantMessages: function(actor, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hRelevantMessages', {actor: actor});
+                var hMessage = this.buildCommand(actor, 'hRelevantMessages');
                 this.send(hMessage, cb);
             },
 
             buildCommand: function(actor, cmd, params, options){
+                params = params || {};
                 options = options || {};
                 if(!cmd)
                     throw new Error('missing cmd');
