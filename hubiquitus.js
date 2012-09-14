@@ -125,7 +125,7 @@ define(
 
             subscribe : function(actor, cb){
                 var hMessage = this.buildCommand(actor, 'hSubscribe');
-                this.send(hMessage, cb);
+                this.send(hMessage);
             },
 
             unsubscribe : function(actor, cb){
@@ -159,22 +159,26 @@ define(
 
                     //Add it to the open message to call cb later
                     if(cb) {
-                        this.msgToBeAnswered[hMessage.msgid] = cb;
-                        var timeout = hMessage.timeout || this.hOptions.msgTimeout;
-                        var self = this;
-                        //if no response in time we call a timeout
-                        setInterval(function(){
-                            if(self.msgToBeAnswered[hMessage.msgid]) {
-                                delete self.msgToBeAnswered[hMessage.msgid];
-                                if(hMessage.payload && typeof hMessage.payload === 'object')
-                                    cmd = hMessage.payload.cmd;
-                                errCode = codes.hResultStatus.EXEC_TIMEOUT;
-                                errMsg = 'No response was received within the ' + timeout + ' timeout';
-                                var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
-                                cb(resultMsg);
-                            }
-                        },timeout);
+                        if(hMessage.timeout > 0){
+                            this.msgToBeAnswered[hMessage.msgid] = cb;
+                            var timeout = hMessage.timeout || this.hOptions.msgTimeout;
+                            var self = this;
+                            //if no response in time we call a timeout
+                            setInterval(function(){
+                                if(self.msgToBeAnswered[hMessage.msgid]) {
+                                    delete self.msgToBeAnswered[hMessage.msgid];
+                                    if(hMessage.payload && typeof hMessage.payload === 'object')
+                                        cmd = hMessage.payload.cmd;
+                                    errCode = codes.hResultStatus.EXEC_TIMEOUT;
+                                    errMsg = 'No response was received within the ' + timeout + ' timeout';
+                                    var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
+                                    cb(resultMsg);
+                                }
+                            },timeout);
+                        }
                     }
+                    else
+                        hMessage.timeout = -1
 
                     //set a timeout if no response is getting back on time
 
@@ -301,8 +305,8 @@ define(
                 if(payload)
                     hMessage.payload = payload;
 
-                if(options.timeout)
-                    hMessage.timeout = options.timeout;
+                //if(options.timeout)
+                    hMessage.timeout = 0;
 
                 return hMessage;
             },
