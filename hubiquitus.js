@@ -156,7 +156,7 @@ define(
 
                     //Add it to the open message to call cb later
                     if(cb) {
-                        if(hMessage.timeout > 0){
+                        if(hMessage.timeout >= 0){
                             this.msgToBeAnswered[hMessage.msgid] = cb;
                             var timeout = hMessage.timeout || this.hOptions.msgTimeout;
                             var self = this;
@@ -164,12 +164,14 @@ define(
                             setInterval(function(){
                                 if(self.msgToBeAnswered[hMessage.msgid]) {
                                     delete self.msgToBeAnswered[hMessage.msgid];
-                                    if(hMessage.payload && typeof hMessage.payload === 'object')
-                                        cmd = hMessage.payload.cmd;
-                                    errCode = codes.hResultStatus.EXEC_TIMEOUT;
-                                    errMsg = 'No response was received within the ' + timeout + ' timeout';
-                                    var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
-                                    cb(resultMsg);
+                                    if(hMessage.timeout > 0){
+                                        if(hMessage.payload && typeof hMessage.payload === 'object')
+                                            cmd = hMessage.payload.cmd;
+                                        errCode = codes.hResultStatus.EXEC_TIMEOUT;
+                                        errMsg = 'No response was received within the ' + timeout + ' timeout';
+                                        var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
+                                        cb(resultMsg);
+                                    }
                                 }
                             },timeout);
                         }
@@ -284,7 +286,7 @@ define(
                 if(options.relevance)
                     hMessage.relevance = options.relevance;
 
-                if(options.persistant !== null || options.persistent !== undefined)
+                if(options.persistent !== null || options.persistent !== undefined)
                     hMessage.persistent = options.persistent;
 
                 if(options.location)
