@@ -122,11 +122,15 @@ define(
 
             subscribe : function(actor, cb){
                 var hMessage = this.buildCommand(actor, 'hSubscribe');
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             unsubscribe : function(actor, cb){
                 var hMessage = this.buildCommand(actor, 'hUnsubscribe');
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
@@ -137,6 +141,7 @@ define(
                 hMessage.publisher = this.publisher;
                 hMessage.msgid = UUID.generate();
                 hMessage.published = hMessage.published || new Date();
+                hMessage.sent = new Date();
 
                 //Complete hCommand
                 var errorCode = undefined;
@@ -156,28 +161,28 @@ define(
 
                     //Add it to the open message to call cb later
                     if(cb) {
-                        if(hMessage.timeout >= 0){
+                        if(hMessage.timeout > 0){
                             this.msgToBeAnswered[hMessage.msgid] = cb;
-                            var timeout = hMessage.timeout || this.hOptions.msgTimeout;
+                            var timeout = hMessage.timeout;
                             var self = this;
                             //if no response in time we call a timeout
                             setInterval(function(){
                                 if(self.msgToBeAnswered[hMessage.msgid]) {
                                     delete self.msgToBeAnswered[hMessage.msgid];
-                                    if(hMessage.timeout > 0){
-                                        if(hMessage.payload && typeof hMessage.payload === 'object')
-                                            cmd = hMessage.payload.cmd;
-                                        errCode = codes.hResultStatus.EXEC_TIMEOUT;
-                                        errMsg = 'No response was received within the ' + timeout + ' timeout';
-                                        var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
-                                        cb(resultMsg);
-                                    }
+                                    if(hMessage.payload && typeof hMessage.payload === 'object')
+                                        cmd = hMessage.payload.cmd;
+                                    errCode = codes.hResultStatus.EXEC_TIMEOUT;
+                                    errMsg = 'No response was received within the ' + timeout + ' timeout';
+                                    var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
+                                    cb(resultMsg);
                                 }
                             },timeout);
                         }
+                        else
+                            hMessage.timeout = 0;
                     }
                     else
-                        hMessage.timeout = -1
+                        hMessage.timeout = 0;
 
                     //set a timeout if no response is getting back on time
 
@@ -195,6 +200,8 @@ define(
 
             getSubscriptions: function(cb){
                 var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetSubscriptions');
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
@@ -203,26 +210,36 @@ define(
                 if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
 
                 var hMessage = this.buildCommand(actor, 'hGetLastMessages', {nbLastMsg: quantity});
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             getThread: function(actor, convid, cb){
                 var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid});
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             getThreads: function(actor, status, cb){
                 var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             setFilter: function(filter, cb){
                 var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hSetFilter', filter);
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             unsetFilter: function(name, actor, cb){
                 var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hUnsetFilter', {name: name, actor: actor});
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
@@ -231,11 +248,15 @@ define(
                 if(typeof actor === 'function'){ cb = actor; actor = undefined; }
 
                 var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hListFilters', {actor: actor});
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             getRelevantMessages: function(actor, cb){
                 var hMessage = this.buildCommand(actor, 'hRelevantMessages');
+                if(hMessage.timeout === undefined)
+                    hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
