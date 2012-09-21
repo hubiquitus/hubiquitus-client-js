@@ -21,15 +21,15 @@ var should = require("should");
 var hClient = require('../hubiquitus.js').hClient;
 var conf = require('./testConfig.js');
 
-var channel = 'chan' + Math.floor(Math.random()*10000);
+var channel = conf.GetValidChJID();
 var user = conf.logins[0];
 
 var msgQuantity = 0;
 
 describe('#getLastMessages()', function() {
 
-    var inactiveChannel = 'chan' + Math.floor(Math.random()*10000);
-    var notInPartChannel = 'chan' + Math.floor(Math.random()*10000);
+    var inactiveChannel = conf.GetValidChJID();
+    var notInPartChannel = conf.GetValidChJID();
 
     before(conf.connect)
 
@@ -72,19 +72,21 @@ describe('#getLastMessages()', function() {
     })
 
     it('should return a hResult with NOT_AVAILABLE status if channel does not exist', function(done){
-        hClient.getLastMessages('this chan does not exist', function(hMessage){
+        hClient.getLastMessages('#this chan does not exist@localhost', function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
     })
 
     it('should return a hResult with MISSING_ATTR status if channel was not sent', function(done){
-        hClient.getLastMessages(undefined, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.be.a('string');
+        try {
+            hClient.getLastMessages(undefined, function(hMessage){} )
+        } catch (error) {
+            should.exist(error.message);
             done();
-        })
+        }
     })
+
 
 })
 
@@ -95,7 +97,7 @@ describe('#getLastMessages()', function() {
     after(conf.disconnect)
 
     before(function(done){
-        var msgToPublish = hClient.buildMessage(channel, undefined, undefined, {persistent: true});
+        var msgToPublish = hClient.buildMessage(channel, undefined, undefined, {persistent: true, timeout: 30000});
         hClient.send(msgToPublish, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             msgQuantity++;
@@ -120,7 +122,7 @@ describe('#getLastMessages()', function() {
     after(conf.disconnect)
 
     before(function(done){
-        hClient.send(hClient.buildMessage(channel, undefined, undefined, {persistent: false}), function(hMessage){
+        hClient.send(hClient.buildMessage(channel, undefined, undefined, {persistent: false, timeout: 30000}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
@@ -138,7 +140,7 @@ describe('#getLastMessages()', function() {
 
 describe('#getLastMessages()', function() {
 
-    var chanWithHeader = 'chan' + Math.floor(Math.random()*10000);
+    var chanWithHeader = conf.GetValidChJID();
     var msgInChanHeader= 0;
     var maxMsgRetrieval = 14;
 
@@ -149,13 +151,14 @@ describe('#getLastMessages()', function() {
     //Create channel with msg quantity in header
     before(function(done){
         var params ={
+                type: 'channel',
                 actor: chanWithHeader,
                 owner: user.login,
                 subscribers: [user.login],
                 active: true,
                 headers: {'MAX_MSG_RETRIEVAL': ''+maxMsgRetrieval}
         }
-        var updateChannelCmd = hClient.buildCommand(conf.hNode, 'hcreateupdatechannel', params);
+        var updateChannelCmd = hClient.buildCommand(conf.hNode, 'hcreateupdatechannel', params, {timeout:30000});
 
         hClient.send(updateChannelCmd, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
@@ -166,7 +169,7 @@ describe('#getLastMessages()', function() {
     before(function(done){
         var counter = 0;
         for(var i = 0; i < 20; i++)
-            hClient.send(hClient.buildMessage(channel, undefined, undefined, {persistent: true}), function(hMessage){
+            hClient.send(hClient.buildMessage(channel, undefined, undefined, {persistent: true, timeout: 30000}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 msgQuantity++;
                 if(++counter == 20)
@@ -177,7 +180,7 @@ describe('#getLastMessages()', function() {
     before(function(done){
         var counter = 0;
         for(var i = 0; i < 20; i++)
-            hClient.send(hClient.buildMessage(chanWithHeader, undefined, undefined, {persistent: true}), function(hMessage){
+            hClient.send(hClient.buildMessage(chanWithHeader, undefined, undefined, {persistent: true, timeout: 30000}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 msgInChanHeader++;
                 if(++counter == 20)
@@ -231,6 +234,7 @@ describe('#getLastMessages()', function() {
     //Create channel with msg quantity in header
     before(function(done){
         hClient.setFilter({
+            type: 'channel',
             actor: channel,
             name: 'a filter',
             template: {type: 'a type'}
@@ -243,7 +247,7 @@ describe('#getLastMessages()', function() {
     before(function(done){
         var counter = 0;
         for(var i = 0; i < msgFiltered; i++)
-            hClient.send(hClient.buildMessage(channel, 'a type', undefined, {persistent: true}), function(hMessage){
+            hClient.send(hClient.buildMessage(channel, 'a type', undefined, {persistent: true, timeout: 30000}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 if(++counter == msgFiltered)
                     done();

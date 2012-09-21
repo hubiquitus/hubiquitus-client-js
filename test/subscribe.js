@@ -24,9 +24,9 @@ var conf = require('./testConfig.js');
 describe('#subscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = 'chan' + Math.floor(Math.random()*10000);
-    var chanInactive = 'chan' + Math.floor(Math.random()*10000);
-    var chanNotInPart = 'chan' + Math.floor(Math.random()*10000);
+    var chanActive = conf.GetValidChJID();
+    var chanInactive = conf.GetValidChJID();
+    var chanNotInPart = conf.GetValidChJID();
 
     before(conf.connect)
 
@@ -45,7 +45,7 @@ describe('#subscribe()', function() {
     })
 
     it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
-        hClient.subscribe('chan does not exist', function(hMessage){
+        hClient.subscribe('#chan does not exist@localhost', function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             hMessage.payload.result.should.be.a('string');
             done();

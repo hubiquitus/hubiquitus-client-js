@@ -42,11 +42,10 @@ define(
 
         HubiquitusClient.prototype = {
             connect : function(publisher, password, hOptions){
-                var code = this.status == statuses.CONNECTED || this.status == statuses.REATTACHED ?
+                var code = this.status == statuses.CONNECTED ?
                     errors.ALREADY_CONNECTED : errors.CONN_PROGRESS;
 
-                if( this.status == statuses.CONNECTED || this.status == statuses.CONNECTING ||
-                    this.status == statuses.REATTACHED || this.status == statuses.REATTACHING){
+                if( this.status == statuses.CONNECTED || this.status == statuses.CONNECTING){
                     this.onStatus({
                         status: this.status,
                         errorCode: code
@@ -136,7 +135,7 @@ define(
 
             send : function(hMessage, cb){
                 if(!(hMessage instanceof Object))
-                    return cb(this.buildResult("Unkonwn", "Unknown", 'send', codes.hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
+                    return cb(this.buildResult("Unkonwn", "Unknown", codes.hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
                 hMessage.publisher = this.publisher;
                 hMessage.msgid = UUID.generate();
@@ -151,14 +150,13 @@ define(
                 if(!hMessage.actor){
                     errorCode = codes.hResultStatus.MISSING_ATTR;
                     errorMsg = 'the actor attribute is missing';
-                }else if(this.status != statuses.CONNECTED && this.status != statuses.REATTACHED){
+                }else if(this.status != statuses.CONNECTED){
                     errorCode = codes.hResultStatus.NOT_CONNECTED;
                     errorMsg = 'client not connected, cannot send command';
                 }
 
                 if(!errorCode){
                     //if there is a callback and no timeout, timeout is set to default value of 30s
-
                     //Add it to the open message to call cb later
                     if(cb) {
                         if(hMessage.timeout > 0){
@@ -173,7 +171,7 @@ define(
                                         cmd = hMessage.payload.cmd;
                                     errCode = codes.hResultStatus.EXEC_TIMEOUT;
                                     errMsg = 'No response was received within the ' + timeout + ' timeout';
-                                    var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, cmd, errCode, errMsg);
+                                    var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, errCode, errMsg);
                                     cb(resultMsg);
                                 }
                             },timeout);
@@ -184,8 +182,6 @@ define(
                     else
                         hMessage.timeout = 0;
 
-                    //set a timeout if no response is getting back on time
-
                     //Send it to transport
                     this.transport.sendhMessage(hMessage);
                 } else if(cb) {
@@ -193,7 +189,7 @@ define(
                     if(hMessage.payload && typeof hMessage.payload === 'string')
                         cmd = hMessage.payload.cmd;
                     var actor = hMessage.actor || 'Unknown';
-                    var resultMsg = this.buildResult(actor, hMessage.msgid, cmd, errorCode, errorMsg);
+                    var resultMsg = this.buildResult(actor, hMessage.msgid, errorCode, errorMsg);
                     cb(resultMsg);
                 }
             },
@@ -270,7 +266,7 @@ define(
                 return this.buildMessage(actor, 'hCommand', hCommand, options);
             },
 
-            buildResult: function(actor, ref, cmd, status, result, options) {
+            buildResult: function(actor, ref, status, result, options) {
                 options = options || {};
                 if(status === undefined || status === null)
                     throw new Error('missing status');
@@ -278,7 +274,7 @@ define(
                 if(!ref)
                     throw new Error('missing ref');
 
-                var hResult = {cmd: cmd, status: status, result: result};
+                var hResult = {status: status, result: result};
                 options.ref = ref;
                 return this.buildMessage(actor, 'hResult', hResult, options);
             },

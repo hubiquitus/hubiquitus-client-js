@@ -24,10 +24,10 @@ var hClient = require('../hubiquitus.js').hClient;
 describe('#getRelevantMessages()', function(){
 
     var nbMsgs = 10;
-    var activeChan = 'chan' + Math.floor(Math.random()*10000);
-    var notInPart = 'chan' + Math.floor(Math.random()*10000);
-    var inactiveChan = 'chan' + Math.floor(Math.random()*10000);
-    var emptyChannel = 'chan' + Math.floor(Math.random()*10000);
+    var activeChan = conf.GetValidChJID();
+    var notInPart = conf.GetValidChJID();
+    var inactiveChan = conf.GetValidChJID();
+    var emptyChannel = conf.GetValidChJID();
     var user = conf.logins[0];
 
 
@@ -43,7 +43,8 @@ describe('#getRelevantMessages()', function(){
         before(function(done){
             hClient.send(hClient.buildMessage(activeChan, undefined, undefined,
                 {   persistent: true,
-                    relevance: new Date( new Date().getTime() + 1000000 )}), function(a){
+                    relevance: new Date( new Date().getTime() + 1000000 ),
+                    timeout: 30000}), function(a){
                 a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
@@ -52,14 +53,15 @@ describe('#getRelevantMessages()', function(){
         before(function(done){
             hClient.send(hClient.buildMessage(activeChan, undefined, undefined,
                 {   persistent: true,
-                    relevance: new Date( new Date().getTime() - 100000 )}), function(a){
+                    relevance: new Date( new Date().getTime() - 100000 ),
+                    timeout: 30000}), function(a){
                 a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
 
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
-            hClient.send(hClient.buildMessage(activeChan, undefined, undefined, {persistent: true}), function(a){
+            hClient.send(hClient.buildMessage(activeChan, undefined, undefined, {persistent: true, timeout: 30000}), function(a){
                 a.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 done(); });
         })
@@ -78,11 +80,12 @@ describe('#getRelevantMessages()', function(){
 
 
     it('should return hResult error MISSING_ATTR if actor is missing', function(done){
-        hClient.getRelevantMessages(undefined, function(hMessage){
-            hMessage.payload.should.have.property('status', hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.match(/actor/);
+        try {
+            hClient.getLastMessages(undefined, function(hMessage){} )
+        } catch (error) {
+            should.exist(error.message);
             done();
-        });
+        }
     })
 
     it('should return hResult error INVALID_ATTR if actor is not a string', function(done){
@@ -94,7 +97,7 @@ describe('#getRelevantMessages()', function(){
     })
 
     it('should return hResult error NOT_AVAILABLE if channel was not found', function(done){
-        hClient.getRelevantMessages('not a valid channel', function(hMessage){
+        hClient.getRelevantMessages('#not a valid channel@localhost', function(hMessage){
             hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AVAILABLE);
             hMessage.payload.result.should.be.a('string');
             done();
