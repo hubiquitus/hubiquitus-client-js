@@ -22,16 +22,16 @@ var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
 var user = conf.logins[0];
+var hFilter;
 
 describe('#setFilter()', function() {
     var activeChannel = conf.GetValidChJID(),
         inactiveChannel = conf.GetValidChJID(),
-        notInPartChannel = conf.GetValidChJID(),
-        hFilterTemplate;
+        notInPartChannel = conf.GetValidChJID();
 
-    before(conf.connect)
+    before(conf.connect);
 
-    after(conf.disconnect)
+    after(conf.disconnect);
 
     before(function(done){
         conf.createChannel(activeChannel, user.login, [user.login], true, done);
@@ -46,16 +46,15 @@ describe('#setFilter()', function() {
     })
 
     beforeEach(function(){
-        hFilterTemplate = {
-            name: 'filter' + Math.floor(Math.random()*10000),
+        hFilter = {
             actor: activeChannel,
-            template: {}
+            filter: {}
         }
     })
 
     it('should return NOT_AUTHORIZED if channel inactive', function(done){
-        hFilterTemplate.actor = inactiveChannel;
-        hClient.setFilter(hFilterTemplate, function(hMessage){
+        hFilter.actor = inactiveChannel;
+        hClient.setFilter(hFilter, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
             done();
@@ -63,8 +62,8 @@ describe('#setFilter()', function() {
     })
 
     it('should return NOT_AUTHORIZED if user not in subscribers list', function(done){
-        hFilterTemplate.actor = notInPartChannel;
-        hClient.setFilter(hFilterTemplate, function(hMessage){
+        hFilter.actor = notInPartChannel;
+        hClient.setFilter(hFilter, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
             done();
@@ -72,105 +71,20 @@ describe('#setFilter()', function() {
     })
 
     it('should return MISSING_ATTR if actor is missing', function(done){
-        delete hFilterTemplate.actor;
-        hClient.setFilter(hFilterTemplate, function(hMessage){
+        delete hFilter.actor;
+        hClient.setFilter(hFilter, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return MISSING_ATTR if name is missing', function(done){
-        delete hFilterTemplate.name;
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return MISSING_ATTR if no template is sent', function(done){
-        hClient.setFilter(null, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return INVALID_ATTR if relevance is sent', function(done){
-        hFilterTemplate.template.relevance = new Date();
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return INVALID_ATTR if not persistent is sent', function(done){
-        hFilterTemplate.template.persistent = false;
-
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return INVALID_ATTR if published is sent', function(done){
-        hFilterTemplate.template.published = new Date();
-
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return INVALID_ATTR if actor is sent in template', function(done){
-        hFilterTemplate.template.actor = 'something';
-
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return INVALID_ATTR if lng is sent but radius is not', function(done){
-        hFilterTemplate.template.location = {lng: '2.1224111'};
-
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return INVALID_ATTR if lat is sent but radius is not', function(done){
-        hFilterTemplate.template.location = {lat: '2.1224111'};
-
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             hMessage.payload.result.should.be.a('string');
             done();
         })
     })
 
     it('should return NOT_AVAILABLE if actor does not exist', function(done){
-        hFilterTemplate.actor = '#this does not exist@localhost';
+        hFilter.actor = '#this does not exist@localhost';
 
-        hClient.setFilter(hFilterTemplate, function(hMessage){
+        hClient.setFilter(hFilter, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             hMessage.payload.result.should.be.a('string');
-            done();
-        })
-    })
-
-    it('should return OK with correct filter', function(done){
-        hFilterTemplate.template.priority = 3;
-
-        hClient.setFilter(hFilterTemplate, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
     })

@@ -89,7 +89,7 @@ define(
                 }
 
                 //Establish the connection
-                this.transport.connect();
+                this.transport.connect(publisher);
             },
 
             onMessageInternal : function(hMessage) {
