@@ -22,10 +22,10 @@ var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
 describe('#getThreads()', function() {
-    var activeChannel = 'chan' + Math.floor(Math.random()*10000),
-        inactiveChannel = 'chan' + Math.floor(Math.random()*10000),
-        notInPartChannel = 'chan' + Math.floor(Math.random()*10000),
-        status = 'status' + Math.floor(Math.random()*10000),
+    var activeChannel = conf.GetValidChJID(),
+        inactiveChannel = conf.GetValidChJID(),
+        notInPartChannel = conf.GetValidChJID(),
+        status = conf.GetValidChJID(),
         shouldNotAppearConvids = [],
         shouldAppearConvids = [],
         initialConvids = [];
@@ -51,7 +51,7 @@ describe('#getThreads()', function() {
 
     for(var i = 0; i < 10; i++)
         before(function(done){
-            hClient.send(hClient.buildMessage(activeChannel, undefined, undefined, {persistent: true}), function(hMessage){
+            hClient.send(hClient.buildMessage(activeChannel, undefined, undefined, {persistent: true, timeout: 30000}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 initialConvids.push(hMessage.payload.result.convid);
                 done();
@@ -63,7 +63,7 @@ describe('#getThreads()', function() {
     for(var i = 0; i < 2; i++)
         before(function(done){
             hClient.send(hClient.buildConvState(activeChannel, initialConvids.pop(), 'status' + Math.floor(Math.random()*10000),
-                {persistent: true}), function(hMessage){
+                {persistent: true, timeout: 30000}), function(hMessage){
                 hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
                 shouldNotAppearConvids.push(hMessage.payload.result.convid);
                 done();
@@ -73,7 +73,7 @@ describe('#getThreads()', function() {
     //Change state of one of the previous convstate to a good one
     before(function(done){
         hClient.send(hClient.buildConvState(activeChannel, shouldNotAppearConvids.pop(), status,
-            {persistent: true}), function(hMessage){
+            {persistent: true, timeout: 30000}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             shouldAppearConvids.push('' + hMessage.payload.result.convid);
             done();
@@ -83,7 +83,7 @@ describe('#getThreads()', function() {
     //Add a new conversation with good status
     before(function(done){
         hClient.send(hClient.buildConvState(activeChannel, initialConvids.pop(), status,
-            {persistent: true}), function(hMessage){
+            {persistent: true, timeout: 30000}), function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             shouldAppearConvids.push('' + hMessage.payload.result.convid);
             done();
@@ -131,10 +131,12 @@ describe('#getThreads()', function() {
     })
 
     it('should return status error MISSING_ATTR if actor is not passed', function(done){
-        hClient.getThreads(undefined, status, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+        try {
+            hClient.getThreads(undefined, status, function(hMessage){} )
+        } catch (error) {
+            should.exist(error.message);
             done();
-        })
+        }
     })
 
     it('should return status error MISSING_ATTR if status is not passed', function(done){
@@ -144,9 +146,9 @@ describe('#getThreads()', function() {
         })
     })
 
-    it('should return status error INVALID_ATTR if actor is not a string', function(done){
+    it('should return status error MISSING_ATTR if actor is not a string', function(done){
         hClient.getThreads([], status, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             done();
         })
     })
@@ -159,7 +161,7 @@ describe('#getThreads()', function() {
     })
 
     it('should return status error NOT_AVAILABLE if actor does not correspond to a valid hChannel', function(done){
-        hClient.getThreads('this does not exist', status, function(hMessage){
+        hClient.getThreads('#this does not exist@localhost', status, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
@@ -170,7 +172,7 @@ describe('#getThreads()', function() {
 describe('#getThreads()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to getThreads while disconnected', function(done){
-        hClient.getThreads('this channel does not exist', 'this is not a good status', function(hMessage){
+        hClient.getThreads('#this channel does not exist@localhost', 'this is not a good status', function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })

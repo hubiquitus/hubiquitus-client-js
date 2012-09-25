@@ -22,7 +22,7 @@ var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
 var user = conf.logins[0];
-var channel = 'chan' + Math.floor(Math.random()*10000);
+var channel = conf.GetValidChJID();
 
 var subscriptionsSize = 0;
 

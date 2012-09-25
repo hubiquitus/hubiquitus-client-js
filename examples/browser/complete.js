@@ -32,8 +32,6 @@ function connect(){
             transport = transports[i].value;
 
     var hOptions = {
-        serverHost: document.getElementById('serverHost').value,
-        serverPort: document.getElementById('serverPort').value,
         transport: transport,
         endpoints: endpoints
     };
@@ -121,7 +119,7 @@ function createChannel(){
     var actor = prompt('Channel to create:');
     var subscribers = prompt('Subscriber to the channel :');
 
-    var params = {owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
+    var params = {type: 'channel', owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
     var hMessage = hClient.buildCommand(hClient.hOptions.hServer + '@' + hClient.domain, 'hCreateUpdateChannel', params);
     hClient.send(hMessage, callback);
 }
@@ -131,12 +129,6 @@ function getThreads(){
     var status = prompt('Matching status to recover:');
 
     hClient.getThreads(actor, status, callback);
-}
-
-function listFilters(){
-    var actor = document.getElementById('actor').value;
-    actor = actor != '' ? actor : undefined;
-    hClient.listFilters(actor, callback);
 }
 
 function setFilter(){
@@ -151,12 +143,6 @@ function setFilter(){
     filterTemplate.template[attr] = value;
 
     hClient.setFilter(filterTemplate, callback);
-}
-
-function unsetFilter(){
-    var name = prompt('Filter Name:');
-
-    hClient.unsetFilter(name, document.getElementById('actor').value, callback);
 }
 
 function build_measure(){

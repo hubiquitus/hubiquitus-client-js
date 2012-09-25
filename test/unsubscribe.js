@@ -24,9 +24,9 @@ var conf = require('./testConfig.js');
 describe('#unsubscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = 'chan' + Math.floor(Math.random()*10000);
-    var chanInactive = 'chan' + Math.floor(Math.random()*10000);
-    var chanInactiveNotSubscribed = 'chan' + Math.floor(Math.random()*10000);
+    var chanActive = conf.GetValidChJID();
+    var chanInactive = conf.GetValidChJID();
+    var chanInactiveNotSubscribed = conf.GetValidChJID();
 
     before(conf.connect)
 
@@ -60,9 +60,9 @@ describe('#unsubscribe()', function() {
         conf.createChannel(chanInactive, user.login, [user.login], false, done);
     });
 
-    it('should return hResult status NOT_AUTHORIZED and result be a message if channel does not exist', function(done) {
-        hClient.unsubscribe("This chan does not exist", function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+    it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
+        hClient.unsubscribe("#This chan does not exist@localhost", function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             hMessage.payload.result.should.be.a('string');
             done();
         });
@@ -85,11 +85,12 @@ describe('#unsubscribe()', function() {
     })
 
     it('should return hResult status MISSING_ATTR and result be a message if actor not provided', function(done) {
-        hClient.unsubscribe(undefined, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.be.a('string');
+        try {
+            hClient.unsubscribe(undefined, function(hMessage){} )
+        } catch (error) {
+            should.exist(error.message);
             done();
-        });
+        }
     })
 
     it('should return hResult status OK if subscribed and in subscribers list', function(done) {
@@ -115,7 +116,7 @@ describe('#unsubscribe()', function() {
 describe('#unsubscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = 'chan' + Math.floor(Math.random()*10000);
+    var chanActive = conf.GetValidChJID();
 
     it('should return hResult status NOT_CONNECTED and result be a message if user not connected', function(done) {
         hClient.unsubscribe(chanActive, function(hMessage){
@@ -130,7 +131,7 @@ describe('#unsubscribe()', function() {
 describe('#unsubscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = 'chan' + Math.floor(Math.random()*10000);
+    var chanActive = conf.GetValidChJID();
 
     before(conf.connect)
 

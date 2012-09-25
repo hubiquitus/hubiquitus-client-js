@@ -81,16 +81,16 @@ describe('#getRelevantMessages()', function(){
 
     it('should return hResult error MISSING_ATTR if actor is missing', function(done){
         try {
-            hClient.getLastMessages(undefined, function(hMessage){} )
+            hClient.getRelevantMessages(undefined, function(hMessage){} )
         } catch (error) {
             should.exist(error.message);
             done();
         }
     })
 
-    it('should return hResult error INVALID_ATTR if actor is not a string', function(done){
+    it('should return hResult error MISSING_ATTR if actor is not a string', function(done){
         hClient.getRelevantMessages([], function(hMessage){
-            hMessage.payload.should.have.property('status', hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.MISSING_ATTR);
             hMessage.payload.result.should.match(/actor/);
             done();
         });

@@ -24,9 +24,9 @@ var hClient = require('../hubiquitus.js').hClient;
 var user = conf.logins[0];
 
 describe('#setFilter()', function() {
-    var activeChannel = 'chan' + Math.floor(Math.random()*10000),
-        inactiveChannel = 'chan' + Math.floor(Math.random()*10000),
-        notInPartChannel = 'chan' + Math.floor(Math.random()*10000),
+    var activeChannel = conf.GetValidChJID(),
+        inactiveChannel = conf.GetValidChJID(),
+        notInPartChannel = conf.GetValidChJID(),
         hFilterTemplate;
 
     before(conf.connect)
@@ -89,9 +89,9 @@ describe('#setFilter()', function() {
         })
     })
 
-    it('should return INVALID_ATTR if no template is sent', function(done){
+    it('should return MISSING_ATTR if no template is sent', function(done){
         hClient.setFilter(null, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             hMessage.payload.result.should.be.a('string');
             done();
         })
@@ -157,7 +157,7 @@ describe('#setFilter()', function() {
     })
 
     it('should return NOT_AVAILABLE if actor does not exist', function(done){
-        hFilterTemplate.actor = 'this does not exist';
+        hFilterTemplate.actor = '#this does not exist@localhost';
 
         hClient.setFilter(hFilterTemplate, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);

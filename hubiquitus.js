@@ -232,23 +232,6 @@ define(
                 this.send(hMessage, cb);
             },
 
-            unsetFilter: function(name, actor, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hUnsetFilter', {name: name, actor: actor});
-                if(hMessage.timeout === undefined)
-                    hMessage.timeout = this.hOptions.msgTimeout
-                this.send(hMessage, cb);
-            },
-
-            listFilters: function(actor, cb){
-                //Allow not to specify actor and pass a callback directly
-                if(typeof actor === 'function'){ cb = actor; actor = undefined; }
-
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hListFilters', {actor: actor});
-                if(hMessage.timeout === undefined)
-                    hMessage.timeout = this.hOptions.msgTimeout
-                this.send(hMessage, cb);
-            },
-
             getRelevantMessages: function(actor, cb){
                 var hMessage = this.buildCommand(actor, 'hRelevantMessages');
                 if(hMessage.timeout === undefined)
