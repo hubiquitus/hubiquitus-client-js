@@ -60,7 +60,7 @@ function send(){
     hClient.send(hClient.buildMessage(actor, 'string', msg, {
         persistent: !!document.getElementById("hMessagePersistent").checked,
         headers: { RELEVANCE_OFFSET: relevance},
-        timeout: timeout
+        timeout: parseInt(timeout)
     }), callback);
 }
 
