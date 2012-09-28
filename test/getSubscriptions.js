@@ -22,7 +22,7 @@ var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
 var user = conf.logins[0];
-var channel = 'chan' + Math.floor(Math.random()*10000);
+var channel = conf.GetValidChJID();
 
 var subscriptionsSize = 0;
 
@@ -36,9 +36,9 @@ describe('#getSubscriptions()', function() {
 
     //Get subscriptions
     before(function(done){
-        hClient.getSubscriptions(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            subscriptions = hResult.result;
+        hClient.getSubscriptions(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            subscriptions = hMessage.payload.result;
             done();
         });
     })
@@ -46,7 +46,7 @@ describe('#getSubscriptions()', function() {
     //Remove subscriptions
     before(function(done){
         var counter = 0;
-        var onResult = function(hResult){
+        var onResult = function(hMessage){
             if(++counter == subscriptions.length){
                 done();
                 return;
@@ -61,9 +61,9 @@ describe('#getSubscriptions()', function() {
     })
 
     it('should return status OK with empty array if no subscriptions', function(done){
-        hClient.getSubscriptions(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
+        hClient.getSubscriptions(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
             done();
         })
     })
@@ -81,17 +81,17 @@ describe('#getSubscriptions()', function() {
     })
 
     before(function(done){
-        hClient.subscribe(channel, function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
+        hClient.subscribe(channel, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
         })
     })
 
     it('should return a subscription list of length old+1 after subscription to a new channel', function(done){
         subscriptionsSize++;
-        hClient.getSubscriptions(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(subscriptionsSize);
+        hClient.getSubscriptions(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(subscriptionsSize);
             done();
         })
     })
@@ -111,9 +111,9 @@ describe('#getSubscriptions()', function() {
 
     it('should return a subscription list of length old-1 after a channel subscribed becomes inactive', function(done){
         subscriptionsSize--;
-        hClient.getSubscriptions(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.OK);
-            hResult.result.should.be.an.instanceof(Array).and.have.lengthOf(subscriptionsSize);
+        hClient.getSubscriptions(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(subscriptionsSize);
             done();
         })
     })
@@ -123,8 +123,8 @@ describe('#getSubscriptions()', function() {
 describe('#getSubscriptions()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to getSubscriptions while disconnected', function(done){
-        hClient.getSubscriptions(function(hResult){
-            hResult.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
+        hClient.getSubscriptions(function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
     })

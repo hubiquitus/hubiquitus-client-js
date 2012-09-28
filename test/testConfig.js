@@ -3,16 +3,11 @@
  * Set this with correct values before starting the tests
  */
 
-//Connection options, change to bosh to test other transport
+//Connection options
 exports.hOptions = {
     transport : 'socketio',
     endpoints : ['http://localhost:8080/']
 };
-//exports.hOptions = {
-//    transport : 'bosh',
-//    endpoints : ['http://localhost:5280/http-bind']
-//};
-
 
 //Array of logins to use (some test need two users)
 exports.logins = [
@@ -67,21 +62,30 @@ exports.disconnect = function(done, instance){
     client.disconnect();
 };
 
-exports.createChannel = function(chid, owner, participants, active, done, instance){
+exports.createChannel = function(actor, owner, subscribers, active, done, instance){
     var client = instance || hClient;
     var hCommandCreateChannel = {
-        entity: exports.hNode,
-        cmd: "hcreateupdatechannel",
-        params:{
-            chid: chid,
-            host:"test",
-            owner: owner,
-            participants: participants,
-            active: active
+        actor: exports.hNode,
+        type: 'hcommand',
+        sent: new Date(),
+        timeout: 30000,
+        payload: {
+            cmd: "hcreateupdatechannel",
+            params:{
+                type: 'channel',
+                actor: actor,
+                owner: owner,
+                subscribers: subscribers,
+                active: active
+            }
         }
     };
-    client.command(hCommandCreateChannel, function(hResult){
-        hResult.status.should.be.eql(client.hResultStatus.OK);
+    client.send(hCommandCreateChannel, function(hMessage){
+        hMessage.payload.status.should.be.eql(client.hResultStatus.OK);
         done();
     });
 };
+
+exports.GetValidChJID = function(){
+    return '#Chan'+ Math.floor(Math.random()*10000)+'@localhost'
+}
