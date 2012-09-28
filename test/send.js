@@ -23,22 +23,26 @@ var conf = require('./testConfig.js');
 
 var user = conf.logins[0];
 
-describe('#command()', function() {
+describe('#send()', function() {
 
     before(conf.connect)
 
     after(conf.disconnect)
 
-    it('should send a command to another user and receive it', function(done){
-        hClient.onCommand = function(command){
-            command.cmd.should.be.eql('hEcho');
+    it('should send a message to another user and receive it', function(done){
+        hClient.onMessage = function(message){
+            message.payload.cmd.should.be.eql('hEcho');
             done();
         };
 
-        hClient.command({
-            entity : hClient.publisher,
-            cmd : 'hEcho'
-        }, function(hResult){})
+        hClient.send({
+            actor : hClient.publisher,
+            type : 'hCommand',
+            payload : {
+                cmd : 'hEcho'
+            }
+        }, function(hMessage){})
+        done();
 
     })
 })

@@ -17,8 +17,8 @@
  *     along with Hubiquitus.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var callback = function(hresult) {
-    console.log(hresult);
+var callback = function(hMessage) {
+    console.log("Received callback : ", hMessage);
 }
 
 function connect(){
@@ -32,8 +32,6 @@ function connect(){
             transport = transports[i].value;
 
     var hOptions = {
-        serverHost: document.getElementById('serverHost').value,
-        serverPort: document.getElementById('serverPort').value,
         transport: transport,
         endpoints: endpoints
     };
@@ -50,39 +48,41 @@ function disconnect(){
     hClient.disconnect();
 }
 
-function publish(){
+function send(){
     var relevance;
-    var chid = document.getElementById('chid').value;
+    var actor = document.getElementById('actor').value;
     var msg = document.getElementById('hMessage').value;
 
     if(document.getElementById("relevanceOn").checked)
         relevance = parseInt(prompt('Relevance Offset:'));
 
-    hClient.publish(hClient.buildMessage(chid, 'string', msg, {
-        transient: !!document.getElementById("hMessageTransient").checked,
-        headers: { RELEVANCE_OFFSET: relevance}
+    var timeout = document.getElementById("timeout").value;
+    hClient.send(hClient.buildMessage(actor, 'string', msg, {
+        persistent: !!document.getElementById("hMessagePersistent").checked,
+        headers: { RELEVANCE_OFFSET: relevance},
+        timeout: parseInt(timeout)
     }), callback);
 }
 
 function relevantMessages(){
-    var chid = document.getElementById('chid').value;
-    hClient.getRelevantMessages(chid, callback);
+    var actor = document.getElementById('actor').value;
+    hClient.getRelevantMessages(actor, callback);
 }
 
 function subscribe(){
-    var chid = document.getElementById('chid').value;
-    hClient.subscribe(chid, callback)
+    var actor = document.getElementById('actor').value;
+    hClient.subscribe(actor, callback)
 }
 
 function unsubscribe(){
-    var chid = document.getElementById('chid').value;
-    hClient.unsubscribe(chid, callback)
+    var actor = document.getElementById('actor').value;
+    hClient.unsubscribe(actor, callback)
 }
 
 function get_messages(){
-    var chid = document.getElementById('chid').value;
+    var actor = document.getElementById('actor').value;
     var quantity = prompt('Max Messages (can be empty):');
-    hClient.getLastMessages(chid, quantity, callback);
+    hClient.getLastMessages(actor, quantity, callback);
 }
 
 function get_subscriptions(){
@@ -95,39 +95,40 @@ function clear_divs(){
 }
 
 function send_hEcho(){
-    if( hClient.status != hClient.statuses.CONNECTED && hClient.status != hClient.statuses.REATTACHED )
+    if( hClient.status != hClient.statuses.CONNECTED )
         alert('Please connect before trying to send an hEcho');
     else{
         var value = prompt('Your Name:');
-        var echoCmd = {
-            entity : 'hnode@' + hClient.domain,
-            cmd : 'hEcho',
-            params : {hello : value},
-            transient : !!document.getElementById("transientCheckBox").checked
-        };
-        hClient.command(echoCmd, callback);
+        var msgOptions = {};
+        msgOptions.persistent = !!document.getElementById("persistentCheckBox").checked;
+        msgOptions.timeout = document.getElementById("timeout").value;
+        var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hEcho', {hello : value}, msgOptions);
+        hClient.send(hMessage, callback);
     }
 
 }
 
 function getThread(){
-    var chid = prompt('Channel to search the messages:');
+    var actor = prompt('Channel to search the messages:');
     var convid = prompt('Convid to recover:');
 
-    hClient.getThread(chid, convid, callback);
+    hClient.getThread(actor, convid, callback);
+}
+
+function createChannel(){
+    var actor = prompt('Channel to create:');
+    var subscribers = prompt('Subscriber to the channel :');
+
+    var params = {type: 'channel', owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
+    var hMessage = hClient.buildCommand(hClient.hOptions.hServer + '@' + hClient.domain, 'hCreateUpdateChannel', params);
+    hClient.send(hMessage, callback);
 }
 
 function getThreads(){
-    var chid = prompt('Channel to search the hConvStates:');
+    var actor = prompt('Channel to search the hConvStates:');
     var status = prompt('Matching status to recover:');
 
-    hClient.getThreads(chid, status, callback);
-}
-
-function listFilters(){
-    var chid = document.getElementById('chid').value;
-    chid = chid != '' ? chid : undefined;
-    hClient.listFilters(chid, callback);
+    hClient.getThreads(actor, status, callback);
 }
 
 function setFilter(){
@@ -136,7 +137,7 @@ function setFilter(){
     var value = prompt('Value of the attribute:');
     var filterTemplate = {
         name: name,
-        chid: document.getElementById('chid').value,
+        actor: document.getElementById('actor').value,
         template: {}
     };
     filterTemplate.template[attr] = value;
@@ -144,61 +145,55 @@ function setFilter(){
     hClient.setFilter(filterTemplate, callback);
 }
 
-function unsetFilter(){
-    var name = prompt('Filter Name:');
-
-    hClient.unsetFilter(name, document.getElementById('chid').value, callback);
-}
-
 function build_measure(){
     var value = prompt('Value:');
     var unit = prompt('Unit:');
-    var chid = prompt('Channel:');
-    var hMessage = hClient.buildMeasure(chid, value, unit, {
-        transient: !!document.getElementById("hMessageTransient").checked
+    var actor = prompt('Channel:');
+    var hMessage = hClient.buildMeasure(actor, value, unit, {
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function build_alert(){
     var alert = prompt('Alert:');
-    var chid = prompt('Channel:');
-    var hMessage = hClient.buildAlert(chid, alert, {
-        transient: !!document.getElementById("hMessageTransient").checked
+    var actor = prompt('Channel:');
+    var hMessage = hClient.buildAlert(actor, alert, {
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function build_ack(){
     var ackID = prompt('AckID:');
     var ack= prompt('Ack (recv|read):');
-    var chid = prompt('Channel:');
-    var hMessage = hClient.buildAck(chid, ackID, ack, {
-        transient: !!document.getElementById("hMessageTransient").checked
+    var actor = prompt('Channel:');
+    var hMessage = hClient.buildAck(actor, ackID, ack, {
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function build_convstate(){
-    var chid = prompt('Channel:');
+    var actor = prompt('Channel:');
     var convid = prompt('Convid:');
     var status = prompt('Status:');
-    var hMessage = hClient.buildConvState(chid, convid, status, {
-        transient: !!document.getElementById("hMessageTransient").checked
+    var hMessage = hClient.buildConvState(actor, convid, status, {
+        persistent: !!document.getElementById("hMessagePersistent").checked
     });
     if(hMessage)
         console.log('Created hMessage', hMessage);
     if(document.getElementById("sendBuiltMessage").checked)
-        hClient.publish(hMessage, callback);
+        hClient.send(hMessage, callback);
 }
 
 function onStatus(hStatus){
@@ -211,12 +206,6 @@ function onStatus(hStatus){
             break;
         case hClient.statuses.CONNECTING:
             status = 'Connecting';
-            break;
-        case hClient.statuses.REATTACHING:
-            status = 'Reattaching';
-            break;
-        case hClient.statuses.REATTACHED:
-            status = 'Reattached';
             break;
         case hClient.statuses.DISCONNECTING:
             status = 'Disconnecting';

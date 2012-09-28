@@ -29,14 +29,14 @@ describe('#publish()', function() {
     var user1 = conf.logins[0];
     var user2 = conf.logins[1];
 
-    var chanActive = 'chan' + Math.floor(Math.random()*10000);
-    var chanInactive = 'chan' + Math.floor(Math.random()*10000);
-    var chanNotInPart = 'chan' + Math.floor(Math.random()*10000);
+    var chanActive = conf.GetValidChJID();
+    var chanInactive = conf.GetValidChJID();
+    var chanNotInPart = conf.GetValidChJID();
 
     var msgCreatedOffline;
 
     before(function(){
-        msgCreatedOffline = hClient1.buildMessage(chanActive, null, null, null);
+        msgCreatedOffline = hClient1.buildMessage(chanActive, null, null, {timeout: 30000});
     })
 
     before(function(done){
@@ -60,8 +60,8 @@ describe('#publish()', function() {
     })
 
     before(function(done){
-        hClient2.subscribe(chanActive, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient2.subscribe(chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
             done();
         })
     })
@@ -81,132 +81,148 @@ describe('#publish()', function() {
         hClient2.onStatus = function(hStatus){};
     })
 
-    it('should return NOT_AUTHORIZED if user tries to publish and not in participants list', function(done){
-        hClient2.publish(hClient2.buildMessage(chanNotInPart, undefined, undefined, undefined), function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+    /*it('should return NOT_AUTHORIZED if user tries to publish and not in subscribers list', function(done){
+        hClient2.send(hClient2.buildMessage(chanNotInPart, undefined, undefined, {timeout: 30000}), function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
-    })
+    })*/
 
     it('should return NOT_AUTHORIZED if user tries to publish to an inactive channel', function(done){
-        hClient2.publish(hClient2.buildMessage(chanInactive, undefined, undefined, undefined), function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.NOT_AUTHORIZED);
-            hResult.result.should.be.a('string');
+        hClient2.send(hClient2.buildMessage(chanInactive, undefined, undefined, {timeout: 30000}), function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return MISSING_ATTR if user tries to publish a null message', function(done){
-        hClient2.publish(undefined, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.MISSING_ATTR);
-            hResult.result.should.be.a('string');
+        hClient2.send(undefined, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
-    it('should return MISSING_ATTR if user tries to publish message without chid', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined);
-        delete msg.chid;
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.MISSING_ATTR);
-            hResult.result.should.be.a('string');
+    it('should return MISSING_ATTR if user tries to publish message without actor', function(done){
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {timeout: 30000});
+        delete msg.actor;
+        hClient2.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return NOT_AVAILABLE if user tries to publish message to a channel that does not exist', function(done){
-        var msg = hClient2.buildMessage('invalid channel chid', undefined, undefined);
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.NOT_AVAILABLE);
-            hResult.result.should.be.a('string');
+        var msg = hClient2.buildMessage('#invalid channel actor@localhost', undefined, undefined, {timeout: 30000});
+        hClient2.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.NOT_AVAILABLE);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
 
     it('should return OK if user tries to publish a message created offline', function(done){
-        hClient1.publish(msgCreatedOffline, function(hResult){
-            hResult.status.should.be.eql(hClient1.hResultStatus.OK);
+        hClient1.send(msgCreatedOffline, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
             done();
         });
     })
 
-    it('should return OK if user tries to publish when in participants list but not subscribed and should not receive msg', function(done){
-        var msg = hClient1.buildMessage(chanActive, undefined, undefined);
+    it('should return OK if user tries to publish when in subscribers list but not subscribed and should not receive msg', function(done){
+        var msg = hClient1.buildMessage(chanActive, undefined, undefined, {timeout: 30000});
 
         hClient1.onMessage = function(hMessage){
-            hMessage.publisher.should.not.be.eql(hClient1.publisher);
+            hMessage.payload.publisher.should.not.be.eql(hClient1.publisher);
         };
 
-        hClient1.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient1.hResultStatus.OK);
+        hClient1.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
             setTimeout(done, 800); //Set a timeout to test if the message is received
         });
     })
 
     it('should receive published message by another person', function(done){
-        var msg = hClient1.buildMessage(chanActive, undefined, undefined);
+        var msg = hClient1.buildMessage(chanActive, undefined, undefined, {timeout: 30000});
 
         hClient2.onMessage = function(hMessage){
-            hMessage.publisher.should.be.eql(hClient1.publisher);
+            //Remove Resources
+            var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+            publisher.should.be.eql(hClient1.publisher);
             done();
         };
 
-        hClient1.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient1.hResultStatus.OK);
+        hClient1.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
         });
     })
 
     it('should receive published message by ourselves if subscribed', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined);
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {timeout: 30000});
 
         hClient2.onMessage = function(hMessage){
-            hMessage.publisher.should.be.eql(hClient2.publisher);
+            //Remove Resources
+            var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+            publisher.should.be.eql(hClient2.publisher);
             done();
         };
 
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient2.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
         });
     })
 
     it('should receive published message and hResult when published message is persistent', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {transient: false});
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {persistent: true, timeout: 30000});
 
         var counter = 0;
         hClient2.onMessage = function(hMessage){
-            hMessage.publisher.should.be.eql(hClient2.publisher);
+            //Remove Resources
+            var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+            publisher.should.be.eql(hClient2.publisher);
             if(++counter == 2)
                 done();
         };
 
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient2.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
             if(++counter == 2)
                 done();
         });
     })
 
     it('should receive published message that passes through a filter', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 3});
-        var hFilterTemplate = {
-            name: 'a filter',
-            chid: chanActive,
-            template: {priority: 3}
+        var msg = hClient1.buildMessage(chanActive, undefined, undefined, {priority: 3, timeout: 30000});
+        var hFilter = {
+            actor: chanActive,
+            filter: {
+                in:{
+                    publisher: ['u1@localhost']
+                }
+            }
         };
 
-        hClient2.setFilter(hFilterTemplate, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient1.subscribe(chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
+            done();
+        })
+
+        hClient1.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
 
             var counter = 0;
-            hClient2.onMessage = function(hMessage){
-                hMessage.publisher.should.be.eql(hClient2.publisher);
+            hClient1.onMessage = function(hMessage){
+                //Remove Resources
+                var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+                publisher.should.be.eql(hClient1.publisher);
                 if(++counter == 2)
                     done();
             };
 
-            hClient2.publish(msg, function(hResult){
-                hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+            hClient1.send(msg, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
                 if(++counter == 2)
                     done();
             });
@@ -214,25 +230,27 @@ describe('#publish()', function() {
     })
 
     it('should not receive published message that does not pass through a filter', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4});
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4, timeout: 30000});
 
         hClient2.onMessage = function(hMessage){
-            hMessage.publisher.should.not.be.eql(hClient2.publisher);
+            //Remove Resources
+            var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+            publisher.should.not.be.eql(hClient2.publisher);
         };
 
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient2.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.INVALID_ATTR);
         });
 
         setTimeout(done, 800);
     })
 
-    it('should receive published message that was filtered before but unset', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4});
+    /*it('should receive published message that was filtered before but unset', function(done){
+        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4, timeout: 30000});
         var counter = 0;
 
-        hClient2.unsetFilter('a filter', chanActive, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient2.unsetFilter('a filter', chanActive, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
 
             hClient2.onMessage = function(hMessage){
                 hMessage.publisher.should.be.eql(hClient2.publisher);
@@ -240,27 +258,34 @@ describe('#publish()', function() {
                     done();
             };
 
-            hClient2.publish(msg, function(hResult){
-                hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+            hClient2.send(msg, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
                 if(++counter == 2)
                     done();
             });
         })
 
-    })
+    }) */
 
     it('should publish message to another user and the other should receive it', function(done){
-        var msg = hClient2.buildMessage(hClient2.publisher, undefined, undefined, {priority: 4});
+        var msg = hClient1.buildMessage(hClient2.publisher, undefined, undefined, {priority: 4, timeout: 30000});
         var counter = 0;
 
         hClient2.onMessage = function(hMessage){
-            hMessage.chid.should.be.eql(hClient2.publisher);
+            //Remove Resources
+            var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+            publisher.should.be.eql(hClient1.publisher);
+            hMessage.actor.should.be.eql(hClient2.publisher);
+
+            //send a response
+            hClient2.send(hClient2.buildResult(hClient1.publisher, hMessage.msgid, hClient2.hResultStatus.OK));
+
             if(++counter == 2)
                 done();
         };
 
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+        hClient1.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
             if(++counter == 2)
                 done();
         });
@@ -269,20 +294,22 @@ describe('#publish()', function() {
 
     describe('#publish()', function(){
         before(function(done){
-            hClient2.unsubscribe(chanActive, function(hResult){
-                hResult.status.should.be.eql(hClient2.hResultStatus.OK);
+            hClient2.unsubscribe(chanActive, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
                 done();
             })
         })
 
         it('should not receive published message after unsubscribe', function(done){
-            var msg = hClient1.buildMessage(chanActive, undefined, undefined);
+            var msg = hClient1.buildMessage(chanActive, undefined, undefined, {timeout: 30000});
             hClient2.onMessage = function(hMessage){
-                hMessage.publisher.should.not.be.eql(hClient1.publisher);
+                //Remove Resources
+                var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+                publisher.should.not.be.eql(hClient1.publisher);
             };
 
-            hClient1.publish(msg, function(hResult){
-                hResult.status.should.be.eql(hClient1.hResultStatus.OK);
+            hClient1.send(msg, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
                 setTimeout(done, 800); //Set a timeout to test if the message is received
             });
 
@@ -293,10 +320,10 @@ describe('#publish()', function() {
 
 describe('#publish()', function() {
     it('should return NOT_CONNECTED if user tries to publish message while not connected', function(done){
-        var msg = hClient2.buildMessage('invalid channel chid', undefined, undefined);
-        hClient2.publish(msg, function(hResult){
-            hResult.status.should.be.eql(hClient2.hResultStatus.NOT_CONNECTED);
-            hResult.result.should.be.a('string');
+        var msg = hClient2.buildMessage('invalid channel actor', undefined, undefined, {timeout: 30000});
+        hClient2.send(msg, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.NOT_CONNECTED);
+            hMessage.payload.result.should.be.a('string');
             done();
         });
     })
