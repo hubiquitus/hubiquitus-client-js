@@ -46,47 +46,197 @@ describe('#setFilter()', function() {
     })
 
     beforeEach(function(){
-        hFilter = {
-            actor: activeChannel,
-            filter: {}
-        }
+        hFilter = {};
     })
 
-    it('should return NOT_AUTHORIZED if channel inactive', function(done){
-        hFilter.actor = inactiveChannel;
+
+    it('should return hResult OK if params filter is empty', function(done){
         hClient.setFilter(hFilter, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hMessage.payload.result.should.be.a('string');
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             done();
-        })
+        });
     })
 
-    it('should return NOT_AUTHORIZED if user not in subscribers list', function(done){
-        hFilter.actor = notInPartChannel;
+    it('should return hResult INVALID_ATTR if params filter is not an object', function(done){
+        hFilter.filter = 'a string';
         hClient.setFilter(hFilter, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             hMessage.payload.result.should.be.a('string');
             done();
-        })
+        });
     })
 
-    it('should return MISSING_ATTR if actor is missing', function(done){
-        delete hFilter.actor;
+    it('should return hResult INVALID_ATTR if filter does not start with a correct operand', function(done){
+        hFilter.filter = {bad:{attribut:true}};
         hClient.setFilter(hFilter, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             hMessage.payload.result.should.be.a('string');
             done();
-        })
+        });
     })
 
-    it('should return NOT_AVAILABLE if actor does not exist', function(done){
-        hFilter.actor = '#this does not exist@localhost';
-
+    it('should return hResult INVALID_ATTR if filter with operand eq/ne/lt/lte/gt/gte/in/nin is not an object', function(done){
+        hFilter.filter = {
+            eq:'string',
+            ne:'string',
+            lt:'string',
+            lte:'string',
+            gt:'string',
+            gte:'string',
+            in:'string',
+            nin:'string'
+        };
         hClient.setFilter(hFilter, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
             hMessage.payload.result.should.be.a('string');
             done();
-        })
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand and/or/nor is not an array', function(done){
+        hFilter.filter = {
+            and:{attribut:false},
+            or:{attribut:false},
+            nor:{attribut:false}
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand and/or/nor is an array of 1 element', function(done){
+        hFilter.filter = {
+            and:[{attribut:false}],
+            or:[{attribut:false}],
+            nor:[{attribut:false}]
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand not is an valid object', function(done){
+        hFilter.filter = {
+            not:[{attribut:false}]
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand not contain valid operand', function(done){
+        hFilter.filter = {
+            not:{bad:{attribut:false}}
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand relevant is not a boolean', function(done){
+        hFilter.filter = {
+            relevant:'string'
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand geo have not attribut radius', function(done){
+        hFilter.filter = {
+            geo:{
+                lat:12,
+                lng:24
+            }
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand geo have not attribut lat', function(done){
+        hFilter.filter = {
+            geo:{
+                lng:24,
+                radius:10000
+            }
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if filter with operand geo have not attribut lng', function(done){
+        hFilter.filter = {
+            geo:{
+                lat:12,
+                radius:10000
+            }
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if attribut lat of filter geo is not a number', function(done){
+        hFilter.filter = {
+            geo:{
+                lat:'string',
+                lng:24,
+                radius:10000
+            }
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if attribut lng of filter geo is not a number', function(done){
+        hFilter.filter = {
+            geo:{
+                lat:12,
+                lng:'string',
+                radius:10000
+            }
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
+    })
+
+    it('should return hResult INVALID_ATTR if attribut lat of filter geo is not a number', function(done){
+        hFilter.filter = {
+            geo:{
+                lat:12,
+                lng:24,
+                radius:'string'
+            }
+        };
+        hClient.setFilter(hFilter, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.INVALID_ATTR);
+            hMessage.payload.result.should.be.a('string');
+            done();
+        });
     })
 })
 

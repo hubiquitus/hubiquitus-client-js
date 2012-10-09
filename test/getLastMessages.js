@@ -233,13 +233,8 @@ describe('#getLastMessages()', function() {
 
     //Create channel with msg quantity in header
     before(function(done){
-        hClient.setFilter({
-            actor: channel,
-            filter: {in: {publisher: [user.login]}}
-        }, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
-            done();
-        })
+        var filter = {eq: {type: 'a type'}}
+        conf.UpdateChannelFilter(channel, user.login, [user.login], true, filter, done);
     })
 
     before(function(done){
@@ -272,7 +267,7 @@ describe('#getLastMessages()', function() {
         })
     })
 
-    /*it('should return only filtered messages if filter specified even if more messages are required', function(done){
+    it('should return only filtered messages if filter specified even if more messages are required', function(done){
         hClient.getLastMessages(channel, 1000, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             hMessage.payload.result.should.be.an.instanceof(Array).and.have.length(msgFiltered);
@@ -280,7 +275,7 @@ describe('#getLastMessages()', function() {
                 hMessage.payload.result[i].should.have.property('type', 'a type');
             done();
         })
-    })*/
+    })
 
 })
 
