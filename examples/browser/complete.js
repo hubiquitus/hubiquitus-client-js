@@ -49,17 +49,12 @@ function disconnect(){
 }
 
 function send(){
-    var relevance;
     var actor = document.getElementById('actor').value;
     var msg = document.getElementById('hMessage').value;
-
-    if(document.getElementById("relevanceOn").checked)
-        relevance = parseInt(prompt('Relevance Offset:'));
 
     var timeout = document.getElementById("timeout").value;
     hClient.send(hClient.buildMessage(actor, 'string', msg, {
         persistent: !!document.getElementById("hMessagePersistent").checked,
-        headers: { RELEVANCE_OFFSET: relevance},
         timeout: parseInt(timeout)
     }), callback);
 }
@@ -132,17 +127,10 @@ function getThreads(){
 }
 
 function setFilter(){
-    var name = prompt('Filter Name:');
-    var attr = prompt('Attribute to filter:');
-    var value = prompt('Value of the attribute:');
-    var filterTemplate = {
-        name: name,
-        actor: document.getElementById('actor').value,
-        template: {}
-    };
-    filterTemplate.template[attr] = value;
+    var value = prompt('Value of the filter:');
+    eval('var filter ='+value);
 
-    hClient.setFilter(filterTemplate, callback);
+    hClient.setFilter(filter, callback);
 }
 
 function build_measure(){

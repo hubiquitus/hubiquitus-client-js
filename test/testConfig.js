@@ -86,6 +86,31 @@ exports.createChannel = function(actor, owner, subscribers, active, done, instan
     });
 };
 
+exports.UpdateChannelFilter = function(actor, owner, subscribers, active, filter, done, instance){
+    var client = instance || hClient;
+    var hCommandCreateChannel = {
+        actor: exports.hNode,
+        type: 'hcommand',
+        sent: new Date(),
+        timeout: 30000,
+        payload: {
+            cmd: "hcreateupdatechannel",
+            params:{
+                type: 'channel',
+                actor: actor,
+                owner: owner,
+                subscribers: subscribers,
+                active: active,
+                filter: filter
+            }
+        }
+    };
+    client.send(hCommandCreateChannel, function(hMessage){
+        hMessage.payload.status.should.be.eql(client.hResultStatus.OK);
+        done();
+    });
+};
+
 exports.GetValidChJID = function(){
     return '#Chan'+ Math.floor(Math.random()*10000)+'@localhost'
 }

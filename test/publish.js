@@ -193,80 +193,6 @@ describe('#publish()', function() {
         });
     })
 
-    it('should receive published message that passes through a filter', function(done){
-        var msg = hClient1.buildMessage(chanActive, undefined, undefined, {priority: 3, timeout: 30000});
-        var hFilter = {
-            actor: chanActive,
-            filter: {
-                in:{
-                    publisher: ['u1@localhost']
-                }
-            }
-        };
-
-        hClient1.subscribe(chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
-            done();
-        })
-
-        hClient1.setFilter(hFilter, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
-
-            var counter = 0;
-            hClient1.onMessage = function(hMessage){
-                //Remove Resources
-                var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
-                publisher.should.be.eql(hClient1.publisher);
-                if(++counter == 2)
-                    done();
-            };
-
-            hClient1.send(msg, function(hMessage){
-                hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
-                if(++counter == 2)
-                    done();
-            });
-        })
-    })
-
-    it('should not receive published message that does not pass through a filter', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4, timeout: 30000});
-
-        hClient2.onMessage = function(hMessage){
-            //Remove Resources
-            var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
-            publisher.should.not.be.eql(hClient2.publisher);
-        };
-
-        hClient2.send(msg, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.INVALID_ATTR);
-        });
-
-        setTimeout(done, 800);
-    })
-
-    /*it('should receive published message that was filtered before but unset', function(done){
-        var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4, timeout: 30000});
-        var counter = 0;
-
-        hClient2.unsetFilter('a filter', chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
-
-            hClient2.onMessage = function(hMessage){
-                hMessage.publisher.should.be.eql(hClient2.publisher);
-                if(++counter == 2)
-                    done();
-            };
-
-            hClient2.send(msg, function(hMessage){
-                hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
-                if(++counter == 2)
-                    done();
-            });
-        })
-
-    }) */
-
     it('should publish message to another user and the other should receive it', function(done){
         var msg = hClient1.buildMessage(hClient2.publisher, undefined, undefined, {priority: 4, timeout: 30000});
         var counter = 0;
@@ -289,7 +215,95 @@ describe('#publish()', function() {
             if(++counter == 2)
                 done();
         });
+    })
 
+    describe('#filterMessage', function(){
+
+
+        it('should receive published message that passes through a filter', function(done){
+            var msg = hClient1.buildMessage(chanActive, undefined, undefined, {priority: 3, timeout: 30000});
+            var hFilter = {
+                eq:{
+                    priority: 3
+                }
+            };
+
+            hClient1.subscribe(chanActive, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
+                done();
+            })
+
+            hClient1.setFilter(hFilter, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
+
+                var counter = 0;
+                hClient1.onMessage = function(hMessage){
+                    //Remove Resources
+                    var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+                    publisher.should.be.eql(hClient1.publisher);
+                    if(++counter == 2)
+                        done();
+                };
+
+                hClient1.send(msg, function(hMessage){
+                    hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
+                    if(++counter == 2)
+                        done();
+                });
+            })
+        })
+
+        it('should not receive published message that does not pass through a filter', function(done){
+            var msg = hClient1.buildMessage(chanActive, undefined, undefined, {priority: 4, timeout: 30000});
+            var hFilter = {
+                eq:{
+                    priority: 3
+                }
+            };
+
+            hClient1.setFilter(hFilter, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient1.hResultStatus.OK);
+
+                hClient1.onMessage = function(hMessage){
+                    //Remove Resources
+                    var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+                    publisher.should.not.be.eql(hClient2.publisher);
+                };
+
+                hClient2.send(msg, function(hMessage){
+                    hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
+                });
+
+                setTimeout(done, 800);
+            })
+
+
+        })
+
+        it('should receive published message that was filtered before but unset', function(done){
+            var msg = hClient2.buildMessage(chanActive, undefined, undefined, {priority: 4, timeout: 30000});
+            var counter = 0;
+            var hFilter = {};
+
+            hClient2.setFilter(hFilter, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
+
+                hClient2.onMessage = function(hMessage){
+                    //Remove Resources
+                    var publisher = hMessage.publisher.replace(/(\/.*$)/,'');
+                    publisher.should.be.eql(hClient2.publisher);
+                    if(++counter == 2)
+                        done();
+                };
+
+                hClient2.send(msg, function(hMessage){
+                    hMessage.payload.status.should.be.eql(hClient2.hResultStatus.OK);
+                    if(++counter == 2)
+                        done();
+                });
+            })
+
+        })
     })
 
     describe('#publish()', function(){
