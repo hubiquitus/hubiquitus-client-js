@@ -83,9 +83,10 @@ define(
                     endpoints[Math.floor(Math.random()*endpoints.length)];
 
                 //Instantiate correct transport
+                var self = this;
                 switch(this.hOptions.transport){
                     default:
-                        this.transport = new hSessionSocketIO.hSessionSocketIO(publisher, password, transportCB.bind(this), this.hOptions);
+                        this.transport = new hSessionSocketIO.hSessionSocketIO(publisher, password, function(type, value) {transportCB.call(self, type, value)}, this.hOptions);
                 }
 
                 //Establish the connection
