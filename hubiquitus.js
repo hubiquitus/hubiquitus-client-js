@@ -196,7 +196,7 @@ define(
             },
 
             getSubscriptions: function(cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetSubscriptions');
+                var hMessage = this.buildCommand('hnode@' + this.domain, 'hGetSubscriptions');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -227,7 +227,7 @@ define(
             },
 
             setFilter: function(filter, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hSetFilter', filter);
+                var hMessage = this.buildCommand('hnode@' + this.domain, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);

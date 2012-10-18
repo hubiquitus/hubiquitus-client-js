@@ -115,7 +115,7 @@ function createChannel(){
     var subscribers = prompt('Subscriber to the channel :');
 
     var params = {type: 'channel', owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
-    var hMessage = hClient.buildCommand(hClient.hOptions.hServer + '@' + hClient.domain, 'hCreateUpdateChannel', params);
+    var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hCreateUpdateChannel', params);
     hClient.send(hMessage, callback);
 }
 
