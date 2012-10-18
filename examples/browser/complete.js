@@ -216,9 +216,6 @@ function onStatus(hStatus){
         case hClient.errors.AUTH_FAILED:
             error = 'Authentication failed';
             break;
-        case hClient.errors.ATTACH_FAILED:
-            error = 'Attach failed';
-            break;
         case hClient.errors.ALREADY_CONNECTED:
             error = 'A connection is already opened';
             break;
