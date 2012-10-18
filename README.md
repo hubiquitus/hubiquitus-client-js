@@ -32,7 +32,7 @@ You can use **HubiquitusJS** in two completely different ways.
 
 ```js
 //Connect to a hNode
-hClient.connect('username', 'password');
+hClient.connect('username', 'password', 'hOptions');
 ```
 
 ### For your Node app
@@ -44,35 +44,34 @@ hClient.connect('username', 'password');
 var hClient = require('hubiquitusjs').hClient;
 
 //Connect to a hNode using default configuration.
-hClient.connect('username', 'password');
+hClient.connect('username', 'password', 'hOptions');
 ```
 
 ### Details
 To receive messages in realtime, use `hClient.onMessage`, you can set this function that
 receives a message to whatever you like. For more information about available data received
-in real time see [hCallback](https://github.com/hubiquitus/hubiquitusjs/wiki/hCallback)
+in real time see [Callback](https://github.com/hubiquitus/hubiquitusjs/wiki/Callback-v0.5)
 
 Once connected it is also possible to execute other commands:
 
 ```js
 hClient.subscribe(channel, cb); //Channel to subscribe to using current credentials.
 hClient.unsubscribe(channel, cb); //Channel to unsubscribe.
-hClient.publish(hMessage, cb); //Publishes an hMessage.
-hClient.getMessages(channel, cb); //Get last messages from 'channel'
+hClient.send(hMessage, cb); //Sent an hMessage.
+hClient.getLastMessages(channel, cb); //Get last messages from 'channel'
 hClient.disconnect(); //Disconnects from the Server.
-hClient.command(hCommand, cb); //Sends an hCommand to an entity (Will call command builder to fill missing)
-hClient.commandBuilder(hCommand); //Fills command attributes with default values
+hClient.buildMessage(actor, type, payload, options); //Create a valid hMessage
 ```
 
 In all cases, `channel` is a string with the name that identifies the node.
 
-Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitusjs/wiki/Functions)
+Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitusjs/wiki/Functions-v0.5)
 
 ## Options
 An `hOptions` object can be sent to the connect function as the last argument.
 
 The keys in this object and an explanation for each one of them can be
-found in the [hOptions](https://github.com/hubiquitus/hubiquitusjs/wiki/hOptions) page. 
+found in the [hOptions](https://github.com/hubiquitus/hubiquitusjs/wiki/hOptions-v0.5) page.
 There are examples of how to create a *hOptions* object in the `examples/` folder.
 
 ## License 
