@@ -287,6 +287,11 @@ define(
                 if(options.relevance)
                     hMessage.relevance = options.relevance;
 
+                if(options.relevanceOffset){
+                    var currentDate = new Date();
+                    hMessage.relevance = new Date(currentDate.getTime() + options.relevanceOffset)
+                }
+
                 if(options.persistent !== null || options.persistent !== undefined)
                     hMessage.persistent = options.persistent;
 
