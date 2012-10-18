@@ -42,7 +42,15 @@ describe('#send()', function() {
                 cmd : 'hEcho'
             }
         }, function(hMessage){})
-        done();
+    })
 
+    it('should send a message to another user and receive it', function(done){
+        hClient.onMessage = function(message){
+            message.should.have.property('relevance');
+            done();
+        };
+
+        var msg = hClient.buildMessage(hClient.publisher, 'send', {}, {relevanceOffset : 30000})
+        hClient.send(msg, function(hMessage){});
     })
 })

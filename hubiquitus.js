@@ -27,6 +27,7 @@ define(
 
         var statuses = codes.statuses;
         var errors = codes.errors;
+        var hResultStatus = codes.hResultStatus;
 
         /**
          * Creates a new client that manages a connection and connects to the
@@ -121,6 +122,8 @@ define(
             },
 
             subscribe : function(actor, cb){
+                if(!actor)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 var hMessage = this.buildCommand(actor, 'hSubscribe');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
@@ -128,6 +131,8 @@ define(
             },
 
             unsubscribe : function(actor, cb){
+                if(!actor)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 var hMessage = this.buildCommand(actor, 'hUnsubscribe');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
@@ -136,7 +141,7 @@ define(
 
             send : function(hMessage, cb){
                 if(!(hMessage instanceof Object))
-                    return cb(this.buildResult("Unkonwn", "Unknown", codes.hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
                 hMessage.publisher = this.publisher;
                 hMessage.msgid = UUID.generate();
@@ -196,13 +201,15 @@ define(
             },
 
             getSubscriptions: function(cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hGetSubscriptions');
+                var hMessage = this.buildCommand('hnode@' + this.domain, 'hGetSubscriptions');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             getLastMessages: function(actor, quantity, cb){
+                if(!actor)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 //Allow not to specify quantity and pass a callback directly
                 if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
 
@@ -213,6 +220,10 @@ define(
             },
 
             getThread: function(actor, convid, cb){
+                if(!actor)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
+                if(!convid)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing convid"));
                 var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
@@ -220,6 +231,10 @@ define(
             },
 
             getThreads: function(actor, status, cb){
+                if(!actor)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
+                if(!status)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing status"));
                 var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
@@ -227,13 +242,17 @@ define(
             },
 
             setFilter: function(filter, cb){
-                var hMessage = this.buildCommand(this.hOptions.hServer + '@' + this.domain, 'hSetFilter', filter);
+                if(!filter)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
+                var hMessage = this.buildCommand('hnode@' + this.domain, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
             },
 
             getRelevantMessages: function(actor, cb){
+                if(!actor)
+                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 var hMessage = this.buildCommand(actor, 'hRelevantMessages');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
@@ -286,6 +305,11 @@ define(
 
                 if(options.relevance)
                     hMessage.relevance = options.relevance;
+
+                if(options.relevanceOffset){
+                    var currentDate = new Date();
+                    hMessage.relevance = new Date(currentDate.getTime() + options.relevanceOffset)
+                }
 
                 if(options.persistent !== null || options.persistent !== undefined)
                     hMessage.persistent = options.persistent;
