@@ -80,12 +80,10 @@ describe('#getRelevantMessages()', function(){
 
 
     it('should return hResult error MISSING_ATTR if actor is missing', function(done){
-        try {
-            hClient.getRelevantMessages(undefined, function(hMessage){} )
-        } catch (error) {
-            should.exist(error.message);
+        hClient.getRelevantMessages(undefined, function(hMessage){
+            hMessage.payload.should.have.property('status', hClient.hResultStatus.MISSING_ATTR);
             done();
-        }
+        });
     })
 
     it('should return hResult error MISSING_ATTR if actor is not a string', function(done){

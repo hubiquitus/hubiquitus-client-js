@@ -85,12 +85,11 @@ describe('#unsubscribe()', function() {
     })
 
     it('should return hResult status MISSING_ATTR and result be a message if actor not provided', function(done) {
-        try {
-            hClient.unsubscribe(undefined, function(hMessage){} )
-        } catch (error) {
-            should.exist(error.message);
+        hClient.unsubscribe(undefined, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+            hMessage.payload.result.should.be.a('string');
             done();
-        }
+        });
     })
 
     it('should return hResult status OK if subscribed and in subscribers list', function(done) {

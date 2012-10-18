@@ -98,12 +98,10 @@ describe('#getThread()', function() {
     })
 
     it('should return status error MISSING_ATTR if actor is not passed', function(done){
-        try {
-            hClient.getThread(undefined, convid, function(hMessage){} )
-        } catch (error) {
-            should.exist(error.message);
+        hClient.getThread(undefined, convid, function(hMessage){
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
             done();
-        }
+        })
     })
 
     it('should return status error MISSING_ATTR if convid is not passed', function(done){
