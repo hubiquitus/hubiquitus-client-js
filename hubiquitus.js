@@ -122,7 +122,7 @@ define(
             },
 
             subscribe : function(actor, cb){
-                if(!actor)
+                if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 var hMessage = this.buildCommand(actor, 'hSubscribe');
                 if(hMessage.timeout === undefined)
@@ -131,7 +131,7 @@ define(
             },
 
             unsubscribe : function(actor, cb){
-                if(!actor)
+                if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 var hMessage = this.buildCommand(actor, 'hUnsubscribe');
                 if(hMessage.timeout === undefined)
@@ -208,7 +208,7 @@ define(
             },
 
             getLastMessages: function(actor, quantity, cb){
-                if(!actor)
+                if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 //Allow not to specify quantity and pass a callback directly
                 if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
@@ -220,9 +220,9 @@ define(
             },
 
             getThread: function(actor, convid, cb){
-                if(!actor)
+                if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                if(!convid)
+                if(!convid && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing convid"));
                 var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid});
                 if(hMessage.timeout === undefined)
@@ -231,9 +231,9 @@ define(
             },
 
             getThreads: function(actor, status, cb){
-                if(!actor)
+                if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                if(!status)
+                if(!status && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing status"));
                 var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
                 if(hMessage.timeout === undefined)
@@ -242,7 +242,7 @@ define(
             },
 
             setFilter: function(filter, cb){
-                if(!filter)
+                if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
                 var hMessage = this.buildCommand('hnode@' + this.domain, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
@@ -251,7 +251,7 @@ define(
             },
 
             getRelevantMessages: function(actor, cb){
-                if(!actor)
+                if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 var hMessage = this.buildCommand(actor, 'hRelevantMessages');
                 if(hMessage.timeout === undefined)
