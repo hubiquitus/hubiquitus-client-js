@@ -175,8 +175,8 @@ define(
                                     delete self.msgToBeAnswered[hMessage.msgid];
                                     if(hMessage.payload && typeof hMessage.payload === 'object')
                                         cmd = hMessage.payload.cmd;
-                                    errCode = codes.hResultStatus.EXEC_TIMEOUT;
-                                    errMsg = 'No response was received within the ' + timeout + ' timeout';
+                                    var errCode = codes.hResultStatus.EXEC_TIMEOUT;
+                                    var errMsg = 'No response was received within the ' + timeout + ' timeout';
                                     var resultMsg = self.buildResult(hMessage.publisher, hMessage.msgid, errCode, errMsg);
                                     cb(resultMsg);
                                 }
