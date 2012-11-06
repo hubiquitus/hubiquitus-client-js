@@ -65,6 +65,9 @@ define(
                             break;
                         case 'hMessage':
                             this.onMessageInternal(value);
+                            break;
+                        case 'attrs':
+                            this.fulljid = value.publisher;
                     }
                 };
 
