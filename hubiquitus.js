@@ -68,6 +68,7 @@ define(
                             break;
                         case 'attrs':
                             this.fulljid = value.publisher;
+                            this.domain = value.serverDomain;
                     }
                 };
 
@@ -78,7 +79,6 @@ define(
                     });
 
                 //Set Domain and publisher
-                this.domain = this.splitJID(publisher)[1];
                 this.publisher = publisher;
 
                 //Load Balancing
