@@ -68,7 +68,7 @@ define(
                             break;
                         case 'attrs':
                             this.fulljid = value.publisher;
-                            this.domain = value.serverDomain;
+                            this.serverDomain = value.serverDomain;
                     }
                 };
 
@@ -79,6 +79,7 @@ define(
                     });
 
                 //Set Domain and publisher
+                this.domain = this.splitJID(publisher)[1];
                 this.publisher = publisher;
 
                 //Load Balancing
@@ -204,7 +205,7 @@ define(
             },
 
             getSubscriptions: function(cb){
-                var hMessage = this.buildCommand('hnode@' + this.domain, 'hGetSubscriptions');
+                var hMessage = this.buildCommand('hnode@' + this.serverDomain, 'hGetSubscriptions');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -247,7 +248,7 @@ define(
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
-                var hMessage = this.buildCommand('hnode@' + this.domain, 'hSetFilter', filter);
+                var hMessage = this.buildCommand('hnode@' + this.serverDomain, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
