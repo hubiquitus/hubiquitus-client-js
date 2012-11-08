@@ -223,12 +223,12 @@ define(
                 this.send(hMessage, cb);
             },
 
-            getThread: function(actor, convid, cb){
+            getThread: function(actor, convid, cb, sort){
                 if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
                 if(!convid && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing convid"));
-                var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid});
+                var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid, sort: sort});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
