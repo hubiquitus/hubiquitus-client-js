@@ -74,6 +74,7 @@ define(
                             break;
                         case 'attrs':
                             this.fulljid = value.publisher;
+                            this.ressource = this.fulljid.replace(/^.*\//, "")
                             this.serverDomain = value.serverDomain;
                     }
                 };
