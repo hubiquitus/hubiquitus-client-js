@@ -66,8 +66,10 @@ define(
                     //'this' is correct because of the bind
                     switch(type){
                         case 'hStatus':
-                            this.status = value.status;
-                            this.onStatus(value);
+                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.fulljid !== undefined)){
+                                this.status = value.status;
+                                this.onStatus(value);
+                            }
                             break;
                         case 'hMessage':
                             this.onMessageInternal(value);
@@ -76,6 +78,14 @@ define(
                             this.fulljid = value.publisher;
                             this.ressource = this.fulljid.replace(/^.*\//, "")
                             this.serverDomain = value.serverDomain;
+                            if(this.status !== statuses.CONNECTED)
+                            {
+                                this.status = statuses.CONNECTED;
+                                this.onStatus({
+                                    status:statuses.CONNECTED,
+                                    errorCode: errors.NO_ERROR
+                                });
+                            }
                     }
                 };
 
