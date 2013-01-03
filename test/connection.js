@@ -59,10 +59,10 @@ describe('Connection tests', function() {
             hClient.connect(user.login, 'another password', conf.hOptions);
         })
 
-        it('should receive hStatus with JID_MALFORMAT if wrong format', function(done){
+        it('should receive hStatus with URN_MALFORMAT if wrong format', function(done){
             hClient.onStatus = function(hStatus){
                 if(hStatus.status ==  hClient.statuses.DISCONNECTED){
-                    hStatus.errorCode.should.be.eql(hClient.errors.JID_MALFORMAT);
+                    hStatus.errorCode.should.be.eql(hClient.errors.URN_MALFORMAT);
                     done();
                 }
             };
