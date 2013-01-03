@@ -104,6 +104,7 @@ function send_hEcho(){
         msgOptions.persistent = !!document.getElementById("persistentCheckBox").checked;
         msgOptions.timeout = document.getElementById("timeout").value;
         var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hEcho', {hello : value}, msgOptions);
+        hMessage.actor = hClient.fulljid;
         hClient.send(hMessage, callback);
     }
 
@@ -122,6 +123,7 @@ function createChannel(){
 
     var params = {type: 'channel', owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
     var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hCreateUpdateChannel', params);
+    hMessage.actor = hClient.fulljid;
     hClient.send(hMessage, callback);
 }
 
@@ -213,7 +215,7 @@ function onStatus(hStatus){
         case hClient.errors.NO_ERROR:
             error = 'No Error Detected';
             break;
-        case hClient.errors.JID_MALFORMAT:
+        case hClient.errors.URN_MALFORMAT:
             error = 'JID Malformat';
             break;
         case hClient.errors.CONN_TIMEOUT:

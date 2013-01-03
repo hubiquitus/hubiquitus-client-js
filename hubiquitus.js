@@ -89,14 +89,14 @@ define(
                     }
                 };
 
-                if(!this.checkJID(publisher))
+                if(!this.checkURN(publisher))
                     return this.onStatus({
                         status: codes.statuses.DISCONNECTED,
-                        errorCode: codes.errors.JID_MALFORMAT
+                        errorCode: codes.errors.URN_MALFORMAT
                     });
 
                 //Set Domain and publisher
-                this.domain = this.splitJID(publisher)[1];
+                this.domain = this.splitURN(publisher)[1];
                 this.publisher = publisher;
 
                 //Load Balancing
@@ -164,7 +164,7 @@ define(
                 if(!(hMessage instanceof Object))
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
-                hMessage.publisher = this.publisher;
+                hMessage.publisher = this.fulljid;
                 hMessage.msgid = UUID.generate();
                 hMessage.published = hMessage.published || new Date();
                 hMessage.sent = new Date();
@@ -265,7 +265,7 @@ define(
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
-                var hMessage = this.buildCommand('hnode@' + this.serverDomain, 'hSetFilter', filter);
+                var hMessage = this.buildCommand(this.fulljid, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -399,12 +399,12 @@ define(
                 return this.buildMessage(actor, 'hConvState', {status: status}, options);
             },
 
-            checkJID: function(jid){
-                return new RegExp("^(?:([^@/<>'\"]+)@)([^@/<>'\"]+)(?:/([^/<>'\"]*))?$").test(jid);
+            checkURN: function(urn){
+                return /(^urn:[^:\/<>'"]+:[^:\/<>'"]+\/?.+$)/.test(urn);
             },
 
-            splitJID: function(jid){
-                return jid.match(new RegExp("^(?:([^@/<>'\"]+)@)([^@/<>'\"]+)(?:/([^/<>'\"]*))?$")).splice(1, 3);
+            splitURN: function(urn){
+                return urn.split(":").splice(1, 3);
             },
 
             errors: codes.errors,
