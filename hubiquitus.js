@@ -66,7 +66,7 @@ define(
                     //'this' is correct because of the bind
                     switch(type){
                         case 'hStatus':
-                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.fulljid !== undefined)){
+                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.fullurn !== undefined)){
                                 this.status = value.status;
                                 this.onStatus(value);
                             }
@@ -75,8 +75,8 @@ define(
                             this.onMessageInternal(value);
                             break;
                         case 'attrs':
-                            this.fulljid = value.publisher;
-                            this.ressource = this.fulljid.replace(/^.*\//, "")
+                            this.fullurn = value.publisher;
+                            this.ressource = this.fullurn.replace(/^.*\//, "")
                             this.serverDomain = value.serverDomain;
                             if(this.status !== statuses.CONNECTED)
                             {
@@ -164,7 +164,7 @@ define(
                 if(!(hMessage instanceof Object))
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
-                hMessage.publisher = this.fulljid;
+                hMessage.publisher = this.fullurn;
                 hMessage.msgid = UUID.generate();
                 hMessage.published = hMessage.published || new Date();
                 hMessage.sent = new Date();
@@ -265,7 +265,7 @@ define(
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
-                var hMessage = this.buildCommand(this.fulljid, 'hSetFilter', filter);
+                var hMessage = this.buildCommand(this.fullurn, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -400,7 +400,7 @@ define(
             },
 
             checkURN: function(urn){
-                return /(^urn:[^:\/<>'"]+:[^:\/<>'"]+\/?.+$)/.test(urn);
+                return /(^urn:[a-z0-9]{1}[a-z0-9\-]{1,31}:[a-z0-9_,:=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
             },
 
             splitURN: function(urn){
