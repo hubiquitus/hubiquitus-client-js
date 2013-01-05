@@ -66,7 +66,7 @@ define(
                     //'this' is correct because of the bind
                     switch(type){
                         case 'hStatus':
-                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.this.fullurn !== undefined)){
+                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.fullurn !== undefined)){
                                 this.status = value.status;
                                 this.onStatus(value);
                             }
@@ -77,6 +77,7 @@ define(
                         case 'attrs':
                             this.fullurn = value.publisher;
                             this.ressource = this.fullurn.replace(/^.*\//, "")
+
                             if(this.status !== statuses.CONNECTED)
                             {
                                 this.status = statuses.CONNECTED;
@@ -394,7 +395,7 @@ define(
             },
 
             checkURN: function(urn){
-                return /(^urn:[^:\/<>'"]+:[^:\/<>'"]+\/?.+$)/.test(urn);
+                return /(^urn:[a-z0-9]{1}[a-z0-9\-]{1,31}:[a-z0-9_,:=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
             },
 
             splitURN: function(urn){
