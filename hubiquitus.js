@@ -37,7 +37,7 @@ define(
 
         /**
          * Creates a new client that manages a connection and connects to the
-         * hNode Server.
+         * gateway.
          */
         var HubiquitusClient = function(){
             this.onStatus = function(hStatus){};
@@ -48,7 +48,7 @@ define(
         };
 
         HubiquitusClient.prototype = {
-            connect : function(publisher, password, hOptions){
+            connect : function(login, password, hOptions, context){
                 var code = this.status == statuses.CONNECTED ?
                     errors.ALREADY_CONNECTED : errors.CONN_PROGRESS;
 
@@ -66,7 +66,7 @@ define(
                     //'this' is correct because of the bind
                     switch(type){
                         case 'hStatus':
-                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.fulljid !== undefined)){
+                            if((value.status !== statuses.CONNECTED) || (value.status !== statuses.CONNECTED && this.fullurn !== undefined)){
                                 this.status = value.status;
                                 this.onStatus(value);
                             }
@@ -75,9 +75,9 @@ define(
                             this.onMessageInternal(value);
                             break;
                         case 'attrs':
-                            this.fulljid = value.publisher;
-                            this.ressource = this.fulljid.replace(/^.*\//, "")
-                            this.serverDomain = value.serverDomain;
+                            this.fullurn = value.publisher;
+                            this.ressource = this.fullurn.replace(/^.*\//, "")
+
                             if(this.status !== statuses.CONNECTED)
                             {
                                 this.status = statuses.CONNECTED;
@@ -86,18 +86,13 @@ define(
                                     errorCode: errors.NO_ERROR
                                 });
                             }
+                            //Set Domain and publisher
+                            this.domain = this.splitURN(this.fullurn)[0];
+                            this.publisher = this.bareURN(this.fullurn);
                     }
                 };
 
-                if(!this.checkURN(publisher))
-                    return this.onStatus({
-                        status: codes.statuses.DISCONNECTED,
-                        errorCode: codes.errors.URN_MALFORMAT
-                    });
 
-                //Set Domain and publisher
-                this.domain = this.splitURN(publisher)[1];
-                this.publisher = publisher;
 
                 //Load Balancing
                 var endpoints = this.hOptions.endpoints;
@@ -108,11 +103,11 @@ define(
                 var self = this;
                 switch(this.hOptions.transport){
                     default:
-                        this.transport = new hSessionSocketIO.hSessionSocketIO(publisher, password, function(type, value) {transportCB.call(self, type, value)}, this.hOptions);
+                        this.transport = new hSessionSocketIO.hSessionSocketIO(login, password, context, function(type, value) {transportCB.call(self, type, value)}, this.hOptions);
                 }
 
                 //Establish the connection
-                this.transport.connect(publisher);
+                this.transport.connect(login);
             },
 
             onMessageInternal : function(hMessage) {
@@ -164,7 +159,7 @@ define(
                 if(!(hMessage instanceof Object))
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
-                hMessage.publisher = this.fulljid;
+                hMessage.publisher = this.fullurn;
                 hMessage.msgid = UUID.generate();
                 hMessage.published = hMessage.published || new Date();
                 hMessage.sent = new Date();
@@ -265,7 +260,7 @@ define(
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
-                var hMessage = this.buildCommand(this.fulljid, 'hSetFilter', filter);
+                var hMessage = this.buildCommand(this.fullurn, 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -400,11 +395,16 @@ define(
             },
 
             checkURN: function(urn){
-                return /(^urn:[^:\/<>'"]+:[^:\/<>'"]+\/?.+$)/.test(urn);
+                return /(^urn:[a-z0-9]{1}[a-z0-9\-]{1,31}:[a-z0-9_,:=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
             },
 
             splitURN: function(urn){
                 return urn.split(":").splice(1, 3);
+            },
+
+            bareURN: function(urn) {
+                var urnParts = this.splitURN(urn);
+                return "urn:" + urnParts[0] + ":" + urnParts[1];
             },
 
             errors: codes.errors,
