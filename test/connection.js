@@ -51,12 +51,13 @@ describe('Connection tests', function() {
     describe('#connect() failures', function(){
         it('should receive hStatus with AUTH_FAILED if wrong password', function(done){
             hClient.onStatus = function(hStatus){
+                console.log("hStatus : ", hStatus);
                 if(hStatus.status ==  hClient.statuses.DISCONNECTED){
                     hStatus.errorCode.should.be.eql(hClient.errors.AUTH_FAILED);
                     done();
                 }
             };
-            hClient.connect(user.login, 'another password', conf.hOptions);
+            hClient.connect(user.login, user.login + "aa", conf.hOptions);
         })
 
         it('should receive hStatus with URN_MALFORMAT if wrong format', function(done){
@@ -66,7 +67,7 @@ describe('Connection tests', function() {
                     done();
                 }
             };
-            hClient.connect('another login', user.password, conf.hOptions);
+            hClient.connect('urn:localh', 'urn:localh', conf.hOptions);
         })
     })
 

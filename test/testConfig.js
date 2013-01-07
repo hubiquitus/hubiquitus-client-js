@@ -12,18 +12,14 @@ exports.hOptions = {
 //Array of logins to use (some test need two users)
 exports.logins = [
     {
-        login: 'u1@localhost',
-        password: 'u1'
+        login: 'urn:localhost:u1',
+        password: 'urn:localhost:u1'
     }
     ,{
-        login: 'u2@localhost',
-        password: 'u2'
+        login: 'urn:localhost:u2',
+        password: 'urn:localhost:u2'
     }
 ];
-
-exports.hNode = 'hnode@localhost'; //Address of the hNode entity
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -216,7 +216,7 @@ function onStatus(hStatus){
             error = 'No Error Detected';
             break;
         case hClient.errors.URN_MALFORMAT:
-            error = 'JID Malformat';
+            error = 'URN Malformat';
             break;
         case hClient.errors.CONN_TIMEOUT:
             error = 'Connection timed out';
