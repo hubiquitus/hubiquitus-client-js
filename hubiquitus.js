@@ -232,6 +232,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hGetLastMessages', {nbLastMsg: quantity});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
@@ -243,6 +244,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid, sort: sort});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
@@ -254,6 +256,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
@@ -263,6 +266,7 @@ define(
                 var hMessage = this.buildCommand("session", 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                this.filter = filter
                 this.send(hMessage, cb);
             },
 
@@ -272,6 +276,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hRelevantMessages');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
