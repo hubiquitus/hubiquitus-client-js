@@ -217,7 +217,7 @@ define(
             },
 
             getSubscriptions: function(cb){
-                var hMessage = this.buildCommand('hnode@' + this.serverDomain, 'hGetSubscriptions');
+                var hMessage = this.buildCommand("session", 'hGetSubscriptions');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
