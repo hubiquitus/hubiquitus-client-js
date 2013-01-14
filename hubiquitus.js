@@ -149,7 +149,7 @@ define(
             unsubscribe : function(actor, cb){
                 if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                var hMessage = this.buildCommand(actor, 'hUnsubscribe');
+                var hMessage = this.buildCommand("session", 'hUnsubscribe', actor);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -260,7 +260,7 @@ define(
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
-                var hMessage = this.buildCommand(this.fullurn, 'hSetFilter', filter);
+                var hMessage = this.buildCommand("session", 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
