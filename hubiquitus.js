@@ -149,7 +149,7 @@ define(
             unsubscribe : function(actor, cb){
                 if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                var hMessage = this.buildCommand("session", 'hUnsubscribe', actor);
+                var hMessage = this.buildCommand("session", 'hUnsubscribe', {channel:actor});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
