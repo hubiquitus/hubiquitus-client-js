@@ -149,7 +149,7 @@ define(
             unsubscribe : function(actor, cb){
                 if(!actor && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                var hMessage = this.buildCommand(actor, 'hUnsubscribe');
+                var hMessage = this.buildCommand("session", 'hUnsubscribe', {channel:actor});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -217,7 +217,7 @@ define(
             },
 
             getSubscriptions: function(cb){
-                var hMessage = this.buildCommand('hnode@' + this.serverDomain, 'hGetSubscriptions');
+                var hMessage = this.buildCommand("session", 'hGetSubscriptions');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.send(hMessage, cb);
@@ -232,6 +232,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hGetLastMessages', {nbLastMsg: quantity});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
@@ -243,6 +244,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid, sort: sort});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
@@ -254,15 +256,17 @@ define(
                 var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
-                var hMessage = this.buildCommand(this.fullurn, 'hSetFilter', filter);
+                var hMessage = this.buildCommand("session", 'hSetFilter', filter);
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                this.filter = filter
                 this.send(hMessage, cb);
             },
 
@@ -272,6 +276,7 @@ define(
                 var hMessage = this.buildCommand(actor, 'hRelevantMessages');
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
+                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 
