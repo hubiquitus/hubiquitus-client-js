@@ -400,7 +400,7 @@ define(
             },
 
             checkURN: function(urn){
-                return /(^urn:[a-z0-9]{1}[a-z0-9\-]{1,31}:[a-z0-9_,:=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
+                return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
             },
 
             splitURN: function(urn){
