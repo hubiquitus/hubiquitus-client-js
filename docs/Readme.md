@@ -32,7 +32,7 @@ You can use **HubiquitusJS** in two completely different ways.
 
 ```js
 //Connect to a hNode
-hClient.connect('username', 'password', 'hOptions');
+hClient.connect('login', 'password', 'hOptions');
 ```
 
 ### For your Node app
@@ -63,6 +63,18 @@ hClient.disconnect(); //Disconnects from the Server.
 hClient.buildMessage(actor, type, payload, options); //Create a valid hMessage
 ```
 Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions)
+
+### References
+You can find relevant informations of all the hubiquitus4js's references in :
+* [Data Structure](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure)
+* [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter)
+* [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions)
+* [Codes](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Codes)
+* [Callback](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Callback)
+* [Connect Options](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hOptions)
+* [Minification](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Minification)
+* [Proxy Pass](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Proxy-Pass)
+* [hClient class variables](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hClient-class-variables)
 
 ## Options
 An `hOptions` object can be sent to the connect function as the last argument.
