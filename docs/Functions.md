@@ -233,6 +233,6 @@ Where:
 
 * actor : `<String>` urn of the receiver. If not provided an error will be thrown
 * ref : `<String>` the msgid of the message which rise this result
-* status: `<String>` result status code (see [Codes ](https://github.com/hubiquitus/hubiquitusjs/tree/master/Codes) for more details)
+* status: `<String>` result status code (see [Codes ](https://github.com/hubiquitus/hubiquitus4js/tree/master/Codes) for more details)
 * result: `<Object>` the result of the command
 * options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones.

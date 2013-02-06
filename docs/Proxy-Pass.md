@@ -15,8 +15,8 @@ If you try to connect an hubiquitus client to an endpoints like "http://localhos
     sudo /etc/init.d/nginx restart
 ```
 
-## How hubiquitusjs manage this
+## How hubiquitus4js manage this
 
 * You just have to fill the endpoints attribute with the proxy pass endpoints (`http://serverHost/hubi1`).
-* Hubiquitusjs will automatically add `/socket.io` to the endpoints
-* You will be connect to the hServer through `http://serverHost/hub1/socket.io`
+* Hubiquitus4js will automatically add `/socket.io` to the endpoints
+* You will be connect to the hServer throughcd `http://serverHost/hub1/socket.io`

@@ -1,4 +1,4 @@
-HubiquitusJS use a few structure to run with a hubiquitus-node server :
+Hubiquitus4js use a few structure to run with a hubiquitus-node server :
 
 # Message Structure
 ## hMessage
