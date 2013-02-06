@@ -32,7 +32,7 @@ You can use **HubiquitusJS** in two completely different ways.
 
 ```js
 //Connect to a hNode
-hClient.connect('username', 'password', 'hOptions');
+hClient.connect('login', 'password', 'hOptions');
 ```
 
 ### For your Node app
