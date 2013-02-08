@@ -51,7 +51,6 @@ describe('Connection tests', function() {
     describe('#connect() failures', function(){
         it('should receive hStatus with AUTH_FAILED if wrong password', function(done){
             hClient.onStatus = function(hStatus){
-                console.log("hStatus : ", hStatus);
                 if(hStatus.status ==  hClient.statuses.DISCONNECTED){
                     hStatus.errorCode.should.be.eql(hClient.errors.AUTH_FAILED);
                     done();

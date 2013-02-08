@@ -28,31 +28,16 @@ var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
 describe('#getThreads()', function() {
-    var activeChannel = conf.GetValidChJID(),
-        inactiveChannel = conf.GetValidChJID(),
-        notInPartChannel = conf.GetValidChJID(),
-        status = conf.GetValidChJID(),
+    var activeChannel = "urn:localhost:channel1",
+        notInPartChannel = "urn:localhost:channel2",
+        status = Math.floor(Math.random()*10000),
         shouldNotAppearConvids = [],
         shouldAppearConvids = [],
         initialConvids = [];
 
-    var user = conf.logins[0];
-
     before(conf.connect)
 
     after(conf.disconnect)
-
-    before(function(done){
-        conf.createChannel(activeChannel, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(inactiveChannel, user.login, [user.login], false, done);
-    })
-
-    before(function(done){
-        conf.createChannel(notInPartChannel, user.login, [], false, done);
-    })
 
 
     for(var i = 0; i < 10; i++)
@@ -122,13 +107,6 @@ describe('#getThreads()', function() {
         })
     })
 
-    it('should return status error NOT_AUTHORIZED if channel is inactive', function(done){
-        hClient.getThreads(inactiveChannel, status, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            done();
-        })
-    })
-
     it('should return status error NOT_AUTHORIZED if sender not in subscribers list', function(done){
         hClient.getThreads(notInPartChannel, status, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
@@ -165,7 +143,7 @@ describe('#getThreads()', function() {
     })
 
     it('should return status error NOT_AVAILABLE if actor does not correspond to a valid hChannel', function(done){
-        hClient.getThreads('#this does not exist@localhost', status, function(hMessage){
+        hClient.getThreads('urn:localhost:unknowChan', status, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
@@ -176,7 +154,7 @@ describe('#getThreads()', function() {
 describe('#getThreads()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to getThreads while disconnected', function(done){
-        hClient.getThreads('#this channel does not exist@localhost', 'this is not a good status', function(hMessage){
+        hClient.getThreads('urn:localhost:unknowChan', 'this is not a good status', function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
