@@ -31,25 +31,9 @@ var user = conf.logins[0];
 var hFilter;
 
 describe('#setFilter()', function() {
-    var activeChannel = conf.GetValidChJID(),
-        inactiveChannel = conf.GetValidChJID(),
-        notInPartChannel = conf.GetValidChJID();
-
     before(conf.connect);
 
     after(conf.disconnect);
-
-    before(function(done){
-        conf.createChannel(activeChannel, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(inactiveChannel, user.login, [user.login], false, done);
-    })
-
-    before(function(done){
-        conf.createChannel(notInPartChannel, user.login, [], false, done);
-    })
 
     beforeEach(function(){
         hFilter = {};

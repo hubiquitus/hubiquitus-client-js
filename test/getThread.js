@@ -28,9 +28,8 @@ var conf = require('./testConfig.js');
 var hClient = require('../hubiquitus.js').hClient;
 
 describe('#getThread()', function() {
-    var activeChannel = conf.GetValidChJID(),
-        inactiveChannel = conf.GetValidChJID(),
-        notInPartChannel = conf.GetValidChJID(),
+    var activeChannel = "urn:localhost:channel1",
+        notInPartChannel = "urn:localhost:channel2",
         convid,
         publishedMessages = 0;
 
@@ -39,18 +38,6 @@ describe('#getThread()', function() {
     before(conf.connect)
 
     after(conf.disconnect)
-
-    before(function(done){
-        conf.createChannel(activeChannel, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(inactiveChannel, user.login, [user.login], false, done);
-    })
-
-    before(function(done){
-        conf.createChannel(notInPartChannel, user.login, [], false, done);
-    })
 
     //First message to get convid
     before(function(done){
@@ -85,13 +72,6 @@ describe('#getThread()', function() {
         hClient.getThread(activeChannel, convid, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(publishedMessages);
-            done();
-        })
-    })
-
-    it('should return status error NOT_AUTHORIZED if channel is inactive', function(done){
-        hClient.getThread(inactiveChannel, convid, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             done();
         })
     })
@@ -132,7 +112,7 @@ describe('#getThread()', function() {
     })
 
     it('should return status error NOT_AVAILABLE if actor does not correspond to a valid hChannel', function(done){
-        hClient.getThread('#this does not exist@localhost', convid, function(hMessage){
+        hClient.getThread('urn:localhost:unknowChan', convid, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             done();
         })
@@ -143,7 +123,7 @@ describe('#getThread()', function() {
 describe('#getThread()', function() {
 
     it('should return a hMessage with status NOT_CONNECTED if user tries to getThread while disconnected', function(done){
-        hClient.getThread('#this channel does not exist@localhost', 'this is not a convid', function(hMessage){
+        hClient.getThread('urn:localhost:unknowChan', 'this is not a convid', function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })

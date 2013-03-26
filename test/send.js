@@ -36,18 +36,11 @@ describe('#send()', function() {
     after(conf.disconnect)
 
     it('should send a message to another user and receive it', function(done){
-        hClient.onMessage = function(message){
-            message.payload.cmd.should.be.eql('hEcho');
+        hClient.send(hClient.buildCommand(hClient.publisher, "hEcho", {}, {timeout:10000}), function(hMessage){
+            console.log(hMessage)
+            hMessage.type.should.be.eql('hResult');
             done();
-        };
-
-        hClient.send({
-            actor : hClient.publisher,
-            type : 'hCommand',
-            payload : {
-                cmd : 'hEcho'
-            }
-        }, function(hMessage){})
+        })
     })
 
     it('should send a message to another user and receive it', function(done){

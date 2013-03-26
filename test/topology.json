@@ -1,0 +1,75 @@
+{
+    "actor": "urn:localhost:tracker",
+    "type": "htracker",
+    "children": [
+        {
+            "actor": "urn:localhost:gateway",
+            "type": "hgateway",
+            "method": "inproc",
+            "log":{
+                "logLevel":"debug"
+            },
+            "children": [
+                {
+                    "actor": "urn:localhost:auth",
+                    "type": "hauth",
+                    "method": "inproc"
+                }
+            ],
+            "adapters": [ { "type": "socket_in", "url": "tcp://127.0.0.1:3993" } ],
+            "properties": {
+                "socketIOPort": 8080,
+                "authActor": "urn:localhost:auth",
+                "authTimeout": 3000
+            }
+        },
+        {
+            "actor": "urn:localhost:channel1",
+            "type": "hchannel",
+            "method": "inproc",
+            "log":{
+                "logLevel":"debug"
+            },
+            "properties": {
+                "listenOn": "tcp://127.0.0.1",
+                "broadcastOn": "tcp://127.0.0.1",
+                "subscribers": ["urn:localhost:u1","urn:localhost:u2"],
+                "db":{
+                    "dbName": "test",
+                    "dbCollection": "channel1"
+                }
+            }
+        },
+        {
+            "actor": "urn:localhost:channel2",
+            "type": "hchannel",
+            "method": "inproc",
+            "properties": {
+                "listenOn": "tcp://127.0.0.1",
+                "broadcastOn": "tcp://127.0.0.1",
+                "subscribers": ["urn:localhost:u2"],
+                "db":{
+                    "dbName": "test",
+                    "dbCollection": "channel2"
+                }
+            }
+        }
+    ],
+    "properties":{
+        "channel": {
+            "actor": "urn:localhost:trackChannel",
+            "type": "hchannel",
+            "method": "inproc",
+            "properties": {
+                "listenOn": "tcp://127.0.0.1",
+                "broadcastOn": "tcp://127.0.0.1",
+                "subscribers": [],
+                "db":{
+                    "dbName": "admin",
+                    "dbCollection": "trackChannel"
+                }
+            }
+        }
+    },
+    "adapters": [ { "type": "socket_in", "url": "tcp://127.0.0.1:2997" } ]
+}

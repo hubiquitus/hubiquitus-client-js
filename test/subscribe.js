@@ -30,37 +30,16 @@ var conf = require('./testConfig.js');
 describe('#subscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = conf.GetValidChJID();
-    var chanInactive = conf.GetValidChJID();
-    var chanNotInPart = conf.GetValidChJID();
+    var chanActive = "urn:localhost:channel1";
+    var chanNotInPart = "urn:localhost:channel2";
 
     before(conf.connect)
 
     after(conf.disconnect)
 
-    before(function(done){
-        conf.createChannel(chanActive, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(chanInactive, user.login, [user.login], false, done);
-    })
-
-    before(function(done){
-        conf.createChannel(chanNotInPart, user.login, [conf.logins[1].login], true, done);
-    })
-
     it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
-        hClient.subscribe('#chan does not exist@localhost', function(hMessage){
+        hClient.subscribe('urn:localhost:unknowChan', function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-    it('should return hResult status NOT_AUTHORIZED and result be a message if channel is inactive', function(done) {
-        hClient.subscribe(chanInactive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
             done();
         });
@@ -78,17 +57,8 @@ describe('#subscribe()', function() {
         hClient.subscribe(chanActive, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
             hClient.getSubscriptions(function(hMessage) {
-                var normalizedChanActive = '#' + chanActive + '@' + hClient.domain;
-                hMessage.payload.result.should.include(normalizedChanActive);
+                hMessage.payload.result.should.include(chanActive);
             });
-            done();
-        });
-    })
-
-    it('should return hResult status NOT_AUTHORIZED and result be a message if user not in subscribers list', function(done) {
-        hClient.subscribe(chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hMessage.payload.result.should.be.a('string');
             done();
         });
     })

@@ -1,16 +1,16 @@
-# HubiquitusJS
+# Hubiquitus4js
 Use a simple API to connect to a hNode and do Publish Subscribe using the
 *Hubiquitus* protocol. It is compatible with your **web app** and your
 **Node.JS** project.
 
 To communicate with the server it can use
-[socket.io](http://socket.io/). To use it, you neef
+[socket.io](http://socket.io/). To use it, you need
 [hubiquitus](https://github.com/hubiquitus/hubiquitus).
 
 
 ## How to Use
 
-You can use **HubiquitusJS** in two completely different ways.
+You can use **Hubiquitus4js** in two completely different ways.
 
 * Inside your *web-browser* as an API to retrieve data for your web app.
 * As a *node* module for your *Node.JS* project.
@@ -36,12 +36,12 @@ hClient.connect('login', 'password', 'hOptions');
 ```
 
 ### For your Node app
-1. Install using NPM: `npm install git://github.com/hubiquitus/hubiquitusjs.git`
+1. Install using NPM: `npm install git://github.com/hubiquitus/hubiquitus4js.git`
 2. Import the API and use it!
 
 ```js
 //Import hClient
-var hClient = require('hubiquitusjs').hClient;
+var hClient = require('hubiquitus4js').hClient;
 
 //Connect to a hNode using default configuration.
 hClient.connect('login', 'password', 'hOptions');
@@ -63,6 +63,18 @@ hClient.disconnect(); //Disconnects from the Server.
 hClient.buildMessage(actor, type, payload, options); //Create a valid hMessage
 ```
 Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions)
+
+### References
+You can find relevant informations of all the hubiquitus4js's references in :
+* [Data Structure](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure)
+* [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter)
+* [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions)
+* [Codes](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Codes)
+* [Callback](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Callback)
+* [Connect Options](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hOptions)
+* [Minification](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Minification)
+* [Proxy Pass](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Proxy-Pass)
+* [hClient class variables](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hClient-class-variables)
 
 ## Options
 An `hOptions` object can be sent to the connect function as the last argument.
