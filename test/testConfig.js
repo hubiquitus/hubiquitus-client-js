@@ -29,6 +29,7 @@ exports.logins = [
 
 var should = require('should');
 var hClient = require('../hubiquitus.js').hClient;
+var mongo = require("mongodb");
 
 exports.connect = function(done, user, hOptions, instance){
     var client = instance || hClient;
@@ -56,57 +57,17 @@ exports.disconnect = function(done, instance){
     };
 
     client.disconnect();
+    client = null
 };
 
-exports.createChannel = function(actor, owner, subscribers, active, done, instance){
-    var client = instance || hClient;
-    var hCommandCreateChannel = {
-        actor: exports.hNode,
-        type: 'hcommand',
-        sent: new Date(),
-        timeout: 30000,
-        payload: {
-            cmd: "hcreateupdatechannel",
-            params:{
-                type: 'channel',
-                actor: actor,
-                owner: owner,
-                subscribers: subscribers,
-                active: active
-            }
+exports.dropCollection = function(done){
+    var server = new mongo.Server("localhost", 27017)
+    var db = new mongo.Db("test", server)
+
+    db.open(function(err, rep) {
+        if (!err) {
+            db.collection("channel1").drop()
+            done();
         }
-    };
-    client.send(hCommandCreateChannel, function(hMessage){
-        hMessage.payload.status.should.be.eql(client.hResultStatus.OK);
-        done();
     });
-};
-
-exports.UpdateChannelFilter = function(actor, owner, subscribers, active, filter, done, instance){
-    var client = instance || hClient;
-    var hCommandCreateChannel = {
-        actor: exports.hNode,
-        type: 'hcommand',
-        sent: new Date(),
-        timeout: 30000,
-        payload: {
-            cmd: "hcreateupdatechannel",
-            params:{
-                type: 'channel',
-                actor: actor,
-                owner: owner,
-                subscribers: subscribers,
-                active: active,
-                filter: filter
-            }
-        }
-    };
-    client.send(hCommandCreateChannel, function(hMessage){
-        hMessage.payload.status.should.be.eql(client.hResultStatus.OK);
-        done();
-    });
-};
-
-exports.GetValidChJID = function(){
-    return '#Chan'+ Math.floor(Math.random()*10000)+'@localhost'
 }

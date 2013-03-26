@@ -76,7 +76,7 @@ define(
                             break;
                         case 'attrs':
                             this.fullurn = value.publisher;
-                            this.ressource = this.fullurn.replace(/^.*\//, "")
+                            this.resource = this.fullurn.replace(/^.*\//, "")
 
                             if(this.status !== statuses.CONNECTED)
                             {

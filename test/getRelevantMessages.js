@@ -30,20 +30,14 @@ var hClient = require('../hubiquitus.js').hClient;
 describe('#getRelevantMessages()', function(){
 
     var nbMsgs = 10;
-    var activeChan = conf.GetValidChJID();
-    var notInPart = conf.GetValidChJID();
-    var inactiveChan = conf.GetValidChJID();
-    var emptyChannel = conf.GetValidChJID();
-    var user = conf.logins[0];
-
+    var activeChan = "urn:localhost:channel1";
+    var notInPart = "urn:localhost:channel2";
 
     before(conf.connect)
 
     after(conf.disconnect)
 
-    before(function(done){
-        conf.createChannel(activeChan, user.login, [user.login], true, done);
-    })
+    after(conf.dropCollection)
 
     for(var i = 0; i < nbMsgs; i++)
         before(function(done){
@@ -72,19 +66,6 @@ describe('#getRelevantMessages()', function(){
                 done(); });
         })
 
-    before(function(done){
-        conf.createChannel(emptyChannel, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(notInPart, user.login, ['a@b.com'], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(inactiveChan, user.login, [user.login], false, done);
-    })
-
-
     it('should return hResult error MISSING_ATTR if actor is missing', function(done){
         hClient.getRelevantMessages(undefined, function(hMessage){
             hMessage.payload.should.have.property('status', hClient.hResultStatus.MISSING_ATTR);
@@ -101,7 +82,7 @@ describe('#getRelevantMessages()', function(){
     })
 
     it('should return hResult error NOT_AVAILABLE if channel was not found', function(done){
-        hClient.getRelevantMessages('#not a valid channel@localhost', function(hMessage){
+        hClient.getRelevantMessages('urn:localhost:unknowChan', function(hMessage){
             hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AVAILABLE);
             hMessage.payload.result.should.be.a('string');
             done();
@@ -110,14 +91,6 @@ describe('#getRelevantMessages()', function(){
 
     it('should return hResult error NOT_AUTHORIZED if not in subscribers list', function(done){
         hClient.getRelevantMessages(notInPart, function(hMessage){
-            hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-    it('should return hResult error NOT_AUTHORIZED if channel is inactive', function(done){
-        hClient.getRelevantMessages(inactiveChan, function(hMessage){
             hMessage.payload.should.have.property('status', hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
             done();
@@ -133,13 +106,4 @@ describe('#getRelevantMessages()', function(){
             done();
         });
     })
-
-    it('should return hResult OK with an empty array if no matching msgs found', function(done){
-        hClient.getRelevantMessages(emptyChannel, function(hMessage){
-            hMessage.payload.should.have.property('status', hClient.hResultStatus.OK);
-            hMessage.payload.result.length.should.be.eql(0);
-            done();
-        });
-    })
-
 })

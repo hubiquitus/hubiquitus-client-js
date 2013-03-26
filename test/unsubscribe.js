@@ -30,25 +30,11 @@ var conf = require('./testConfig.js');
 describe('#unsubscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = conf.GetValidChJID();
-    var chanInactive = conf.GetValidChJID();
-    var chanInactiveNotSubscribed = conf.GetValidChJID();
+    var chanActive = "urn:localhost:channel1";
 
     before(conf.connect)
 
     after(conf.disconnect)
-
-    before(function(done){
-        conf.createChannel(chanActive, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(chanInactive, user.login, [user.login], true, done);
-    })
-
-    before(function(done){
-        conf.createChannel(chanInactiveNotSubscribed, user.login, [conf.logins[1].login], false, done);
-    })
 
     before(function(done){
         hClient.subscribe(chanActive, function(hMessage){
@@ -56,35 +42,9 @@ describe('#unsubscribe()', function() {
         });
     })
 
-    before(function(done){
-        hClient.subscribe(chanInactive, function(hMessage){
-            done();
-        });
-    })
-
-    before(function(done){
-        conf.createChannel(chanInactive, user.login, [user.login], false, done);
-    });
-
     it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
-        hClient.unsubscribe("#This chan does not exist@localhost", function(hMessage){
+        hClient.unsubscribe("urn:localhost:unknowChan", function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-    it('should return hResult status NOT_AUTHORIZED and result be a message if channel inactive and user was subscribed', function(done) {
-        hClient.unsubscribe(chanInactive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-    it('should return hResult status NOT_AUTHORIZED and result be a message if channel inactive and user not subscribed', function(done) {
-        hClient.unsubscribe(chanInactiveNotSubscribed, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
             hMessage.payload.result.should.be.a('string');
             done();
         });
@@ -108,9 +68,9 @@ describe('#unsubscribe()', function() {
         });
     })
 
-    it('should return hResult status NOT_AUTHORIZED and result be a message if user not subscribed', function(done) {
+    it('should return hResult status NOT_AVAILABLE and result be a message if user not subscribed', function(done) {
         hClient.unsubscribe(chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
+            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
             hMessage.payload.result.should.be.a('string');
             done();
         });
@@ -121,7 +81,7 @@ describe('#unsubscribe()', function() {
 describe('#unsubscribe()', function() {
 
     var user = conf.logins[0];
-    var chanActive = conf.GetValidChJID();
+    var chanActive = "urn:localhost:channel1";
 
     it('should return hResult status NOT_CONNECTED and result be a message if user not connected', function(done) {
         hClient.unsubscribe(chanActive, function(hMessage){
@@ -132,28 +92,3 @@ describe('#unsubscribe()', function() {
     })
 
 })
-
-describe('#unsubscribe()', function() {
-
-    var user = conf.logins[0];
-    var chanActive = conf.GetValidChJID();
-
-    before(conf.connect)
-
-    after(conf.disconnect)
-
-    before(function(done){
-        conf.createChannel(chanActive, user.login, [user.login], true, done);
-    })
-
-    it('should return hResult status NOT_AUTHORIZED and result be a message if user not subscribed', function(done) {
-        hClient.unsubscribe(chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AUTHORIZED);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-})
-
-
