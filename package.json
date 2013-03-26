@@ -1,6 +1,6 @@
 {
     "name": "hubiquitusjs"
-  , "version": "0.5.4"
+  , "version": "0.6.0"
   , "description": "Client For the Hubiquitus framework. Is also browser compatible"
   , "homepage": "http://www.hubiquitus.com"
   , "author": "Federico Wasserman"
@@ -17,5 +17,5 @@
         "mocha" : ">=1.0.1"
     }
   , "main": "hubiquitus"
-  , "engines": { "node": ">= 0.6.16" }
+  , "engines": { "node": ">= 0.8.0" }
 }
