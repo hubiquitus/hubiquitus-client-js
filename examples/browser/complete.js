@@ -99,16 +99,6 @@ function send_hEcho(){
 
 }
 
-function createChannel(){
-    var actor = prompt('Channel to create:');
-    var subscribers = prompt('Subscriber to the channel :');
-
-    var params = {type: 'channel', owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
-    var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hCreateUpdateChannel', params);
-    hMessage.actor = hClient.fulljid;
-    hClient.send(hMessage, callback);
-}
-
 function setFilter(){
     var value = prompt('Value of the filter:');
     eval('var filter ='+value);
