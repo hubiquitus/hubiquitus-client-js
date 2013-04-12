@@ -59,58 +59,6 @@ Where:
 
 * cb : `<Function(hMessage)>` callback that receives the hMessage with hResult payload from the executed command.
 
-### GetLastMessages
-Recovers persisted messages from a channel. hResult's `result` attribute will be an array of persisted hMessages ordered by date (the first one will be the newest). If the user put a filter in his session, hMessages in the array was only them which validate the filter.
-
-```js
-void hClient.getLastMessages(actor [, nbLastMsg] [, cb])
-```
-
-Where:
-
-* actor : `<String>` urn of the channel.
-* nbLastMsg: `<int>` max number of hMessages to recover. If not specified the channel's default will be used, and as fallback the default value for the hCommand.
-* cb : `<Function(hMessage)>` callback that receives the hMessage with hResult payload from the executed command.
-
-### GetThread
-Gets an array of hMessages related by convid. If the user put a filter in his session, hMessages in the array was only them which validate the filter.
-
-```js
-hClient.getThread(actor, convid [, cb])
-```
-
-Where:
-
-* actor : `<String>` urn of the messages to query.
-* convid : `<String>` convid of the messages to query.
-* cb : `<Function(hMessage)>` callback that receives the hMessage with hResult payload from the executed command.
-
-### GetThreads
-Gets an array of convids from the hConvState that have the status specified in the command. If the user put a filter in his session, hMessages in the array was only them which validate the filter.
-
-```js
-hClient.getThreads(actor, status [, cb])
-```
-
-Where:
-
-* actor : `<String>` urn of the messages to query.
-* status : `<String>` status of the hConvState to query.
-* cb : `<Function(hMessage)>` callback that receives the hMessage with hResult payload from the executed command.
-
-
-### GetRelevantMessages
-Gets an array of hMessages marked as relevant from the channel specified. If the user put a filter in his session, hMessages in the array was only them which validate the filter.
-
-```js
-hClient.getRelevantMessages(actor [, cb])
-```
-
-Where:
-
-* actor : `<String>` urn of the messages to query.
-* cb : `<Function(hMessage)>` callback that receives the hMessage with hResult payload from the executed command.
-
 ### SetFilter
 Sets a filter for the current session. This filter will be applied to received results from commands and real time hMessages, only letting through messages that match the filter. Note that a empty filter ('{}') means no filter
 
