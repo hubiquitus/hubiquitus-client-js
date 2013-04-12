@@ -223,43 +223,6 @@ define(
                 this.send(hMessage, cb);
             },
 
-            getLastMessages: function(actor, quantity, cb){
-                if(!actor && cb)
-                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                //Allow not to specify quantity and pass a callback directly
-                if(typeof quantity === 'function'){ cb = quantity; quantity = undefined; }
-
-                var hMessage = this.buildCommand(actor, 'hGetLastMessages', {nbLastMsg: quantity});
-                if(hMessage.timeout === undefined)
-                    hMessage.timeout = this.hOptions.msgTimeout
-                hMessage.payload.filter = this.filter || {}
-                this.send(hMessage, cb);
-            },
-
-            getThread: function(actor, convid, cb, sort){
-                if(!actor && cb)
-                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                if(!convid && cb)
-                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing convid"));
-                var hMessage = this.buildCommand(actor, 'hGetThread', {convid: convid, sort: sort});
-                if(hMessage.timeout === undefined)
-                    hMessage.timeout = this.hOptions.msgTimeout
-                hMessage.payload.filter = this.filter || {}
-                this.send(hMessage, cb);
-            },
-
-            getThreads: function(actor, status, cb){
-                if(!actor && cb)
-                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                if(!status && cb)
-                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing status"));
-                var hMessage = this.buildCommand(actor, 'hGetThreads', {status: status});
-                if(hMessage.timeout === undefined)
-                    hMessage.timeout = this.hOptions.msgTimeout
-                hMessage.payload.filter = this.filter || {}
-                this.send(hMessage, cb);
-            },
-
             setFilter: function(filter, cb){
                 if(!filter && cb)
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing filter"));
@@ -267,16 +230,6 @@ define(
                 if(hMessage.timeout === undefined)
                     hMessage.timeout = this.hOptions.msgTimeout
                 this.filter = filter
-                this.send(hMessage, cb);
-            },
-
-            getRelevantMessages: function(actor, cb){
-                if(!actor && cb)
-                    return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "Missing actor"));
-                var hMessage = this.buildCommand(actor, 'hRelevantMessages');
-                if(hMessage.timeout === undefined)
-                    hMessage.timeout = this.hOptions.msgTimeout
-                hMessage.payload.filter = this.filter || {}
                 this.send(hMessage, cb);
             },
 

@@ -65,11 +65,6 @@ function send(){
     }), callback);
 }
 
-function relevantMessages(){
-    var actor = document.getElementById('actor').value;
-    hClient.getRelevantMessages(actor, callback);
-}
-
 function subscribe(){
     var actor = document.getElementById('actor').value;
     hClient.subscribe(actor, callback)
@@ -78,12 +73,6 @@ function subscribe(){
 function unsubscribe(){
     var actor = document.getElementById('actor').value;
     hClient.unsubscribe(actor, callback)
-}
-
-function get_messages(){
-    var actor = document.getElementById('actor').value;
-    var quantity = prompt('Max Messages (can be empty):');
-    hClient.getLastMessages(actor, quantity, callback);
 }
 
 function get_subscriptions(){
@@ -108,30 +97,6 @@ function send_hEcho(){
         hClient.send(hMessage, callback);
     }
 
-}
-
-function getThread(){
-    var actor = prompt('Channel to search the messages:');
-    var convid = prompt('Convid to recover:');
-
-    hClient.getThread(actor, convid, callback);
-}
-
-function createChannel(){
-    var actor = prompt('Channel to create:');
-    var subscribers = prompt('Subscriber to the channel :');
-
-    var params = {type: 'channel', owner: document.getElementById('username').value, actor: actor, subscribers: subscribers.split(","), active: true};
-    var hMessage = hClient.buildCommand('hnode@' + hClient.domain, 'hCreateUpdateChannel', params);
-    hMessage.actor = hClient.fulljid;
-    hClient.send(hMessage, callback);
-}
-
-function getThreads(){
-    var actor = prompt('Channel to search the hConvStates:');
-    var status = prompt('Matching status to recover:');
-
-    hClient.getThreads(actor, status, callback);
 }
 
 function setFilter(){
