@@ -58,7 +58,6 @@ Once connected it is also possible to execute other commands:
 hClient.subscribe(channel, cb); //Channel to subscribe to using current credentials.
 hClient.unsubscribe(channel, cb); //Channel to unsubscribe.
 hClient.send(hMessage, cb); //Sent an hMessage.
-hClient.getLastMessages(channel, cb); //Get last messages from 'channel'
 hClient.disconnect(); //Disconnects from the Server.
 hClient.buildMessage(actor, type, payload, options); //Create a valid hMessage
 ```
