@@ -42,9 +42,9 @@ hClient.onMessage = function(hMessage){
 hClient.onStatus = function(hStatus){
     console.log('New Status', hStatus);
 
-    if(hStatus == hClient.statuses.CONNECTED)
+    if(hStatus.status == hClient.statuses.CONNECTED)
         console.log('You are connected, now you can execute commands. Look at the browser example!');
 };
 
-// Starts a connection to the XMPP Server using passed options.
-hClient.connect('publisher', 'password', hOptions);
+// Starts a connection to the running topology using passed options.
+hClient.connect('urn:localhost:user', 'urn:localhost:user', hOptions);
