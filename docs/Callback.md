@@ -31,7 +31,7 @@ Where:
     </tbody>
 </table>
 
-> Note : you can find the different status and errors code [here](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Codes)
+> Note : you can find the different status and errors code [here](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Codes.md)
 
 ## onMessage
 `onMessage` is a function that receives a `hMessage` object each time it is called by the hAPI.
@@ -42,4 +42,4 @@ To set this function the user can change the attribute `hClient.onMessage`, sett
 
 Where:
 
-* hMessage is a hMessage JSON Object (For more details see [Data Structure](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure))
+* hMessage is a hMessage JSON Object (For more details see [Data Structure](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure.md))

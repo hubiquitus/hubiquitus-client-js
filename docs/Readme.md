@@ -50,7 +50,7 @@ hClient.connect('login', 'password', 'hOptions');
 ### Details
 To receive messages in realtime, use `hClient.onMessage`, you can set this function that
 receives a message to whatever you like. For more information about available data received
-in real time see [Callback](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Callback)
+in real time see [Callback](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Callback.md)
 
 Once connected it is also possible to execute other commands:
 
@@ -61,25 +61,25 @@ hClient.send(hMessage, cb); //Sent an hMessage.
 hClient.disconnect(); //Disconnects from the Server.
 hClient.buildMessage(actor, type, payload, options); //Create a valid hMessage
 ```
-Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions)
+Note: a list of all available operations is in [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions.md)
 
 ### References
 You can find relevant informations of all the hubiquitus4js's references in :
-* [Data Structure](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure)
-* [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter)
-* [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions)
-* [Codes](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Codes)
-* [Callback](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Callback)
-* [Connect Options](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hOptions)
-* [Minification](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Minification)
-* [Proxy Pass](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Proxy-Pass)
-* [hClient class variables](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hClient-class-variables)
+* [Data Structure](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure.md)
+* [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter.md)
+* [Functions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Functions.md)
+* [Codes](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Codes.md)
+* [Callback](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Callback.md)
+* [Connect Options](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hOptions.md)
+* [Minification](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Minification.md)
+* [Proxy Pass](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Proxy-Pass.md)
+* [hClient class variables](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hClient-class-variables.md)
 
 ## Options
 An `hOptions` object can be sent to the connect function as the last argument.
 
 The keys in this object and an explanation for each one of them can be
-found in the [hOptions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hOptions) page.
+found in the [hOptions](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/hOptions.md) page.
 There are examples of how to create a *hOptions* object in the `examples/` folder.
 
 ## License

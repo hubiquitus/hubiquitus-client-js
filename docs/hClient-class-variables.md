@@ -46,7 +46,7 @@ When you start an instance of an hClient you have acces to few variables :
         </tr>
         <tr>
             <td>filter</td>
-            <td><a href="https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure">hCondition</a></td>
+            <td><a href="https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/DataStructure.md">hCondition</a></td>
             <td>Filter apply to the session (can be undefined)</td>
         </tr>
     </tbody>

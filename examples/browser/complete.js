@@ -106,57 +106,6 @@ function setFilter(){
     hClient.setFilter(filter, callback);
 }
 
-function build_measure(){
-    var value = prompt('Value:');
-    var unit = prompt('Unit:');
-    var actor = prompt('Channel:');
-    var hMessage = hClient.buildMeasure(actor, value, unit, {
-        persistent: !!document.getElementById("hMessagePersistent").checked
-    });
-    if(hMessage)
-        console.log('Created hMessage', hMessage);
-    if(document.getElementById("sendBuiltMessage").checked)
-        hClient.send(hMessage, callback);
-}
-
-function build_alert(){
-    var alert = prompt('Alert:');
-    var actor = prompt('Channel:');
-    var hMessage = hClient.buildAlert(actor, alert, {
-        persistent: !!document.getElementById("hMessagePersistent").checked
-    });
-    if(hMessage)
-        console.log('Created hMessage', hMessage);
-    if(document.getElementById("sendBuiltMessage").checked)
-        hClient.send(hMessage, callback);
-}
-
-function build_ack(){
-    var ackID = prompt('AckID:');
-    var ack= prompt('Ack (recv|read):');
-    var actor = prompt('Channel:');
-    var hMessage = hClient.buildAck(actor, ackID, ack, {
-        persistent: !!document.getElementById("hMessagePersistent").checked
-    });
-    if(hMessage)
-        console.log('Created hMessage', hMessage);
-    if(document.getElementById("sendBuiltMessage").checked)
-        hClient.send(hMessage, callback);
-}
-
-function build_convstate(){
-    var actor = prompt('Channel:');
-    var convid = prompt('Convid:');
-    var status = prompt('Status:');
-    var hMessage = hClient.buildConvState(actor, convid, status, {
-        persistent: !!document.getElementById("hMessagePersistent").checked
-    });
-    if(hMessage)
-        console.log('Created hMessage', hMessage);
-    if(document.getElementById("sendBuiltMessage").checked)
-        hClient.send(hMessage, callback);
-}
-
 function onStatus(hStatus){
     console.log('Received hStatus', hStatus);
     var status,error;

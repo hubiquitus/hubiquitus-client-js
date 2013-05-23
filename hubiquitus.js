@@ -309,49 +309,6 @@ define(
                 return hMessage;
             },
 
-            buildMeasure: function(actor, value, unit, options){
-                if(!value)
-                    throw new Error('missing value');
-                else if (!unit)
-                    throw new Error('missing unit');
-
-                return this.buildMessage(actor, 'hMeasure', {unit: unit, value: value}, options);
-            },
-
-            buildAlert: function(actor, alert, options){
-                if(!alert)
-                    throw new Error('missing alert');
-
-                return this.buildMessage(actor, 'hAlert', {alert: alert}, options);
-            },
-
-            buildAck: function(actor, ref, ack, options){
-                if(!ack)
-                    throw new Error('missing ack');
-                if(!ref)
-                    throw new Error('missing ref');
-                else if(!/recv|read/i.test(ack))
-                    throw new Error('ack does not match "recv" or "read"');
-                if(typeof  options !== 'object')
-                    options = {};
-
-                options.ref = ref;
-                return this.buildMessage(actor, 'hAck', {ack: ack}, options);
-            },
-
-            buildConvState: function(actor, convid, status, options){
-                if(!convid)
-                    throw new Error('missing convid');
-                else if(!status)
-                    throw new Error('missing status');
-                if(!options)
-                    options = {};
-
-                options.convid = convid;
-
-                return this.buildMessage(actor, 'hConvState', {status: status}, options);
-            },
-
             checkURN: function(urn){
                 return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
             },

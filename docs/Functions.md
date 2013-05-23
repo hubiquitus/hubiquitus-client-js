@@ -13,7 +13,7 @@ Where:
 
 * login : login of the publisher
 * password : publisher's password
-* hOptions : hOptions object as defined in [hOptions](https://github.com/hubiquitus/hubiquitus4js/tree/master/hOptions)
+* hOptions : hOptions object as defined in [hOptions](https://github.com/hubiquitus/hubiquitus4js/tree/master/hOptions.md)
 * context : any other attribute needed by the authentication actor (null by default)
 
 `Note : if a user lost his connection, the hAPI will try to reconnect him automatically`
@@ -101,62 +101,6 @@ Where:
 * payload: `<Object>` the payload to send
 * options: `<hMessageOptions>` an object containing the options to override. If not provided they will be left undefined or filled with default values
 
-
-### buildhMeasure
-Creates a hMessage structure with a hMeasure as a payload. Can be used with `hClient.send()` to send a well-formed message.
-
-```js
-hMeasure = hClient.buildMeasure(actor, value, unit, options)
-```
-
-Where:
-
-* actor : `<String>` urn of the receiver. If not provided an error will be thrown
-* value: `<String>` value of the measure. If not provided an error will be thrown
-* unit: `<String>` value's unit. If not provided an error will be thrown
-* options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones.
-
-### buildhAlert
-Creates a hMessage structure with a hAlert as a payload. Can be used with `hClient.send()` to send a well-formed message.
-
-```js
-hAlert = hClient.buildAlert(actor, alert, options)
-```
-
-Where:
-
-* actor : `<String>` urn of the receiver. If not provided an error will be thrown
-* alert: `<String>` message of the alert. If not provided an error will be thrown
-* options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones.
-
-### buildhConvState
-Creates a hMessage structure with a hConvState as a payload. Can be used with `hClient.send()` to send a well-formed message.
-
-```js
-hConvState = hClient.buildConvState(actor, convid, state, options)
-```
-
-Where:
-
-* actor : `<String>` urn of the receiver. If not provided an error will be thrown
-* convid: `<String>` convid of the conversation.If not provided an error will be thrown
-* state: `<String>` id of the hMessage to acknowledge.
-* options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones, save convid given by the user.
-
-### buildhAck
-Creates a hMessage structure with a hAck as a payload. Can be used with `hClient.send()` to send a well-formed message.
-
-```js
-hAck = hClient.buildAck(actor, ackid, ack, options)
-```
-
-Where:
-
-* actor : `<String>` urn of the receiver. If not provided an error will be thrown
-* ackid: `<String>` id of the hMessage to acknowledge . If not provided an error will be thrown
-* ack: `<String>` 'recv' or 'read' . If not provided an error will be thrown
-* options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones.
-
 ### buildCommand
 Creates a hMessage structure with a hCommand as a payload. Can be used with `hClient.send()` to send a well-formed message.
 
@@ -175,12 +119,12 @@ Where:
 Creates a hMessage structure with a hResult as a payload. Can be used with `hClient.send()` to send a well-formed message.
 
 ```js
-hResult = hClient.buildResult(actor, ref, status, result, options)
+hResult = hClient.buildlResult(actor, ref, status, result, options)
 ```
 Where:
 
 * actor : `<String>` urn of the receiver. If not provided an error will be thrown
 * ref : `<String>` the msgid of the message which rise this result
-* status: `<String>` result status code (see [Codes ](https://github.com/hubiquitus/hubiquitus4js/tree/master/Codes) for more details)
+* status: `<String>` result status code (see [Codes ](https://github.com/hubiquitus/hubiquitus4js/tree/master/Codes.md) for more details)
 * result: `<Object>` the result of the command
 * options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones.

@@ -250,105 +250,6 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
     </tbody>
 </table>
 
-## hMeasure
-* The purpose of a hMeasure payload is to send a specific measure
-
-### Expected attributes of a hMeasure :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>unit</td>
-            <td>String</td>
-            <td>Specifies the unit in which the measure is expressed, should be in lowercase</td>
-        </tr>
-        <tr>
-            <td>value</td>
-            <td>String</td>
-            <td>Specify the value of the measure</td>
-        </tr>
-    </tbody>
-</table>
-
-## hAck
-* hAPI allows to attach acknowledgements to each message
-* Acknowledgements are used to identify the participants that have received or not received, read or not read a message
-* Note, when a hMessage contains a such kind of payload, the convid must be provided with the same value has the acknowledged hMessage.
-* Note, the hMessage with a such payload must use the attribute ref to identify the acknowledged message.
-
-
-### Expected attributes of a hAck :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>ack</td>
-            <td>String</td>
-            <td>The status of the acknowledgement</td>
-        </tr>
-    </tbody>
-</table>
-
-## hAlert
-* The purpose of a hAlert payload is to notify an actor
-
-### Expected attributes of a hAlert :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>alert</td>
-            <td>String</td>
-            <td>The message provided by the author to describe the alert. Should be “human readable”. (eg : “Failure”)</td>
-        </tr>
-    </tbody>
-</table>
-
-## hConvState
-* This kind of payload is used to describe the status of a thread of correlated messages identified by its convid.
-* Multiple hConvStates with the same convid can be published into a channel, specifying the evolution of the state of the thread during time.
-
-
-### Expected attributes of a hConvState :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>status</td>
-            <td>String</td>
-            <td>The status of the thread</td>
-        </tr>
-    </tbody>
-</table>
-
 # Metadata Structure
 ## hLocation
 * Describe a geographical location
@@ -491,7 +392,7 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
 
 # Filters Structure
 ## hCondition
-* For more details about hCondition see [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter)
+* For more details about hCondition see [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter.md)
 
 ## hValue
 * This structure defines a simple condition value for the available operand
