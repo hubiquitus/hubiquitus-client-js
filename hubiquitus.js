@@ -352,17 +352,51 @@ define(
                 return this.buildMessage(actor, 'hConvState', {status: status}, options);
             },
 
-            checkURN: function(urn){
-                return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
+            // checkURN: function(urn){
+            //     return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
+            // },
+
+            // splitURN: function(urn){
+            //     return urn.split(":").splice(1, 3);
+            // },
+
+            // bareURN: function(urn) {
+            //     var urnParts = this.splitURN(urn);
+            //     return "urn:" + urnParts[0] + ":" + urnParts[1];
+            // },
+
+            validateFullURN: function(urn) {
+              return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/.+$)/.test(urn);
             },
 
-            splitURN: function(urn){
-                return urn.split(":").splice(1, 3);
+            splitURN:function(urn) {
+              var splitted;
+
+              if (typeof urn === "string") {
+                splitted = urn.split(":");
+              }
+              if (splitted) {
+                if (this.validateFullURN(urn)) {
+                  splitted[3] = splitted[2].replace(/(^[^\/]*\/)/, "");
+                  splitted[2] = splitted[2].replace(/\/.*$/g, "");
+                }
+                return splitted.splice(1, 3);
+              } else {
+                return [undefined, undefined, undefined];
+              }
             },
 
+            getBareURN: function(urn) {
+              var urnParts;
+
+              urnParts = this.splitURN(urn);
+              return "urn:" + urnParts[0] + ":" + urnParts[1];
+            },
             bareURN: function(urn) {
-                var urnParts = this.splitURN(urn);
-                return "urn:" + urnParts[0] + ":" + urnParts[1];
+              var urnParts;
+
+              urnParts = this.splitURN(urn);
+              return "urn:" + urnParts[0] + ":" + urnParts[1];
             },
 
             errors: codes.errors,
