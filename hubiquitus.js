@@ -352,19 +352,6 @@ define(
                 return this.buildMessage(actor, 'hConvState', {status: status}, options);
             },
 
-            // checkURN: function(urn){
-            //     return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
-            // },
-
-            // splitURN: function(urn){
-            //     return urn.split(":").splice(1, 3);
-            // },
-
-            // bareURN: function(urn) {
-            //     var urnParts = this.splitURN(urn);
-            //     return "urn:" + urnParts[0] + ":" + urnParts[1];
-            // },
-
             validateFullURN: function(urn) {
               return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/.+$)/.test(urn);
             },
@@ -392,6 +379,8 @@ define(
               urnParts = this.splitURN(urn);
               return "urn:" + urnParts[0] + ":" + urnParts[1];
             },
+
+            // Deprecated : This function is here for retro compatiblity.
             bareURN: function(urn) {
               var urnParts;
 
