@@ -24,7 +24,8 @@
  */
 
 //Make it compatible with node and web browser
-if (typeof define !== 'function') { var define = require('amdefine')(module) }
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+
 
 define(
     ['./lib/transports/socketio/hsession-socketio',
@@ -352,13 +353,14 @@ define(
 
         if(typeof module !== 'undefined' && module.exports){
             //Entrypoint to hClient in Node mode
-            exports.hClient = new HubiquitusClient();
-            exports.HubiquitusClient = HubiquitusClient; //Allow access to constructor (used with stress option)
+            exports.HClient = HubiquitusClient; //Allow access to constructor
             exports.statuses = codes.statuses;
             exports.hResultStatus = codes.hResultStatus;
+            exports.codes = codes;
         }else{
             //Global entrypoint to hClient in Browser mode
-            hClient = new HubiquitusClient();
+            hClient = new HubiquitusClient(); // Deprecated. Should be removed in next releases
+            return HubiquitusClient;
         }
     }
 );
