@@ -3,7 +3,7 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
 # Message Structure
 ## hMessage
 * Messages form the relevant piece of information into a conversation.
-* Messages cannot be modified after having been published.
+* Messages cannot be modified once published.
 
 ### Expected attributes of a hMessage :
 
@@ -21,19 +21,19 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
             <td>msgid</td>
             <td>String</td>
             <td>Provides a permanent, universally unique identifier for the message in the form of an absolute IRI</td>
-            <td>Yes <sup>(1)</sup></td>
+            <td>Yes, but filled by hubiquitus</td>
         </tr>
         <tr>
             <td>actor</td>
             <td>String</td>
             <td>The URN through which the message is published ("urn:domain:actor")</td>
-            <td>Yes</td>
+            <td>Yes, but filled by hubiquitus</td>
         </tr>
         <tr>
             <td>convid</td>
             <td>String</td>
-            <td>The ID of the conversation to which the message belongs</td>
-            <td>Yes <sup>(2)</sup></td>
+            <td><b>Deprecated</b>, should be removed in next releases. The ID of the conversation to which the message belongs</td>
+            <td>No</td>
         </tr>
         <tr>
             <td>ref</td>
@@ -44,31 +44,31 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         <tr>
              <td>type</td>
              <td>String</td>
-             <td>The type of the message payload</td>
-             <td>No</td>
+             <td>The type of the message payload. If undefined, filled with the value "empty" on send</td>
+             <td>Yes, but if undefined, filled by hubiquitus</td>
         </tr>
         <tr>
              <td>priority</td>
              <td>Int</td>
-             <td>The priority the hMessage</td>
-             <td>Yes <sup>(3)</sup></td>
+             <td><b>Deprecated</b>, should be removed in next releases. The priority the hMessage</td>
+             <td>No</td>
         </tr>
         <tr>
             <td>relevance</td>
             <td>Date</td>
-            <td>Defines the date (timestamp in milliseconds) until which the message is considered as relevant</td>
+            <td><b>Deprecated</b>, should be removed in next releases. Defines the date (timestamp in milliseconds) until which the message is considered as relevant</td>
             <td>No</td>
         </tr>
         <tr>
             <td>persistent</td>
             <td>Boolean</td>
-            <td>Indicates if the message MUST/MUST NOT be persisted by the middleware</td>
+            <td>Indicates if the message MUST/MUST NOT be persisted by the middleware. Default value : false</td>
             <td>No</td>
         </tr>
         <tr>
             <td>location</td>
-            <td>hLocation</td>
-            <td>The geographical location to which the message refer</td>
+            <td>Object</td>
+            <td>The geographical location to which the message refers. (Recommended structure, hLocation).</td>
             <td>No</td>
         </tr>
         <tr>
@@ -81,46 +81,40 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
             <td>publisher</td>
             <td>String</td>
             <td>The URN of the client that effectively published the message (it can be different than the author)</td>
-            <td>Yes <sup>(4)</sup></td>
+            <td>Yes, but filled by hubiquitus</td>
         </tr>
         <tr>
             <td>published</td>
             <td>Date</td>
-            <td>The date (timestamp in milliseconds) at which the message has been published</td>
-            <td>Yes <sup>(3)</sup></td>
+            <td><b>Deprecated</b>, should be removed in next releases. The date (timestamp in milliseconds) at which the message has been published</td>
+            <td>No</td>
         </tr>
         <tr>
             <td>headers</td>
-            <td>hHeader</td>
-            <td>A Headers object attached to this hMessage. It is a key-value pair map</td>
+            <td>Object</td>
+            <td>Headers attached to this hMessage.</td>
             <td>No</td>
         </tr>
         <tr>
             <td>payload</td>
-            <td>Object</td>
+            <td>Object or string</td>
             <td>The content of the message. It can be plain text or more structured data (HTML, XML, JSON, etc.)</td>
             <td>No</td>
         </tr>
         <tr>
             <td>timeout</td>
             <td>Int</td>
-            <td>Define the timeout (ms) to get an answer to the hMessage</td>
+            <td>Should be removed in next releases and added as an argument of send function. Define the timeout (ms) to get an answer to the hMessage</td>
             <td>No</td>
         </tr>
         <tr>
             <td>sent</td>
             <td>Date</td>
             <td>This attribute contains the creation date (timestamp in milliseconds) of the hMessage</td>
-            <td>Yes <sup>(4)</td>
+            <td>Yes, but filled by hubiquitus</td>
         </tr>
     </tbody>
 </table>
-```
-(1)  Can be filled by the hAPI or any actor
-(2)  Can be filled by any actor
-(3)  Can be filled by the hAPI
-(4)  Filled when the hMessage is send
-```
 
 ## hMessageOptions
 * Can be use in a builder to describe some attribute of an hMessage
