@@ -28,7 +28,8 @@ exports.logins = [
 /////////////////////////////////////////////////////////////////////////////////////
 
 var should = require('should');
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
+var hClient = new HClient();
 var mongo = require("mongodb");
 
 exports.connect = function(done, user, hOptions, instance){

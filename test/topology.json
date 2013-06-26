@@ -35,9 +35,11 @@
                 "broadcastOn": "tcp://127.0.0.1",
                 "subscribers": ["urn:localhost:u1","urn:localhost:u2"],
                 "db":{
-                    "dbName": "test",
-                    "dbCollection": "channel1"
-                }
+                    "host": "localhost",
+                    "port": 27017,
+                    "name": "test"
+                },
+                "collection" : "channel1"
             }
         },
         {
@@ -49,9 +51,11 @@
                 "broadcastOn": "tcp://127.0.0.1",
                 "subscribers": ["urn:localhost:u2"],
                 "db":{
-                    "dbName": "test",
-                    "dbCollection": "channel2"
-                }
+                    "host": "localhost",
+                    "port": 27017,
+                    "name": "test"
+                },
+                "collection" : "channel2"
             }
         }
     ],
@@ -65,9 +69,11 @@
                 "broadcastOn": "tcp://127.0.0.1",
                 "subscribers": [],
                 "db":{
-                    "dbName": "admin",
-                    "dbCollection": "trackChannel"
-                }
+                    "host": "localhost",
+                    "port": 27017,
+                    "name": "test"
+                },
+                "collection" : "trackChannel"
             }
         }
     },

@@ -24,7 +24,8 @@
  */
 
 var should = require("should");
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
+var hClient = new HClient();
 var conf = require('./testConfig.js');
 
 describe('Connection tests', function() {

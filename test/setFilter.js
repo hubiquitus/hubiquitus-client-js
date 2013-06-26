@@ -25,7 +25,8 @@
 
 var should = require("should");
 var conf = require('./testConfig.js');
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
+var hClient = new HClient();
 
 var user = conf.logins[0];
 var hFilter;

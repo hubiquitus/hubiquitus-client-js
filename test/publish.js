@@ -26,8 +26,8 @@
 var should = require("should");
 var conf = require('./testConfig.js');
 
-var hClient1 = new (require('../hubiquitus.js').HubiquitusClient)();
-var hClient2 = new (require('../hubiquitus.js').HubiquitusClient)();
+var hClient1 = new (require('../hubiquitus.js').HClient)();
+var hClient2 = new (require('../hubiquitus.js').HClient)();
 
 
 describe('#publish()', function() {
