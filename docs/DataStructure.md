@@ -49,13 +49,13 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         </tr>
         <tr>
              <td>priority</td>
-             <td>Int</td>
+             <td>Number</td>
              <td><b>Deprecated</b>, should be removed in next releases. The priority the hMessage</td>
              <td>No</td>
         </tr>
         <tr>
             <td>relevance</td>
-            <td>Date</td>
+            <td>Number</td>
             <td><b>Deprecated</b>, should be removed in next releases. Defines the date (timestamp in milliseconds) until which the message is considered as relevant</td>
             <td>No</td>
         </tr>
@@ -85,7 +85,7 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         </tr>
         <tr>
             <td>published</td>
-            <td>Date</td>
+            <td>Number</td>
             <td><b>Deprecated</b>, should be removed in next releases. The date (timestamp in milliseconds) at which the message has been published</td>
             <td>No</td>
         </tr>
@@ -97,19 +97,19 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         </tr>
         <tr>
             <td>payload</td>
-            <td>Object or string</td>
+            <td>Object, string, number, boolean</td>
             <td>The content of the message. It can be plain text or more structured data (HTML, XML, JSON, etc.)</td>
             <td>No</td>
         </tr>
         <tr>
             <td>timeout</td>
-            <td>Int</td>
+            <td>Number</td>
             <td>Should be removed in next releases and added as an argument of send function. Define the timeout (ms) to get an answer to the hMessage</td>
             <td>No</td>
         </tr>
         <tr>
             <td>sent</td>
-            <td>Date</td>
+            <td>Number</td>
             <td>This attribute contains the creation date (timestamp in milliseconds) of the hMessage</td>
             <td>Yes, but filled by hubiquitus</td>
         </tr>
@@ -142,17 +142,17 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         </tr>
         <tr>
              <td>priority</td>
-             <td>Int</td>
+             <td>Number</td>
              <td>The priority the hMessage</td>
         </tr>
         <tr>
             <td>relevance</td>
-            <td>Date</td>
+            <td>Number</td>
             <td>Defines the date (timestamp in milliseconds) until which the message is considered as relevant</td>
         </tr>
         <tr>
             <td>relevanceOffset</td>
-            <td>Int</td>
+            <td>Number</td>
             <td>You can use this option to indicates a duration in ms. If you use this parameter, it will override the relevance one by updating the date for the relevance of the hMessage</td>
         </tr>
         <tr>
@@ -172,17 +172,17 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         </tr>
         <tr>
             <td>published</td>
-            <td>Date</td>
+            <td>Number</td>
             <td>The date (timestamp in milliseconds) at which the message has been published</td>
         </tr>
         <tr>
             <td>headers</td>
-            <td>hHeader</td>
+            <td>object</td>
             <td>A Headers object attached to this hMessage. It is a key-value pair map</td>
         </tr>
         <tr>
             <td>timeout</td>
-            <td>Int</td>
+            <td>Number</td>
             <td>Define the timeout (ms) to get an answer to the hMessage</td>
         </tr>
     </tbody>
@@ -210,7 +210,7 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
         </tr>
         <tr>
             <td>params</td>
-            <td>Object</td>
+            <td>Object, string, number, boolean</td>
             <td>The parameters to pass to the command (as a JSON Object)</td>
         </tr>
     </tbody>
@@ -233,112 +233,13 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
     <tbody>
         <tr>
             <td>status</td>
-            <td>Int</td>
+            <td>Number</td>
             <td>The status of the operation</td>
         </tr>
         <tr>
             <td>result</td>
-            <td>Object</td>
+            <td>Object, string, number, boolean</td>
             <td>The result of a command operation (can be undefined)</td>
-        </tr>
-    </tbody>
-</table>
-
-## hMeasure
-* The purpose of a hMeasure payload is to send a specific measure
-
-### Expected attributes of a hMeasure :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>unit</td>
-            <td>String</td>
-            <td>Specifies the unit in which the measure is expressed, should be in lowercase</td>
-        </tr>
-        <tr>
-            <td>value</td>
-            <td>String</td>
-            <td>Specify the value of the measure</td>
-        </tr>
-    </tbody>
-</table>
-
-## hAck
-* hAPI allows to attach acknowledgements to each message
-* Acknowledgements are used to identify the participants that have received or not received, read or not read a message
-* Note, when a hMessage contains a such kind of payload, the convid must be provided with the same value has the acknowledged hMessage.
-* Note, the hMessage with a such payload must use the attribute ref to identify the acknowledged message.
-
-
-### Expected attributes of a hAck :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>ack</td>
-            <td>String</td>
-            <td>The status of the acknowledgement</td>
-        </tr>
-    </tbody>
-</table>
-
-## hAlert
-* The purpose of a hAlert payload is to notify an actor
-
-### Expected attributes of a hAlert :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>alert</td>
-            <td>String</td>
-            <td>The message provided by the author to describe the alert. Should be “human readable”. (eg : “Failure”)</td>
-        </tr>
-    </tbody>
-</table>
-
-## hConvState
-* This kind of payload is used to describe the status of a thread of correlated messages identified by its convid.
-* Multiple hConvStates with the same convid can be published into a channel, specifying the evolution of the state of the thread during time.
-
-
-### Expected attributes of a hConvState :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>status</td>
-            <td>String</td>
-            <td>The status of the thread</td>
         </tr>
     </tbody>
 </table>
@@ -434,51 +335,6 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
             <td>lng</td>
             <td>Number</td>
             <td>Specifies the exact latitude of the location</td>
-        </tr>
-    </tbody>
-</table>
-
-## hHeader
-* A Header object attached another structure. It is a key-value pair map
-
-### Expected attributes of a hHeader :
-
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>name</td>
-            <td>String</td>
-            <td>Specifies the name of the header, used as a key to identify it</td>
-        </tr>
-        <tr>
-            <td>value</td>
-            <td>Object</td>
-            <td>Specifies the value of the header</td>
-        </tr>
-    </tbody>
-</table>
-
-### List of defined hHeader
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MAX_MSG_RETRIEVAL</td>
-            <td>Int</td>
-            <td>When retrieving messages from a channel with a hCommand, the default max quantity of messages to retrieve</td>
         </tr>
     </tbody>
 </table>
