@@ -160,10 +160,11 @@ define(
                 if(!(hMessage instanceof Object))
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
+                var now = (new Date()).getTime();
                 hMessage.publisher = this.fullurn;
                 hMessage.msgid = UUID.generate();
-                hMessage.published = hMessage.published || new Date();
-                hMessage.sent = new Date();
+                hMessage.published = hMessage.published || now;
+                hMessage.sent = now;
 
                 //Complete hCommand
                 var errorCode = undefined;
@@ -282,8 +283,7 @@ define(
                     hMessage.relevance = options.relevance;
 
                 if(options.relevanceOffset){
-                    var currentDate = new Date();
-                    hMessage.relevance = new Date(currentDate.getTime() + options.relevanceOffset)
+                    hMessage.relevance = (new Date()).getTime() + options.relevanceOffset
                 }
 
                 if(options.persistent !== null || options.persistent !== undefined)
