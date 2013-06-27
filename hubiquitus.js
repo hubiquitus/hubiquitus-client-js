@@ -361,6 +361,7 @@ define(
             exports.codes = codes;
         }else{
             //Global entrypoint to hClient in Browser mode
+            hClient = new HubiquitusClient(); // Deprecated. Should be removed in next releases
             return HubiquitusClient;
         }
     }
