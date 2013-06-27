@@ -24,14 +24,24 @@
  */
 
 var should = require("should");
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
+var hClient = new HClient();
 var conf = require('./testConfig.js');
 
 describe('Connection tests', function() {
 
     var user = conf.logins[0];
 
+    var hClient = undefined
+
+    beforeEach(function() {
+        hClient = new HClient();
+    });
+
     describe('#connect()', function(){
+        afterEach(function() {
+            hClient.disconnect();
+        });
 
         it('should receive hStatus connected', function(done){
             hClient.onStatus = function(hStatus){
@@ -44,11 +54,13 @@ describe('Connection tests', function() {
             hClient.connect(user.login, user.password, conf.hOptions);
         })
 
-        after(conf.disconnect);
-
     })
 
     describe('#connect() failures', function(){
+        afterEach(function() {
+            hClient.disconnect();
+        });
+
         it('should receive hStatus with AUTH_FAILED if wrong password', function(done){
             hClient.onStatus = function(hStatus){
                 if(hStatus.status ==  hClient.statuses.DISCONNECTED){
@@ -71,6 +83,9 @@ describe('Connection tests', function() {
     })
 
     describe('#connect when connecting/connected', function(){
+        afterEach(function() {
+            hClient.disconnect();
+        });
 
         it('should receive hStatus with error but connect anyway and receive hStatus connected', function(done){
             var counter = 0;
@@ -78,12 +93,13 @@ describe('Connection tests', function() {
                 if(hStatus.status == hClient.statuses.CONNECTED){
                     hStatus.errorCode.should.be.eql(hClient.errors.NO_ERROR);
                     counter++;
-                }else if (hStatus.status == hClient.statuses.CONNECTING &&
-                    hStatus.errorCode == hClient.errors.CONN_PROGRESS){
+                }else if (hStatus.status == hClient.statuses.CONNECTING && hStatus.errorCode == hClient.errors.CONN_PROGRESS){
                     counter++;
                 }
-                if(counter == 2)
+                if(counter === 2) {
+                    counter = 0;
                     done();
+                }
             };
 
             hClient.connect(user.login, user.password, conf.hOptions);
@@ -92,31 +108,28 @@ describe('Connection tests', function() {
 
         it('should receive hStatus already connected and do not disconnect', function(done){
             hClient.onStatus = function(hStatus){
-                if(hStatus.status == hClient.statuses.CONNECTED){
-                    hStatus.errorCode.should.be.eql(hClient.errors.ALREADY_CONNECTED);
+                if(hStatus.status == hClient.statuses.CONNECTED && hStatus.errorCode === hClient.errors.NO_ERROR){
+                    hClient.connect(user.login, user.password, conf.hOptions);
+                } else if(hStatus.status == hClient.statuses.CONNECTED && hStatus.errorCode === hClient.errors.ALREADY_CONNECTED){
                     done();
                 }
             };
             hClient.connect(user.login, user.password, conf.hOptions);
         })
-
-        after(conf.disconnect);
-
     })
 
     describe('#disconnect()', function(){
-
-        before(conf.connect)
-
         it('should receive hStatus disconnected without error if doing it normally', function(done){
             hClient.onStatus = function(hStatus){
-                if(hStatus.status == hClient.statuses.DISCONNECTED){
+                if(hStatus.status === hClient.statuses.CONNECTED){
+                    hClient.disconnect();
+                } else if(hStatus.status === hClient.statuses.DISCONNECTED){
                     hStatus.errorCode.should.be.equal(hClient.errors.NO_ERROR);
                     done();
                 }
             };
 
-            hClient.disconnect();
+            hClient.connect(user.login, user.password, conf.hOptions);
         });
 
         it('should receive hStatus disconnected with error if already disconnected', function(done){

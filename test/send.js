@@ -24,32 +24,49 @@
  */
 
 var should = require("should");
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
 var conf = require('./testConfig.js');
 
 var user = conf.logins[0];
 
 describe('#send()', function() {
 
-    before(conf.connect)
+    var hClient1 = new HClient();
+    var hClient2 = new HClient();
+    var user1 = conf.logins[0];
+    var user2 = conf.logins[1];
 
-    after(conf.disconnect)
+    beforeEach(function(done) {
+        hClient1 = new HClient();
 
-    it('should send a message to another user and receive it', function(done){
-        hClient.send(hClient.buildCommand(hClient.publisher, "hEcho", {}, {timeout:10000}), function(hMessage){
-            console.log(hMessage)
-            hMessage.type.should.be.eql('hResult');
-            done();
-        })
-    })
-
-    it('should send a message to another user and receive it', function(done){
-        hClient.onMessage = function(message){
-            message.should.have.property('relevance');
-            done();
+        hClient1.onStatus = function(hStatus) {
+            if(hStatus.status === hClient1.statuses.CONNECTED)
+                done();
         };
+        hClient1.connect(user1.login, user1.password, conf.hOptions);
+    });
 
-        var msg = hClient.buildMessage(hClient.publisher, 'send', {}, {relevanceOffset : 30000})
-        hClient.send(msg, function(hMessage){});
+    beforeEach(function(done) {
+        hClient2 = new HClient();
+
+        hClient2.onStatus = function(hStatus) {
+            if(hStatus.status === hClient2.statuses.CONNECTED)
+                done();
+        };
+        hClient2.connect(user2.login, user2.password, conf.hOptions);
+    });
+
+    afterEach(function() {
+        hClient1.disconnect();
+        hClient2.disconnect();
+    });
+
+    it('should send a message to another user and receive it', function(done){
+        hClient2.onMessage = function(hMessage) {
+            hMessage.payload.cmd.should.be.eql("hEcho");
+            done();
+        }
+
+        hClient1.send(hClient1.buildCommand(hClient2.fullurn, "hEcho", {}));
     })
 })

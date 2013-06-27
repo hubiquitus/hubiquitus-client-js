@@ -24,7 +24,8 @@
  */
 
 var should = require("should");
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
+var hClient = new HClient();
 var conf = require('./testConfig.js');
 
 describe('#subscribe()', function() {
@@ -33,9 +34,19 @@ describe('#subscribe()', function() {
     var chanActive = "urn:localhost:channel1";
     var chanNotInPart = "urn:localhost:channel2";
 
-    before(conf.connect)
+    beforeEach(function(done) {
+        hClient = new HClient();
 
-    after(conf.disconnect)
+        hClient.onStatus = function(hStatus) {
+            if(hStatus.status === hClient.statuses.CONNECTED)
+                done();
+        };
+        hClient.connect(user.login, user.password, conf.hOptions);
+    });
+
+    afterEach(function() {
+        hClient.disconnect();
+    });
 
     it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
         hClient.subscribe('urn:localhost:unknowChan', function(hMessage){
@@ -56,16 +67,25 @@ describe('#subscribe()', function() {
     it('should return hResult status OK if not subscribed and in subscribers list', function(done) {
         hClient.subscribe(chanActive, function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+            var count = 0;
             hClient.getSubscriptions(function(hMessage) {
-                hMessage.payload.result.should.include(chanActive);
+                for(var i = 0; i < hMessage.payload.result.length; i++) {
+                    if(hClient.bareURN(hMessage.payload.result[i]) === chanActive) {
+                        count++;
+                    }
+                }
+                count.should.be.eql(1);
             });
             done();
         });
     })
-
 })
 
 describe('#subscribe()', function() {
+
+    beforeEach(function() {
+        hClient = new HClient();
+    });
 
     var user = conf.logins[0];
     var chanActive = 'chan' + Math.floor(Math.random()*10000);
