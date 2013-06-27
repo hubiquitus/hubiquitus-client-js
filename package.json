@@ -6,8 +6,9 @@
   , "author": "Federico Wasserman"
   ,"maintainers": []
   , "dependencies": {
-	    "amdefine" : "0.0.5"
-      , "socket.io-client": "0.9.11"
+	    "amdefine" : "0.0.5",
+        "socket.io-client": "0.9.11",
+        "requirejs": "2.1.6"
     }
   , "devDependencies": {
         "should" : "1.2.2",
