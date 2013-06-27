@@ -35,64 +35,56 @@ var subscriptionsSize = 0;
 
 describe('#getSubscriptions()', function() {
 
-    var subscriptions;
+    var hClient = undefined
 
-    before(conf.connect)
+    beforeEach(function() {
+        hClient = new HClient();
+    });
 
-    after(conf.disconnect)
+    describe('if connected', function() {
+        var subscriptions;
 
-    //Get subscriptions
-    before(function(done){
-        hClient.getSubscriptions(function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
-            subscriptions = hMessage.payload.result;
-            done();
+        beforeEach(function(done) {
+            hClient.onStatus = function(hStatus) {
+                if(hStatus.status === hClient.statuses.CONNECTED)
+                    done();
+            };
+            hClient.connect(conf.logins[0].login, conf.logins[0].password, conf.hOptions);
         });
-    })
 
-    it('should return status OK with empty array if no subscriptions', function(done){
-        hClient.getSubscriptions(function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
-            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
-            done();
+        afterEach(function() {
+            hClient.disconnect();
+        });
+
+        it('should return status OK with empty array if no subscriptions', function(done){
+            hClient.getSubscriptions(function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+                hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(0);
+                done();
+            })
         })
-    })
 
-})
 
-describe('#getSubscriptions()', function() {
-
-    before(conf.connect)
-
-    after(conf.disconnect)
-
-    before(function(done){
-        hClient.subscribe(channel, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
-            done();
+        it('should return a subscription list of length old+1 after subscription to a new channel', function(done){
+            // We add 2 subsciptions : 1 for the channel and 1 for a services channel (the tracker one)
+            subscriptionsSize = subscriptionsSize + 2;
+            hClient.subscribe(channel, function(hMessage){
+                hClient.getSubscriptions(function(hMessage){
+                    hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+                    hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(subscriptionsSize);
+                    done();
+                })
+            })
         })
-    })
+    });
 
-    it('should return a subscription list of length old+1 after subscription to a new channel', function(done){
-        // We add 2 subsciptions : 1 for the channel and 1 for a services channel (the tracker one)
-        subscriptionsSize = subscriptionsSize + 2;
-        hClient.getSubscriptions(function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
-            hMessage.payload.result.should.be.an.instanceof(Array).and.have.lengthOf(subscriptionsSize);
-            done();
-        })
-    })
-
-})
-
-describe('#getSubscriptions()', function() {
 
     it('should return a hResult with status NOT_CONNECTED if user tries to getSubscriptions while disconnected', function(done){
         hClient.getSubscriptions(function(hMessage){
             hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_CONNECTED);
             done();
         })
-    })
+    });
 
 })
 

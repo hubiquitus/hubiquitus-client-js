@@ -46,6 +46,7 @@ define(
 
             this.msgToBeAnswered = {};
             this.status = statuses.DISCONNECTED;
+            this.hOptions = createOptions.hub_options({});
         };
 
         HubiquitusClient.prototype = {
@@ -207,7 +208,8 @@ define(
                         hMessage.timeout = 0;
 
                     //Send it to transport
-                    this.transport.sendhMessage(hMessage);
+                    if(typeof this.transport !== 'undefined')
+                        this.transport.sendhMessage(hMessage);
                 } else if(cb) {
                     var cmd;
                     if(hMessage.payload && typeof hMessage.payload === 'string')

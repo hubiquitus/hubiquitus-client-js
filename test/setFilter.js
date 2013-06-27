@@ -32,9 +32,19 @@ var user = conf.logins[0];
 var hFilter;
 
 describe('#setFilter()', function() {
-    before(conf.connect);
+    beforeEach(function(done) {
+        hClient = new HClient();
 
-    after(conf.disconnect);
+        hClient.onStatus = function(hStatus) {
+            if(hStatus.status === hClient.statuses.CONNECTED)
+                done();
+        };
+        hClient.connect(user.login, user.password, conf.hOptions);
+    });
+
+    afterEach(function() {
+        hClient.disconnect();
+    });
 
     beforeEach(function(){
         hFilter = {};
@@ -232,6 +242,9 @@ describe('#setFilter()', function() {
 })
 
 describe('#setFilter()', function() {
+    beforeEach(function() {
+        hClient = new HClient();
+    });
 
     it('should return a hResult with status NOT_CONNECTED if user tries to set filter while disconnected', function(done){
         hClient.setFilter({}, function(hMessage){
