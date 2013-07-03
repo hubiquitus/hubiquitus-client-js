@@ -24,7 +24,8 @@
  */
 
 //Make it compatible with node and web browser
-if (typeof define !== 'function') { var define = require('amdefine')(module) }
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+
 
 define(
     ['./lib/transports/socketio/hsession-socketio',
@@ -45,6 +46,7 @@ define(
 
             this.msgToBeAnswered = {};
             this.status = statuses.DISCONNECTED;
+            this.hOptions = createOptions.hub_options({});
         };
 
         HubiquitusClient.prototype = {
@@ -159,10 +161,11 @@ define(
                 if(!(hMessage instanceof Object))
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
+                var now = (new Date()).getTime();
                 hMessage.publisher = this.fullurn;
                 hMessage.msgid = UUID.generate();
-                hMessage.published = hMessage.published || new Date();
-                hMessage.sent = new Date();
+                hMessage.published = hMessage.published || now;
+                hMessage.sent = now;
 
                 //Complete hCommand
                 var errorCode = undefined;
@@ -205,7 +208,8 @@ define(
                         hMessage.timeout = 0;
 
                     //Send it to transport
-                    this.transport.sendhMessage(hMessage);
+                    if(typeof this.transport !== 'undefined')
+                        this.transport.sendhMessage(hMessage);
                 } else if(cb) {
                     var cmd;
                     if(hMessage.payload && typeof hMessage.payload === 'string')
@@ -281,8 +285,7 @@ define(
                     hMessage.relevance = options.relevance;
 
                 if(options.relevanceOffset){
-                    var currentDate = new Date();
-                    hMessage.relevance = new Date(currentDate.getTime() + options.relevanceOffset)
+                    hMessage.relevance = (new Date()).getTime() + options.relevanceOffset
                 }
 
                 if(options.persistent !== null || options.persistent !== undefined)
@@ -309,16 +312,39 @@ define(
                 return hMessage;
             },
 
-            checkURN: function(urn){
-                return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/?.+$)/.test(urn);
+            validateFullURN: function(urn) {
+                return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/.+$)/.test(urn);
             },
 
-            splitURN: function(urn){
-                return urn.split(":").splice(1, 3);
+            splitURN:function(urn) {
+                var splitted;
+
+                if (typeof urn === "string") {
+                    splitted = urn.split(":");
+                }
+                if (splitted) {
+                    if (this.validateFullURN(urn)) {
+                        splitted[3] = splitted[2].replace(/(^[^\/]*\/)/, "");
+                        splitted[2] = splitted[2].replace(/\/.*$/g, "");
+                    }
+                    return splitted.splice(1, 3);
+                } else {
+                    return [undefined, undefined, undefined];
+                }
             },
 
+            getBareURN: function(urn) {
+                var urnParts;
+
+                urnParts = this.splitURN(urn);
+                return "urn:" + urnParts[0] + ":" + urnParts[1];
+            },
+
+            // Deprecated : This function is here for retro compatiblity.
             bareURN: function(urn) {
-                var urnParts = this.splitURN(urn);
+                var urnParts;
+
+                urnParts = this.splitURN(urn);
                 return "urn:" + urnParts[0] + ":" + urnParts[1];
             },
 
@@ -329,16 +355,16 @@ define(
 
         if(typeof module !== 'undefined' && module.exports){
             //Entrypoint to hClient in Node mode
-            exports.hClient = new HubiquitusClient();
-            exports.HubiquitusClient = HubiquitusClient; //Allow access to constructor (used with stress option)
+            exports.HClient = HubiquitusClient; //Allow access to constructor
             exports.statuses = codes.statuses;
             exports.hResultStatus = codes.hResultStatus;
+            exports.codes = codes;
         }else{
             //Global entrypoint to hClient in Browser mode
-            hClient = new HubiquitusClient();
+            hClient = new HubiquitusClient(); // Deprecated. Should be removed in next releases
+            return HubiquitusClient;
         }
     }
 );
 
 function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(32),8)+"-"+b(a(16),4)+"-"+b(16384|a(12),4)+"-"+b(32768|a(14),4)+"-"+b(a(48),12)};UUID._gri=function(a){return 0>a?NaN:30>=a?0|Math.random()*(1<<a):53>=a?(0|1073741824*Math.random())+1073741824*(0|Math.random()*(1<<a-30)):NaN};UUID._ha=function(a,b){for(var c=a.toString(16),d=b-c.length,e="0";0<d;d>>>=1,e+=e)d&1&&(c=e+c);return c};
-

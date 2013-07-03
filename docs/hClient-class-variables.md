@@ -10,13 +10,8 @@ When you start an instance of an hClient you have acces to few variables :
     </thead>
     <tbody>
         <tr>
-            <td>msgToBeAnswered</td>
-            <td>Object</td>
-            <td>List the msgid of the hMessage which waiting a response</td>
-        </tr>
-        <tr>
             <td>status</td>
-            <td>Int</td>
+            <td>Number</td>
             <td>Code which define the client status</td>
         </tr>
         <tr>

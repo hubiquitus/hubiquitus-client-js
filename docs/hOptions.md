@@ -19,7 +19,7 @@ Endpoint of the hNode. Expects an array from which one will be chosen randomly. 
 hOptions["endpoints"] = <String[]>
 ```
 
-`Default Value: ["http://localhost:5280/http-bind"]`
+`Default Value: ["http://localhost:8080"]`
 
 ## Timeout
 Time to wait (ms) while connecting to the hNode. If it doesn't respond in that interval an error will be passed to callback.
