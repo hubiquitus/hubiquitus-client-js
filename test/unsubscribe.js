@@ -24,7 +24,8 @@
  */
 
 var should = require("should");
-var hClient = require('../hubiquitus.js').hClient;
+var HClient = require('../hubiquitus.js').HClient;
+var hClient = new HClient();
 var conf = require('./testConfig.js');
 
 describe('#unsubscribe()', function() {
@@ -32,56 +33,73 @@ describe('#unsubscribe()', function() {
     var user = conf.logins[0];
     var chanActive = "urn:localhost:channel1";
 
-    before(conf.connect)
+    beforeEach(function(done) {
+        hClient = new HClient();
 
-    after(conf.disconnect)
+        hClient.onStatus = function(hStatus) {
+            if(hStatus.status === hClient.statuses.CONNECTED)
+                done();
+        };
+        hClient.connect(user.login, user.password, conf.hOptions);
+    });
 
-    before(function(done){
-        hClient.subscribe(chanActive, function(hMessage){
-            done();
-        });
-    })
+    afterEach(function() {
+        hClient.disconnect();
+    });
 
-    it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
-        hClient.unsubscribe("urn:localhost:unknowChan", function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-    it('should return hResult status MISSING_ATTR and result be a message if actor not provided', function(done) {
-        hClient.unsubscribe(undefined, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
-
-    it('should return hResult status OK if subscribed and in subscribers list', function(done) {
-        hClient.unsubscribe(chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
-            hClient.getSubscriptions(function(hMessage) {
-                hMessage.payload.result.should.not.include(chanActive);
+    describe("subscribed : ", function() {
+        beforeEach(function(done){
+            hClient.subscribe(chanActive, function(hMessage){
+                done();
             });
-            done();
-        });
-    })
+        })
 
-    it('should return hResult status NOT_AVAILABLE and result be a message if user not subscribed', function(done) {
-        hClient.unsubscribe(chanActive, function(hMessage){
-            hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
-            hMessage.payload.result.should.be.a('string');
-            done();
-        });
-    })
+        it('should return hResult status NOT_AVAILABLE and result be a message if channel does not exist', function(done) {
+            hClient.unsubscribe("urn:localhost:unknowChan", function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
+                hMessage.payload.result.should.be.a('string');
+                done();
+            });
+        })
 
+        it('should return hResult status MISSING_ATTR and result be a message if actor not provided', function(done) {
+            hClient.unsubscribe(undefined, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient.hResultStatus.MISSING_ATTR);
+                hMessage.payload.result.should.be.a('string');
+                done();
+            });
+        })
+
+        it('should return hResult status OK if subscribed and in subscribers list', function(done) {
+            hClient.unsubscribe(chanActive, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient.hResultStatus.OK);
+                hClient.getSubscriptions(function(hMessage) {
+                    hMessage.payload.result.should.not.include(chanActive);
+                });
+                done();
+            });
+        });
+    });
+
+    describe("unsubscribed : ", function() {
+        it('should return hResult status NOT_AVAILABLE and result be a message if user not subscribed', function(done) {
+            hClient.unsubscribe(chanActive, function(hMessage){
+                hMessage.payload.status.should.be.eql(hClient.hResultStatus.NOT_AVAILABLE);
+                hMessage.payload.result.should.be.a('string');
+                done();
+            });
+        });
+    });
 })
 
 describe('#unsubscribe()', function() {
 
     var user = conf.logins[0];
     var chanActive = "urn:localhost:channel1";
+
+    beforeEach(function() {
+        hClient = new HClient();
+    });
 
     it('should return hResult status NOT_CONNECTED and result be a message if user not connected', function(done) {
         hClient.unsubscribe(chanActive, function(hMessage){

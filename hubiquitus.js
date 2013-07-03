@@ -24,7 +24,8 @@
  */
 
 //Make it compatible with node and web browser
-if (typeof define !== 'function') { var define = require('amdefine')(module) }
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+
 
 define(
     ['./lib/transports/socketio/hsession-socketio',
@@ -45,6 +46,7 @@ define(
 
             this.msgToBeAnswered = {};
             this.status = statuses.DISCONNECTED;
+            this.hOptions = createOptions.hub_options({});
         };
 
         HubiquitusClient.prototype = {
@@ -159,10 +161,11 @@ define(
                 if(!(hMessage instanceof Object))
                     return cb(this.buildResult("Unkonwn", "Unknown", hResultStatus.MISSING_ATTR, "provided hMessage should be an object"));
 
+                var now = (new Date()).getTime();
                 hMessage.publisher = this.fullurn;
                 hMessage.msgid = UUID.generate();
-                hMessage.published = hMessage.published || new Date();
-                hMessage.sent = new Date();
+                hMessage.published = hMessage.published || now;
+                hMessage.sent = now;
 
                 //Complete hCommand
                 var errorCode = undefined;
@@ -205,7 +208,8 @@ define(
                         hMessage.timeout = 0;
 
                     //Send it to transport
-                    this.transport.sendhMessage(hMessage);
+                    if(typeof this.transport !== 'undefined')
+                        this.transport.sendhMessage(hMessage);
                 } else if(cb) {
                     var cmd;
                     if(hMessage.payload && typeof hMessage.payload === 'string')
@@ -281,8 +285,7 @@ define(
                     hMessage.relevance = options.relevance;
 
                 if(options.relevanceOffset){
-                    var currentDate = new Date();
-                    hMessage.relevance = new Date(currentDate.getTime() + options.relevanceOffset)
+                    hMessage.relevance = (new Date()).getTime() + options.relevanceOffset
                 }
 
                 if(options.persistent !== null || options.persistent !== undefined)
@@ -307,49 +310,6 @@ define(
                     hMessage.timeout = options.timeout;
 
                 return hMessage;
-            },
-
-            buildMeasure: function(actor, value, unit, options){
-                if(!value)
-                    throw new Error('missing value');
-                else if (!unit)
-                    throw new Error('missing unit');
-
-                return this.buildMessage(actor, 'hMeasure', {unit: unit, value: value}, options);
-            },
-
-            buildAlert: function(actor, alert, options){
-                if(!alert)
-                    throw new Error('missing alert');
-
-                return this.buildMessage(actor, 'hAlert', {alert: alert}, options);
-            },
-
-            buildAck: function(actor, ref, ack, options){
-                if(!ack)
-                    throw new Error('missing ack');
-                if(!ref)
-                    throw new Error('missing ref');
-                else if(!/recv|read/i.test(ack))
-                    throw new Error('ack does not match "recv" or "read"');
-                if(typeof  options !== 'object')
-                    options = {};
-
-                options.ref = ref;
-                return this.buildMessage(actor, 'hAck', {ack: ack}, options);
-            },
-
-            buildConvState: function(actor, convid, status, options){
-                if(!convid)
-                    throw new Error('missing convid');
-                else if(!status)
-                    throw new Error('missing status');
-                if(!options)
-                    options = {};
-
-                options.convid = convid;
-
-                return this.buildMessage(actor, 'hConvState', {status: status}, options);
             },
 
             validateFullURN: function(urn) {
@@ -395,13 +355,14 @@ define(
 
         if(typeof module !== 'undefined' && module.exports){
             //Entrypoint to hClient in Node mode
-            exports.hClient = new HubiquitusClient();
-            exports.HubiquitusClient = HubiquitusClient; //Allow access to constructor (used with stress option)
+            exports.HClient = HubiquitusClient; //Allow access to constructor
             exports.statuses = codes.statuses;
             exports.hResultStatus = codes.hResultStatus;
+            exports.codes = codes;
         }else{
             //Global entrypoint to hClient in Browser mode
-            hClient = new HubiquitusClient();
+            hClient = new HubiquitusClient(); // Deprecated. Should be removed in next releases
+            return HubiquitusClient;
         }
     }
 );
