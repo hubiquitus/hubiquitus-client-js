@@ -341,7 +341,7 @@ Hubiquitus4js use a few structure to run with a hubiquitus-node server :
 
 # Filters Structure
 ## hCondition
-* For more details about hCondition see [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter)
+* For more details about hCondition see [Filter](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs/Filter.md)
 
 ## hValue
 * This structure defines a simple condition value for the available operand
