@@ -13,7 +13,7 @@ Where:
 
 * login : login of the publisher
 * password : publisher's password
-* hOptions : hOptions object as defined in [hOptions](https://github.com/hubiquitus/hubiquitus4js/tree/master/hOptions)
+* hOptions : hOptions object as defined in [hOptions](https://github.com/hubiquitus/hubiquitus4js/tree/master/hOptions.md)
 * context : any other attribute needed by the authentication actor (null by default)
 
 `Note : if a user lost his connection, the hAPI will try to reconnect him automatically`
@@ -119,12 +119,12 @@ Where:
 Creates a hMessage structure with a hResult as a payload. Can be used with `hClient.send()` to send a well-formed message.
 
 ```js
-hResult = hClient.buildResult(actor, ref, status, result, options)
+hResult = hClient.buildlResult(actor, ref, status, result, options)
 ```
 Where:
 
 * actor : `<String>` urn of the receiver. If not provided an error will be thrown
 * ref : `<String>` the msgid of the message which rise this result
-* status: `<String>` result status code (see [Codes ](https://github.com/hubiquitus/hubiquitus4js/tree/master/Codes) for more details)
+* status: `<String>` result status code (see [Codes ](https://github.com/hubiquitus/hubiquitus4js/tree/master/Codes.md) for more details)
 * result: `<Object>` the result of the command
 * options: `<hMessageOptions>` an object containing the options to override of the hMessage. If not provided they will be left undefined or filled with default ones.

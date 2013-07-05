@@ -150,4 +150,4 @@ There operand attribute is a string :
 
 ## How set a filter
 To put à filter on a client session level you can use the function SetFilter.
-* For more details you can see [Fonctions](https://github.com/hubiquitus/hubiquitus4js/tree/master/Functions)
+* For more details you can see [Fonctions](https://github.com/hubiquitus/hubiquitus4js/tree/master/Functions.md)

@@ -115,7 +115,7 @@ define(
             onMessageInternal : function(hMessage) {
                 var ref;
                 if (hMessage && hMessage.ref && typeof hMessage.ref === 'string')
-                    ref = hMessage.ref.split("#")[0];
+                    ref = hMessage.ref;
 
                 if (ref)
                     var cb = this.msgToBeAnswered[ref];
@@ -313,39 +313,39 @@ define(
             },
 
             validateFullURN: function(urn) {
-              return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/.+$)/.test(urn);
+                return /(^urn:[a-zA-Z0-9]{1}[a-zA-Z0-9\-.]+:[a-zA-Z0-9_,=@;!'%/#\(\)\+\-\.\$\*\?]+\/.+$)/.test(urn);
             },
 
             splitURN:function(urn) {
-              var splitted;
+                var splitted;
 
-              if (typeof urn === "string") {
-                splitted = urn.split(":");
-              }
-              if (splitted) {
-                if (this.validateFullURN(urn)) {
-                  splitted[3] = splitted[2].replace(/(^[^\/]*\/)/, "");
-                  splitted[2] = splitted[2].replace(/\/.*$/g, "");
+                if (typeof urn === "string") {
+                    splitted = urn.split(":");
                 }
-                return splitted.splice(1, 3);
-              } else {
-                return [undefined, undefined, undefined];
-              }
+                if (splitted) {
+                    if (this.validateFullURN(urn)) {
+                        splitted[3] = splitted[2].replace(/(^[^\/]*\/)/, "");
+                        splitted[2] = splitted[2].replace(/\/.*$/g, "");
+                    }
+                    return splitted.splice(1, 3);
+                } else {
+                    return [undefined, undefined, undefined];
+                }
             },
 
             getBareURN: function(urn) {
-              var urnParts;
+                var urnParts;
 
-              urnParts = this.splitURN(urn);
-              return "urn:" + urnParts[0] + ":" + urnParts[1];
+                urnParts = this.splitURN(urn);
+                return "urn:" + urnParts[0] + ":" + urnParts[1];
             },
 
             // Deprecated : This function is here for retro compatiblity.
             bareURN: function(urn) {
-              var urnParts;
+                var urnParts;
 
-              urnParts = this.splitURN(urn);
-              return "urn:" + urnParts[0] + ":" + urnParts[1];
+                urnParts = this.splitURN(urn);
+                return "urn:" + urnParts[0] + ":" + urnParts[1];
             },
 
             errors: codes.errors,
@@ -368,4 +368,3 @@ define(
 );
 
 function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(32),8)+"-"+b(a(16),4)+"-"+b(16384|a(12),4)+"-"+b(32768|a(14),4)+"-"+b(a(48),12)};UUID._gri=function(a){return 0>a?NaN:30>=a?0|Math.random()*(1<<a):53>=a?(0|1073741824*Math.random())+1073741824*(0|Math.random()*(1<<a-30)):NaN};UUID._ha=function(a,b){for(var c=a.toString(16),d=b-c.length,e="0";0<d;d>>>=1,e+=e)d&1&&(c=e+c);return c};
-

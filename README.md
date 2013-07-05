@@ -4,7 +4,7 @@ Hubiquitus4js is an implementation of Hubiquitus hAPI for the web or nodeJS plat
 
 ## Docs
 
-The whole documentation of the Hubiquitus4js project is available in the `docs` subdirectory of this repo.
+The whole documentation of the Hubiquitus4js project is available in the [docs](https://github.com/hubiquitus/hubiquitus4js/tree/master/docs) subdirectory of this repo.
 
 Hubiquitus4js need a Hubiquitus server. You can find all you need in the Hubiquitus repo : [hubiquitus](https://github.com/hubiquitus/hubiquitus)
 
