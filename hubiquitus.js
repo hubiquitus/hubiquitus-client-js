@@ -115,7 +115,7 @@ define(
             onMessageInternal : function(hMessage) {
                 var ref;
                 if (hMessage && hMessage.ref && typeof hMessage.ref === 'string')
-                    ref = hMessage.ref.split("#")[0];
+                    ref = hMessage.ref;
 
                 if (ref)
                     var cb = this.msgToBeAnswered[ref];
