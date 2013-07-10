@@ -1,6 +1,6 @@
 {
     "name": "hubiquitus4js"
-  , "version": "0.6.5"
+  , "version": "0.7.0-beta"
   , "description": "Client For the Hubiquitus framework. Is also browser compatible"
   , "homepage": "http://www.hubiquitus.com"
   , "author": "Federico Wasserman"
