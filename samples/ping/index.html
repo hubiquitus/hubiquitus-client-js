@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ping sample</title>
+</head>
+<body>
+  <script src="../../build/hubiquitus.js"></script>
+  <script>
+    require(["hubiquitus"], function () {
+      hubiquitus.events.on("hubiquitus started", function () {
+        hubiquitus.login("client");
+        hubiquitus.send("ping", "PING", function (err, content) {
+          console.log("response : ", err, content);
+        });
+      });
+
+      hubiquitus.onMessage = function (message) {
+        console.log(message);
+      };
+
+      hubiquitus.connect("http://localhost:8888/hubiquitus");
+
+      setTimeout(function () {
+        hubiquitus.disconnect();
+      }, 10000);
+    });
+  </script>
+</body>
+</html>

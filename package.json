@@ -1,24 +1,18 @@
 {
-    "name": "hubiquitus4js"
-  , "version": "0.7.0-beta2"
-  , "description": "Client For the Hubiquitus framework. Is also browser compatible"
-  , "homepage": "http://www.hubiquitus.com"
-  , "author": "Federico Wasserman"
-  ,"maintainers": []
-  , "dependencies": {
-	    "amdefine" : "0.0.5",
-        "socket.io-client": "0.9.11",
-        "requirejs": "2.1.6"
-    }
-  , "devDependencies": {
-        "should" : "1.2.2",
-        "mocha" : "1.11.0",
-        "mongodb" : "1.3.10"
-    }
-  , "main": "hubiquitus"
-  , "engines": { "node": ">= 0.8.0" }
-  , "scripts": {
-      "test": "mocha --compilers coffee:coffee-script -R spec test/*"
+  "name": "hubiquitus4js",
+  "version": "0.8.0-alpha3",
+  "description": "Client For the Hubiquitus framework.",
+  "homepage": "http://www.hubiquitus.com",
+  "dependencies": {
+    "requirejs": "2.1.*"
+  },
+  "devDependencies": {
+  },
+  "main": "hubiquitus",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script -R spec test/*"
   }
-
 }
