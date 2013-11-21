@@ -2,3 +2,5 @@
 
 node node_modules/requirejs/bin/r.js -o conf/dev.js
 node node_modules/requirejs/bin/r.js -o conf/prod.js
+node node_modules/requirejs/bin/r.js -o conf/require_embedded/dev.js
+node node_modules/requirejs/bin/r.js -o conf/require_embedded/prod.js
