@@ -7,17 +7,24 @@ define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events
   var sock = null;
   var exports = {};
 
+  exports.id = null;
+
   /**
    * Connect a hubiquitus container
    * @param addr {string} connection addr
    */
-  exports.connect = function (addr) {
+  exports.connect = function (addr, authData) {
     if (sock) exports.disconnect();
     sock = new SockJS(addr);
 
     sock.onopen = function () {
       console.log('Hubiquitus connected to ' + addr);
       events.emit('hubiquitus started');
+      if (!exports.id) {
+        var message = {authData: authData, type: 'login'};
+        console.log('Hubiquitus login ', message);
+        sock.send(JSON.stringify(message));
+      }
     };
 
     sock.onclose = function () {
@@ -65,15 +72,6 @@ define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events
   };
 
   /**
-   * Authentification
-   * @param login {string} username
-   */
-  exports.login = function (login) {
-    var message = {login: login, type: 'login'};
-    sock.send(JSON.stringify(message));
-  };
-
-  /**
    * Message handler; to be overriden
    * @param from {string} sender actor id
    * @param content {*} message content
@@ -105,6 +103,11 @@ define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events
       case 'response':
         console.log('Hubiquitus processing response', message);
         events.emit('response|' + message.id, null, message);
+        break;
+      case 'login':
+        console.log('Hubiquitus login feedback', message);
+        exports.id = message.aid;
+        events.emit('login', exports.id);
         break;
       default:
         console.log('Hubiquitus received unknown message type', message);
