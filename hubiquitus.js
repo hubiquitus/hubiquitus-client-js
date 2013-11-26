@@ -1,8 +1,38 @@
-define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events) {
+define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, sock, util, EventEmitter, logger) {
   'use strict';
 
   var defaultSendTimeout = 30000;
   var maxSendTimeout = 5 * 3600000;
+
+  return window.Hubiquitus = (function() {
+
+    function Hubiquitus() {
+      EventEmitter.call(this);
+      this._locked = false;
+      this._sock = null;
+      this.id = null;
+    }
+
+    util.inherits(Hubiquitus, EventEmitter);
+
+    Hubiquitus.prototype.connect = function (endpoint, authData, cb) {
+      logger.info('connect');
+    };
+
+    Hubiquitus.prototype.disconnect = function () {
+      logger.info('disconnect');
+    };
+
+    Hubiquitus.prototype.send = function (to, content, timeout, cb) {
+      logger.info('send');
+    };
+
+    return Hubiquitus;
+  })();
+
+
+  // TMP DISABLED
+
 
   var sock = null;
   var exports = {};
@@ -72,16 +102,6 @@ define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events
   };
 
   /**
-   * Message handler; to be overriden
-   * @param from {string} sender actor id
-   * @param content {*} message content
-   * @param reply {function} callback to send a response
-   */
-  exports.onMessage = function (from, content, reply) {
-    console.err('Hubiquitus onMessage should be overriden');
-  };
-
-  /**
    * Internal message handler
    * @param data {string} incomming json data
    */
@@ -93,7 +113,7 @@ define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events
       return console.log('Hubiquitus failed to parse incomming message', data);
     }
     switch (message.type) {
-      case 'message':
+      case ' ':
         console.log('Hubiquitus processing message', message);
         exports.onMessage(message.from, message.payload.content, function (err, content) {
           var response = {to: message.from, id: message.id, payload: {err: err, content: content}, type: 'response'};
@@ -113,8 +133,4 @@ define(['sockjs', 'lodash', 'uuid', 'events'], function (SockJS, _, uuid, events
         console.log('Hubiquitus received unknown message type', message);
     }
   }
-
-  exports.events = events;
-  window.hubiquitus = exports;
-  return exports;
 });

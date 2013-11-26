@@ -7,7 +7,9 @@
   <script src="../../build/require_embedded/hubiquitus.js"></script>
   <script>
     require(['hubiquitus'], function () {
-      hubiquitus.events.on('hubiquitus started', function () {
+      var hubiquitus = new Hubiquitus;
+      hubiquitus.connect();
+      /*hubiquitus.events.on('hubiquitus started', function () {
         hubiquitus.send('ping', 'PING', function (err, content) {
           console.log('response : ', err, content);
         });
@@ -25,7 +27,7 @@
 
       setTimeout(function () {
         hubiquitus.disconnect();
-      }, 10000);
+      }, 10000);*/
     });
   </script>
 </body>

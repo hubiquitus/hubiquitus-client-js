@@ -5,9 +5,10 @@
   paths: {
     requireLib: 'vendor/require',
     sockjs: 'vendor/sockjs',
+    lodash: 'vendor/lodash',
     events: 'lib/events',
-    uuid: 'lib/uuid',
-    lodash: 'vendor/lodash'
+    logger: 'lib/logger',
+    util: 'lib/util'
   },
   include: 'requireLib',
   shim: {

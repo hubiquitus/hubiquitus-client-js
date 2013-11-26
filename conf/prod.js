@@ -4,9 +4,10 @@
   name: 'hubiquitus',
   paths: {
     sockjs: 'vendor/sockjs',
+    lodash: 'vendor/lodash',
     events: 'lib/events',
-    uuid: 'lib/uuid',
-    lodash: 'vendor/lodash'
+    logger: 'lib/logger',
+    util: 'lib/util'
   },
   shim: {
     'sockjs': {exports: ['SockJS']},
