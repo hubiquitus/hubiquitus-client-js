@@ -7,27 +7,29 @@
   <script src="../../build/require_embedded/hubiquitus.js"></script>
   <script>
     require(['hubiquitus'], function () {
+      Hubiquitus.logger.level = 'trace';
       var hubiquitus = new Hubiquitus;
-      hubiquitus.connect();
-      /*hubiquitus.events.on('hubiquitus started', function () {
+
+      hubiquitus.on('connect', function () {
+        console.log('> Connected !');
         hubiquitus.send('ping', 'PING', function (err, content) {
-          console.log('response : ', err, content);
+          console.log('> Response : ', err ? err : content);
         });
       });
 
-      hubiquitus.events.on('login', function (id) {
-        console.log('identity : ' + id);
+      hubiquitus.on('disconnect', function () {
+        console.log('> Disconnected !');
       });
 
-      hubiquitus.onMessage = function (message) {
-        console.log(message);
-      };
+      hubiquitus.on('message', function (from, content, reply) {
+        console.log('> Message from ' + from + ' : ' + content);
+      });
 
-      hubiquitus.connect('http://localhost:8888/hubiquitus', {username: 'toto'});
+      hubiquitus.connect('http://localhost:8888/hubiquitus', {username: 'max'});
 
       setTimeout(function () {
         hubiquitus.disconnect();
-      }, 10000);*/
+      }, 10000);
     });
   </script>
 </body>
