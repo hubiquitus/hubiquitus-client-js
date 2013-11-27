@@ -17,7 +17,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype.connect = function (endpoint, authData, cb) {
       if (this._sock) {
-        logger.warn('hubiquitus is busy, cant connect ' + endpoint);
+        logger.warn('is busy, cant connect ' + endpoint);
         return this;
       }
 
@@ -27,19 +27,19 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       this._sock = new SockJS(endpoint);
 
       this._sock.onopen = function () {
-        logger.info('hubiquitus connected');
+        logger.info('connected');
         var message = encode({type: 'login', authData: authData});
         message && _this._sock.send(message);
       };
 
       this._sock.onclose = function () {
-        logger.info('hubiquitus disconnected');
+        logger.info('disconnected');
         _this._sock = null;
         _this.emit('disconnect');
       };
 
       this._sock.onmessage = function (e) {
-        logger.trace('hubiquitus received message', e.data);
+        logger.trace('received message', e.data);
         var message = decode(e.data);
         if (!message) return;
         switch (message.type) {
@@ -50,12 +50,12 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
             _this._events.emit('response|' + message.id, message);
             break;
           case 'login':
-            logger.info('Hubiquitus logged in; identifier is', message.payload.content.id);
+            logger.info('logged in; identifier is', message.payload.content.id);
             _this.id = message.payload.content.id;
             _this.emit('connect');
             break;
           default:
-            logger.warn('Hubiquitus received unknown message type', message);
+            logger.warn('received unknown message type', message);
         }
       };
 
@@ -64,7 +64,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype.disconnect = function () {
       if (!this._sock) {
-        logger.warn('hubiquitus is already idle');
+        logger.warn('is already idle');
         return this;
       }
 
@@ -87,7 +87,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         _this._events.emit('response|' + message.id, {payload: {err: 'TIMEOUT'}});
       }, timeout);
 
-      logger.trace('hubiquitus sending message', message);
+      logger.trace('sending message', message);
       message = encode(message);
       message && this._sock.send(message);
 
@@ -95,7 +95,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     };
 
     Hubiquitus.prototype._onMessage = function (message) {
-      logger.trace('Hubiquitus processing message', message);
+      logger.trace('processing message', message);
       this.emit('message', message.from, message.payload.content, function (err, content) {
         var response = {to: message.from, id: message.id, payload: {err: err, content: content}, type: 'response'};
         response = encode(response);
@@ -104,7 +104,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     };
 
     Hubiquitus.prototype._onResponse = function (response, cb) {
-      logger.trace('Hubiquitus processing response', response);
+      logger.trace('processing response', response);
       cb && cb(response.payload.err, response.payload.content);
     };
 
@@ -113,7 +113,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       try {
         encodedData = JSON.stringify(data);
       } catch (err) {
-        logger.warn('hubiquitus failed encoding data', data);
+        logger.warn('failed encoding data', data);
       }
       return encodedData;
     }
@@ -123,7 +123,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       try {
         decodedData = JSON.parse(data);
       } catch (err) {
-        logger.warn('hubiquitus failed decoding data', data);
+        logger.warn('failed decoding data', data);
       }
       return decodedData;
     }
