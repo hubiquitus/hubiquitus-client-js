@@ -105,7 +105,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype._onResponse = function (response, cb) {
       logger.trace('processing response', response);
-      cb && cb(response.payload.err, response.payload.content);
+      cb && cb(response.payload.err, response.from, response.payload.content);
     };
 
     function encode(data) {

@@ -13,8 +13,8 @@
       hubiquitus.on('connect', function () {
         console.log('> Connected !');
         console.log('> I\'m ' + hubiquitus.id);
-        hubiquitus.send('ping', 'PING', function (err, content) {
-          console.log('> Response : ', err ? err : content);
+        hubiquitus.send('ping', 'PING', function (err, from, content) {
+          console.log('> Response : from ' + from + ' : ', err ? err : content);
         });
       });
 
