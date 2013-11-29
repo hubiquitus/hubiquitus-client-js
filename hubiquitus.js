@@ -1,5 +1,7 @@
-define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, util, EventEmitter, logger) {
+define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, util, EventEmitter, loggerManager) {
   'use strict';
+
+  var logger = loggerManager.getLogger('hubiquitus');
 
   var defaultSendTimeout = 30000;
   var maxSendTimeout = 5 * 3600000;
@@ -131,6 +133,6 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     return Hubiquitus;
   })();
 
-  exports.logger = logger;
+  exports.logger = loggerManager;
   return exports;
 });

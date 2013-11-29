@@ -7,7 +7,8 @@
   <script src="../../build/require_embedded/hubiquitus.js"></script>
   <script>
     require(['hubiquitus'], function () {
-      Hubiquitus.logger.level = 'info';
+      Hubiquitus.logger.enable('hubiquitus');
+      Hubiquitus.logger.level('hubiquitus', 'info');
       var hubiquitus = new Hubiquitus;
 
       hubiquitus.on('connect', function () {
