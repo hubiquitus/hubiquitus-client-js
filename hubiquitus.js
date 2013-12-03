@@ -32,8 +32,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
       this._sock.onopen = function () {
         logger.info('connected');
-        var message = encode({type: 'login', authData: authData});
-        message && _this._sock.send(message);
+        var msg = encode({type: 'login', authData: authData});
+        msg && _this._sock.send(msg);
       };
 
       this._sock.onclose = function () {
@@ -44,22 +44,22 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
       this._sock.onmessage = function (e) {
         logger.trace('received message', e.data);
-        var message = decode(e.data);
-        if (!message) return;
-        switch (message.type) {
-          case 'message':
-            _this._onMessage(message);
+        var msg = decode(e.data);
+        if (!msg) return;
+        switch (msg.type) {
+          case 'req':
+            _this._onReq(msg);
             break;
-          case 'response':
-            _this._events.emit('response|' + message.id, message);
+          case 'res':
+            _this._events.emit('res|' + msg.id, msg);
             break;
           case 'login':
-            logger.info('logged in; identifier is', message.payload.content.id);
-            _this.id = message.payload.content.id;
+            logger.info('logged in; identifier is', msg.content.id);
+            _this.id = msg.content.id;
             _this.emit('connect');
             break;
           default:
-            logger.warn('received unknown message type', message);
+            logger.warn('received unknown message type', msg);
         }
       };
 
@@ -81,36 +81,36 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
       if (_.isFunction(timeout)) { cb = timeout; timeout = defaultSendTimeout; }
       timeout = timeout ||  maxSendTimeout;
-      var message = {to: to, payload: {content: content}, id: util.uuid(), date: (new Date()).getTime(), type: 'message'};
+      var req = {to: to, content: content, id: util.uuid(), date: (new Date()).getTime(), type: 'req'};
 
-      _this._events.once('response|' + message.id, function (response) {
-        _this._onResponse(response, cb);
+      _this._events.once('res|' + req.id, function (res) {
+        _this._onRes(res, cb);
       });
 
       setTimeout(function () {
-        _this._events.emit('response|' + message.id, {payload: {err: 'TIMEOUT'}});
+        _this._events.emit('res|' + req.id, {err: 'TIMEOUT'});
       }, timeout);
 
-      logger.trace('sending message', message);
-      message = encode(message);
-      message && this._sock.send(message);
+      logger.trace('sending request', req);
+      req = encode(req);
+      req && this._sock.send(req);
 
       return this;
     };
 
-    Hubiquitus.prototype._onMessage = function (message) {
-      logger.trace('processing message', message);
+    Hubiquitus.prototype._onReq = function (req) {
+      logger.trace('processing message', req);
       var _this = this;
-      this.emit('message', message.from, message.payload.content, function (err, content) {
-        var response = {to: message.from, id: message.id, payload: {err: err, content: content}, type: 'response'};
-        response = encode(response);
-        response && _this._sock.send(response);
+      this.emit('message', req.from, req.content, function (err, content) {
+        var res = {to: req.from, id: req.id, err: err, content: content, type: 'res'};
+        res = encode(res);
+        res && _this._sock.send(res);
       });
     };
 
-    Hubiquitus.prototype._onResponse = function (response, cb) {
-      logger.trace('processing response', response);
-      cb && cb(response.payload.err, response.from, response.payload.content);
+    Hubiquitus.prototype._onRes = function (res, cb) {
+      logger.trace('processing response', res);
+      cb && cb(res.err, res);
     };
 
     function encode(data) {
@@ -118,7 +118,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       try {
         encodedData = JSON.stringify(data);
       } catch (err) {
-        logger.warn('failed encoding data', data);
+        logger.warn('failed encoding data', data, err);
       }
       return encodedData;
     }
@@ -128,7 +128,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       try {
         decodedData = JSON.parse(data);
       } catch (err) {
-        logger.warn('failed decoding data', data);
+        logger.warn('failed decoding data', data, err);
       }
       return decodedData;
     }
