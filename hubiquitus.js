@@ -101,11 +101,12 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     Hubiquitus.prototype._onReq = function (req) {
       logger.trace('processing message', req);
       var _this = this;
-      this.emit('message', req, function (err, content) {
+      req.reply = function (err, content) {
         var res = {to: req.from, id: req.id, err: err, content: content, type: 'res'};
         res = encode(res);
         res && _this._sock.send(res);
-      });
+      };
+      this.emit('message', req);
     };
 
     Hubiquitus.prototype._onRes = function (res, cb) {
