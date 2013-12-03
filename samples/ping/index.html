@@ -8,14 +8,18 @@
   <script>
     require(['hubiquitus'], function () {
       Hubiquitus.logger.enable('hubiquitus');
-      Hubiquitus.logger.level('hubiquitus', 'info');
+      Hubiquitus.logger.level('hubiquitus', 'trace');
       var hubiquitus = new Hubiquitus;
 
       hubiquitus.on('connect', function () {
         console.log('> Connected !');
         console.log('> I\'m ' + hubiquitus.id);
-        hubiquitus.send('ping', 'PING', function (err, from, content) {
-          console.log('> Response : from ' + from + ' : ', err ? err : content);
+        hubiquitus.send('ping', 'PING', function (err, res) {
+          if (err) {
+            console.log('> Response error : ', err);
+          } else {
+            console.log('> Response from ' + res.from + ' : ', res.content);
+          }
         });
       });
 
@@ -23,8 +27,8 @@
         console.log('> Disconnected !');
       });
 
-      hubiquitus.on('message', function (from, content, reply) {
-        console.log('> Message from ' + from + ' : ' + content);
+      hubiquitus.on('message', function (req) {
+        console.log('> Message from ' + req.from + ' : ' + req.content);
       });
 
       hubiquitus.connect('http://localhost:8888/hubiquitus', {username: 'max'});
