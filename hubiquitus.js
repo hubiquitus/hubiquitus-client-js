@@ -17,6 +17,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     util.inherits(Hubiquitus, EventEmitter);
 
+    Hubiquitus.prototype.util = util;
+
     Hubiquitus.prototype.connect = function (endpoint, authData, cb) {
       if (this._sock) {
         logger.warn('is busy, cant connect ' + endpoint);
@@ -98,10 +100,11 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype._onMessage = function (message) {
       logger.trace('processing message', message);
+      var _this = this;
       this.emit('message', message.from, message.payload.content, function (err, content) {
         var response = {to: message.from, id: message.id, payload: {err: err, content: content}, type: 'response'};
         response = encode(response);
-        response && this._sock.send(response);
+        response && _this._sock.send(response);
       });
     };
 
