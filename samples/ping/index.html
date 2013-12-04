@@ -29,6 +29,7 @@
 
       hubiquitus.on('message', function (req) {
         console.log('> Message from ' + req.from + ' : ' + req.content);
+        req.reply(null, req.content);
       });
 
       hubiquitus.connect('http://localhost:8888/hubiquitus', {username: 'max'});
