@@ -8,11 +8,14 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
   var exports = window.Hubiquitus = (function() {
 
-    function Hubiquitus() {
+    function Hubiquitus(options) {
       EventEmitter.call(this);
+      options = options || {};
       this._sock = null;
       this._events = new EventEmitter();
       this.id = null;
+      this.autoReconnect = options.autoReconnect || false;
+      this.shouldReconnect = false;
     }
 
     util.inherits(Hubiquitus, EventEmitter);
@@ -27,11 +30,14 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
       var _this = this;
 
+      var reconnecting = this.shouldReconnect;
+      this.shouldReconnect = true;
+
       cb && this.once('connect', cb);
       this._sock = new SockJS(endpoint);
 
       this._sock.onopen = function () {
-        logger.info('connected');
+        logger.info(reconnecting ? 'reconnected' : 'connected');
         var msg = encode({type: 'login', authData: authData});
         msg && _this._sock.send(msg);
       };
@@ -40,6 +46,9 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         logger.info('disconnected');
         _this._sock = null;
         _this.emit('disconnect');
+        if (_this.autoReconnect && _this.shouldReconnect) {
+          _this.connect(endpoint, authData, cb);
+        }
       };
 
       this._sock.onmessage = function (e) {
@@ -56,7 +65,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
           case 'login':
             logger.info('logged in; identifier is', msg.content.id);
             _this.id = msg.content.id;
-            _this.emit('connect');
+            _this.emit(reconnecting ? 'reconnect' : 'connect');
             break;
           default:
             logger.warn('received unknown message type', msg);
@@ -72,6 +81,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         return this;
       }
 
+      this.shouldReconnect = false;
       this._sock && this._sock.close();
       return this;
     };
@@ -82,6 +92,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       if (_.isFunction(timeout)) { cb = timeout; timeout = defaultSendTimeout; }
       timeout = timeout ||  maxSendTimeout;
       var req = {to: to, content: content, id: util.uuid(), date: (new Date()).getTime(), type: 'req'};
+      if (cb) req.cb = true;
 
       _this._events.once('res|' + req.id, function (res) {
         _this._onRes(res, cb);
