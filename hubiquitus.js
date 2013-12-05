@@ -5,6 +5,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
   var defaultSendTimeout = 30000;
   var maxSendTimeout = 5 * 3600000;
+  var reconnectDelay = 3000;
 
   var exports = window.Hubiquitus = (function() {
 
@@ -45,9 +46,13 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       this._sock.onclose = function () {
         logger.info('disconnected');
         _this._sock = null;
-        _this.emit('disconnect');
         if (_this.autoReconnect && _this.shouldReconnect) {
-          _this.connect(endpoint, authData, cb);
+          logger.info('connection interrupted, tries to reconnect in ' + reconnectDelay + ' ms');
+          setTimeout(function () {
+            _this.connect(endpoint, authData, cb);
+          }, reconnectDelay);
+        } else {
+          _this.emit('disconnect');
         }
       };
 
