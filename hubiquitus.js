@@ -13,6 +13,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       EventEmitter.call(this);
       options = options || {};
       this._sock = null;
+      this._started = false;
+      this._locked = false;
       this._events = new EventEmitter();
       this.id = null;
       this.autoReconnect = options.autoReconnect || false;
@@ -24,12 +26,13 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     Hubiquitus.prototype.util = util;
 
     Hubiquitus.prototype.connect = function (endpoint, authData, cb) {
-      if (this._sock) {
-        logger.warn('is busy, cant connect ' + endpoint);
+      if (this._locked || this._started) {
+        logger.warn(this._locked ? 'busy' : 'already started', '; cant connect ' + endpoint);
         return this;
       }
 
       var _this = this;
+      this._locked = true;
 
       var reconnecting = this.shouldReconnect;
       this.shouldReconnect = true;
@@ -41,17 +44,22 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         logger.info(reconnecting ? 'reconnected' : 'connected');
         var msg = encode({type: 'login', authData: authData});
         msg && _this._sock.send(msg);
+        _this.started = true;
+        _this.locked = false;
       };
 
       this._sock.onclose = function () {
         logger.info('disconnected');
         _this._sock = null;
+        _this.started = false;
         _this.emit('disconnect');
         if (_this.autoReconnect && _this.shouldReconnect) {
           logger.info('connection interrupted, tries to reconnect in ' + reconnectDelay + ' ms');
           setTimeout(function () {
             _this.connect(endpoint, authData, cb);
           }, reconnectDelay);
+        } else {
+          _this.locked = false;
         }
       };
 
@@ -80,8 +88,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     };
 
     Hubiquitus.prototype.disconnect = function () {
-      if (!this._sock) {
-        logger.warn('is already idle');
+      if (this._locked || !this._started) {
+        logger.warn(this._locked ? 'busy' : 'already stopped');
         return this;
       }
 
@@ -91,6 +99,11 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     };
 
     Hubiquitus.prototype.send = function (to, content, timeout, cb) {
+      if (this._locked || !this._started) {
+        logger.warn(this._locked ? 'busy' : 'stopped' + '; cannot send message');
+        return this;
+      }
+
       var _this = this;
 
       if (_.isFunction(timeout)) { cb = timeout; timeout = defaultSendTimeout; }
@@ -121,12 +134,20 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         res = encode(res);
         res && _this._sock.send(res);
       };
-      this.emit('message', req);
+      try {
+        this.emit('message', req);
+      } catch (err) {
+        logger.warn('processing request error', {req: req, err: err});
+      }
     };
 
     Hubiquitus.prototype._onRes = function (res, cb) {
       logger.trace('processing response', res);
-      cb && cb(res.err, res);
+      try {
+        cb && cb(res.err, res);
+      } catch (err) {
+        logger.warn('processing response error', {res: res, err: err});
+      }
     };
 
     function encode(data) {
