@@ -116,7 +116,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       });
 
       setTimeout(function () {
-        _this._events.emit('res|' + req.id, {err: 'TIMEOUT'});
+        _this._events.emit('res|' + req.id, {err: {code: 'TIMEOUT'}});
       }, timeout);
 
       logger.trace('sending request', req);
