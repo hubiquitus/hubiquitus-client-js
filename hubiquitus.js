@@ -121,8 +121,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       }, timeout);
 
       logger.trace('sending request', req);
-      req = encode(req);
-      req && this._sock.send(req);
+      var encodedReq = encode(req);
+      encodedReq && this._sock.send(encodedReq);
 
       return this;
     };
@@ -132,8 +132,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       var _this = this;
       req.reply = function (err, content) {
         var res = {to: req.from, id: req.id, err: err, content: content, type: 'res'};
-        res = encode(res);
-        res && _this._sock.send(res);
+        var encodedRes = encode(res);
+        encodedRes && _this._sock.send(encodedRes);
       };
       try {
         this.emit('message', req);
