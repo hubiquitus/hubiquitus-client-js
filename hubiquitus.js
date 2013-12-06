@@ -27,7 +27,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype.connect = function (endpoint, authData, cb) {
       if (this._locked || this._started) {
-        logger.warn(this._locked ? 'busy' : 'already started', '; cant connect ' + endpoint);
+        logger.warn((this._locked ? 'busy' : 'already started'), '; cant connect ' + endpoint);
         return this;
       }
 
@@ -42,16 +42,16 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
       this._sock.onopen = function () {
         logger.info(reconnecting ? 'reconnected' : 'connected');
+        _this._started = true;
+        _this._locked = false;
         var msg = encode({type: 'login', authData: authData});
         msg && _this._sock.send(msg);
-        _this.started = true;
-        _this.locked = false;
       };
 
       this._sock.onclose = function () {
         logger.info('disconnected');
         _this._sock = null;
-        _this.started = false;
+        _this._started = false;
         _this.emit('disconnect');
         if (_this.autoReconnect && _this.shouldReconnect) {
           logger.info('connection interrupted, tries to reconnect in ' + reconnectDelay + ' ms');
@@ -59,7 +59,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
             _this.connect(endpoint, authData, cb);
           }, reconnectDelay);
         } else {
-          _this.locked = false;
+          _this._locked = false;
         }
       };
 
@@ -89,10 +89,11 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype.disconnect = function () {
       if (this._locked || !this._started) {
-        logger.warn(this._locked ? 'busy' : 'already stopped');
+        logger.warn((this._locked ? 'busy' : 'already stopped'), '; cant disconnect');
         return this;
       }
 
+      this._locked = true;
       this.shouldReconnect = false;
       this._sock && this._sock.close();
       return this;
@@ -100,7 +101,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype.send = function (to, content, timeout, cb) {
       if (this._locked || !this._started) {
-        logger.warn(this._locked ? 'busy' : 'stopped' + '; cannot send message');
+        logger.warn((this._locked ? 'busy' : 'stopped'), '; cant send message');
         return this;
       }
 
