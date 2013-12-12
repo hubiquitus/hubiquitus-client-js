@@ -6,6 +6,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
   var defaultSendTimeout = 30000;
   var maxSendTimeout = 5 * 3600000;
   var reconnectDelay = 3000;
+  var connectionTimeout = 10000;
 
   var exports = window.Hubiquitus = (function() {
 
@@ -25,7 +26,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
 
     Hubiquitus.prototype.util = util;
 
-    Hubiquitus.prototype.connect = function (endpoint, authData, cb) {
+    Hubiquitus.prototype.connect = function (endpoint, authData) {
       if (this._locked || this._started) {
         logger.warn((this._locked ? 'busy' : 'already started'), '; cant connect ' + endpoint);
         return this;
@@ -37,7 +38,6 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       var reconnecting = this.shouldReconnect;
       this.shouldReconnect = true;
 
-      cb && this.once('connect', cb);
       this._sock = new SockJS(endpoint);
 
       this._sock.onopen = function () {
@@ -55,9 +55,13 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         _this.emit('disconnect');
         if (_this.autoReconnect && _this.shouldReconnect) {
           logger.info('connection interrupted, tries to reconnect in ' + reconnectDelay + ' ms');
-          setTimeout(function () {
-            _this.connect(endpoint, authData, cb);
-          }, reconnectDelay);
+          (function reconnect() {
+            if (_this.started) return;
+            _this.connect(endpoint, authData);
+            setTimeout(function () {
+              reconnect();
+            }, reconnectDelay);
+          })();
         } else {
           _this._locked = false;
         }
@@ -83,6 +87,12 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
             logger.warn('received unknown message type', msg);
         }
       };
+
+      setTimeout(function () {
+        if (!_this.started) {
+          _this.emit('error', {code: 'CONNTIMEOUT'});
+        }
+      }, connectionTimeout);
 
       return this;
     };
