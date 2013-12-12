@@ -19,7 +19,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       this._events = new EventEmitter();
       this.id = null;
       this.autoReconnect = options.autoReconnect || false;
-      this.shouldReconnect = false;
+      this._shouldReconnect = false;
+      this._reconnecting = false;
     }
 
     util.inherits(Hubiquitus, EventEmitter);
@@ -35,14 +36,14 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       var _this = this;
       this._locked = true;
 
-      var reconnecting = this.shouldReconnect;
-      this.shouldReconnect = true;
+      this._shouldReconnect = true;
 
       this._sock = new SockJS(endpoint);
 
       this._sock.onopen = function () {
-        logger.info(reconnecting ? 'reconnected' : 'connected');
+        logger.info(_this._reconnecting ? 'reconnected' : 'connected');
         _this._started = true;
+        _this.reconnecting = false;
         _this._locked = false;
         var msg = encode({type: 'login', authData: authData});
         msg && _this._sock.send(msg);
@@ -53,7 +54,8 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
         _this._sock = null;
         _this._started = false;
         _this.emit('disconnect');
-        if (_this.autoReconnect && _this.shouldReconnect) {
+        if (_this.autoReconnect && _this._shouldReconnect && !_this._reconnecting) {
+          _this._reconnecting = true;
           logger.info('connection interrupted, tries to reconnect in ' + reconnectDelay + ' ms');
           (function reconnect() {
             if (_this._started) return;
@@ -105,7 +107,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       }
 
       this._locked = true;
-      this.shouldReconnect = false;
+      this._shouldReconnect = false;
       this._sock && this._sock.close();
       return this;
     };
