@@ -57,7 +57,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
           logger.info('connection interrupted, tries to reconnect in ' + reconnectDelay + ' ms');
           (function reconnect() {
             if (_this.started) return;
-            _this.locked = false;
+            _this._locked = false;
             _this.connect(endpoint, authData);
             setTimeout(function () {
               reconnect();
