@@ -36,15 +36,16 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       var _this = this;
       this._locked = true;
 
+      var reconnecting = _this._reconnecting;
       this._shouldReconnect = true;
 
       this._sock = new SockJS(endpoint);
 
       this._sock.onopen = function () {
-        logger.info(_this._reconnecting ? 'reconnected' : 'connected');
+        logger.info(reconnecting ? 'reconnected' : 'connected');
         _this._started = true;
-        _this.reconnecting = false;
         _this._locked = false;
+        _this._reconnecting = false;
         var msg = encode({type: 'login', authData: authData});
         msg && _this._sock.send(msg);
       };
@@ -92,7 +93,7 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       };
 
       setTimeout(function () {
-        if (!_this.started) {
+        if (!_this._started) {
           _this.emit('error', {code: 'CONNTIMEOUT'});
         }
       }, connectionTimeout);
