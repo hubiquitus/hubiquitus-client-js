@@ -51,10 +51,12 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       };
 
       this._sock.onclose = function () {
-        logger.info('disconnected');
         _this._sock = null;
         _this._started = false;
-        if (!_this._reconnecting) _this.emit('disconnect');
+        if (!_this._reconnecting) {
+          logger.info('disconnected');
+          _this.emit('disconnect');
+        }
         if (_this.autoReconnect && _this._shouldReconnect && !_this._reconnecting) {
           _this._reconnecting = true;
           (function reconnect() {
