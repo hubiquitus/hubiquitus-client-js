@@ -116,14 +116,15 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
     };
 
     Hubiquitus.prototype.send = function (to, content, timeout, cb) {
+      if (_.isFunction(timeout)) { cb = timeout; timeout = defaultSendTimeout; }
       if (this._locked || !this._started) {
         logger.warn((this._locked ? 'busy' : 'stopped'), '; cant send message');
+        cb && cb({code: 'NOTCONN'});
         return this;
       }
 
       var _this = this;
 
-      if (_.isFunction(timeout)) { cb = timeout; timeout = defaultSendTimeout; }
       timeout = timeout ||  maxSendTimeout;
       var req = {to: to, content: content, id: util.uuid(), date: (new Date()).getTime(), type: 'req'};
       if (cb) req.cb = true;
