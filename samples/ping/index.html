@@ -7,9 +7,8 @@
   <script src="../../build/require_embedded/hubiquitus.js"></script>
   <script>
     require(['hubiquitus'], function () {
-      Hubiquitus.logger.enable('hubiquitus');
-      Hubiquitus.logger.level('hubiquitus', 'trace');
-      var hubiquitus = new Hubiquitus;
+      Hubiquitus.logger.enable('*', 'trace');
+      var hubiquitus = new Hubiquitus();
 
       hubiquitus.on('connect', function () {
         console.log('> Connected !');
@@ -23,8 +22,16 @@
         });
       });
 
+      hubiquitus.on('reconnect', function () {
+        console.log('> Reconnected !');
+      });
+
       hubiquitus.on('disconnect', function () {
         console.log('> Disconnected !');
+      });
+
+      hubiquitus.on('error', function (err) {
+        console.log('> Error', err);
       });
 
       hubiquitus.on('message', function (req) {

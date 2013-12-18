@@ -6,6 +6,7 @@
     requireLib: 'vendor/require',
     sockjs: 'vendor/sockjs',
     lodash: 'vendor/lodash',
+    transport: 'lib/transport',
     events: 'lib/events',
     logger: 'lib/logger',
     util: 'lib/util'

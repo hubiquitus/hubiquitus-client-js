@@ -1,82 +1,51 @@
-define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, util, EventEmitter, loggerManager) {
+define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transport, util, EventEmitter, loggerManager) {
   'use strict';
 
   var logger = loggerManager.getLogger('hubiquitus');
 
   var defaultSendTimeout = 30000;
   var maxSendTimeout = 5 * 3600000;
-  var reconnectDelay = 3000;
-  var connectionTimeout = 10000;
+  var authTimeout = 3000;
 
   var exports = window.Hubiquitus = (function() {
 
+    /**
+     * Hubiquitus client
+     * @param {object} [options]
+     * @constructor
+     */
     function Hubiquitus(options) {
       EventEmitter.call(this);
       options = options || {};
-      this._sock = null;
-      this._started = false;
-      this._locked = false;
+      this._transport = new Transport({autoReconnect: options.autoReconnect || false});
       this._events = new EventEmitter();
+      this._authentified = false;
+      this._authData = null;
       this.id = null;
-      this.autoReconnect = options.autoReconnect || false;
-      this._shouldReconnect = false;
-      this._reconnecting = false;
-    }
-
-    util.inherits(Hubiquitus, EventEmitter);
-
-    Hubiquitus.prototype.util = util;
-
-    Hubiquitus.prototype.connect = function (endpoint, authData) {
-      if (this._locked || this._started) {
-        logger.warn((this._locked ? 'busy' : 'already started'), '; cant connect ' + endpoint);
-        return this;
-      }
 
       var _this = this;
-      this._locked = true;
+      var reconnecting = false;
 
-      var reconnecting = _this._reconnecting;
-      this._shouldReconnect = true;
+      this._transport.on('error', function (err) {
+        _this.emit('error', err);
+      });
 
-      this._sock = new SockJS(endpoint);
+      this._transport.on('connect', function () {
+        reconnecting = false;
+        _this._login(_this._authData);
+      });
 
-      this._sock.onopen = function () {
-        logger.info(reconnecting ? 'reconnected' : 'connected');
-        _this._started = true;
-        _this._locked = false;
-        _this._reconnecting = false;
-        var msg = encode({type: 'login', authData: authData});
-        msg && _this._sock.send(msg);
-      };
+      this._transport.on('reconnect', function () {
+        reconnecting = true;
+        _this._login(_this._authData);
+      });
 
-      this._sock.onclose = function () {
-        _this._sock = null;
-        _this._started = false;
-        if (!_this._reconnecting) {
-          logger.info('disconnected');
-          _this.emit('disconnect');
-        }
-        if (_this.autoReconnect && _this._shouldReconnect && !_this._reconnecting) {
-          _this._reconnecting = true;
-          (function reconnect() {
-            if (_this._started) return;
-            logger.info('connection interrupted, tries to reconnect');
-            _this._locked = false;
-            _this.connect(endpoint, authData);
-            setTimeout(function () {
-              reconnect();
-            }, reconnectDelay);
-          })();
-        } else {
-          _this._locked = false;
-        }
-      };
+      this._transport.on('disconnect', function () {
+        _this._authentified = false;
+        _this.emit('disconnect');
+      });
 
-      this._sock.onmessage = function (e) {
-        logger.trace('received message', e.data);
-        var msg = decode(e.data);
-        if (!msg) return;
+      this._transport.on('message', function (msg) {
         switch (msg.type) {
           case 'req':
             _this._onReq(msg);
@@ -85,43 +54,52 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
             _this._events.emit('res|' + msg.id, msg);
             break;
           case 'login':
-            logger.info('logged in; identifier is', msg.content.id);
+            _this._authentified = true;
             _this.id = msg.content.id;
+            logger.info('logged in; identifier is', _this.id);
             _this.emit(reconnecting ? 'reconnect' : 'connect');
             break;
           default:
             logger.warn('received unknown message type', msg);
         }
-      };
+      });
+    }
 
-      setTimeout(function () {
-        if (!_this._started) {
-          _this.emit('error', {code: 'CONNTIMEOUT'});
-        }
-      }, connectionTimeout);
+    util.inherits(Hubiquitus, EventEmitter);
 
+    Hubiquitus.prototype.util = util;
+
+    /**
+     * Connect to endpoint with given credentials
+     * @param {string} endpoint
+     * @param {object} authData
+     * @returns {Hubiquitus}
+     */
+    Hubiquitus.prototype.connect = function (endpoint, authData) {
+      this._authData = authData;
+      this._transport.connect(endpoint);
       return this;
     };
 
+    /**
+     * Disconnect from endpoint
+     * @returns {Hubiquitus}
+     */
     Hubiquitus.prototype.disconnect = function () {
-      if (this._locked || !this._started) {
-        logger.warn((this._locked ? 'busy' : 'already stopped'), '; cant disconnect');
-        return this;
-      }
-
-      this._locked = true;
-      this._shouldReconnect = false;
-      this._sock && this._sock.close();
+      this._transport.disconnect();
       return this;
     };
 
+    /**
+     * Send a message to endpoint
+     * @param {string} to
+     * @param {*} content
+     * @param {number|function} [timeout]
+     * @param {function} [cb]
+     * @returns {Hubiquitus}
+     */
     Hubiquitus.prototype.send = function (to, content, timeout, cb) {
       if (_.isFunction(timeout)) { cb = timeout; timeout = defaultSendTimeout; }
-      if (this._locked || !this._started) {
-        logger.warn((this._locked ? 'busy' : 'stopped'), '; cant send message');
-        cb && cb({code: 'NOTCONN'});
-        return this;
-      }
 
       var _this = this;
 
@@ -138,19 +116,24 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       }, timeout);
 
       logger.trace('sending request', req);
-      var encodedReq = encode(req);
-      encodedReq && this._sock.send(encodedReq);
+      this._transport.send(req, function (err) {
+        if (err) _this.emit('res|' + req.id, {err: {code: 'TECHERR'}});
+      });
 
       return this;
     };
 
+    /**
+     * Request handler
+     * @param {object} req
+     * @private
+     */
     Hubiquitus.prototype._onReq = function (req) {
       logger.trace('processing message', req);
       var _this = this;
       req.reply = function (err, content) {
         var res = {to: req.from, id: req.id, err: err, content: content, type: 'res'};
-        var encodedRes = encode(res);
-        encodedRes && _this._sock.send(encodedRes);
+        _this._transport.send(res);
       };
       try {
         this.emit('message', req);
@@ -159,6 +142,12 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       }
     };
 
+    /**
+     * Response handler
+     * @param {object} res
+     * @param cb {function} original request callback
+     * @private
+     */
     Hubiquitus.prototype._onRes = function (res, cb) {
       logger.trace('processing response', res);
       try {
@@ -168,25 +157,23 @@ define(['lodash', 'sockjs', 'util', 'events', 'logger'], function (_, SockJS, ut
       }
     };
 
-    function encode(data) {
-      var encodedData = null;
-      try {
-        encodedData = JSON.stringify(data);
-      } catch (err) {
-        logger.warn('failed encoding data', data, err);
-      }
-      return encodedData;
-    }
-
-    function decode(data) {
-      var decodedData = null;
-      try {
-        decodedData = JSON.parse(data);
-      } catch (err) {
-        logger.warn('failed decoding data', data, err);
-      }
-      return decodedData;
-    }
+    /**
+     * Login endpoint
+     * @param {object} authData
+     * @private
+     */
+    Hubiquitus.prototype._login = function (authData) {
+      var _this = this;
+      setTimeout(function () {
+        if (!_this._authentified) {
+          _this.emit('error', {code: 'AUTHTIMEOUT'});
+          _this.disconnect();
+        }
+      }, authTimeout);
+      var msg = {type: 'login', authData: authData};
+      logger.trace('try to login', msg);
+      this._transport.send(msg);
+    };
 
     return Hubiquitus;
   })();
