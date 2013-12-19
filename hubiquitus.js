@@ -121,7 +121,7 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
 
       logger.trace('sending request', req);
       this._transport.send(req, function (err) {
-        if (err) _this.emit('res|' + req.id, {err: {code: 'TECHERR'}, id: req.id});
+        if (err) _this._events.emit('res|' + req.id, {err: {code: 'TECHERR'}, id: req.id});
       });
 
       return this;
