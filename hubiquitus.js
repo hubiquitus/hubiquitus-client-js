@@ -22,6 +22,7 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
       this._authentified = false;
       this._authData = null;
       this.id = null;
+      this._connected = false;
 
       var _this = this;
       var reconnecting = false;
@@ -32,17 +33,20 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
 
       this._transport.on('connect', function () {
         reconnecting = false;
+        _this.connected = true;
         _this._login(_this._authData);
       });
 
       this._transport.on('reconnect', function () {
         reconnecting = true;
+        _this.connected = true;
         _this._login(_this._authData);
       });
 
       this._transport.on('disconnect', function () {
         _this._authentified = false;
-        _this.emit('disconnect');
+        if (_this.connected) _this.emit('disconnect');
+        _this.connected = false;
       });
 
       this._transport.on('message', function (msg) {
@@ -103,7 +107,7 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
 
       var _this = this;
 
-      timeout = timeout ||  maxSendTimeout;
+      timeout = _.isNumber(timeout) ? timeout : maxSendTimeout;
       var req = {to: to, content: content, id: util.uuid(), date: (new Date()).getTime(), type: 'req'};
       if (cb) req.cb = true;
 
@@ -112,12 +116,12 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
       });
 
       setTimeout(function () {
-        _this._events.emit('res|' + req.id, {err: {code: 'TIMEOUT'}});
+        _this._events.emit('res|' + req.id, {err: {code: 'TIMEOUT'}, id: req.id});
       }, timeout);
 
       logger.trace('sending request', req);
       this._transport.send(req, function (err) {
-        if (err) _this.emit('res|' + req.id, {err: {code: 'TECHERR'}});
+        if (err) _this.emit('res|' + req.id, {err: {code: 'TECHERR'}, id: req.id});
       });
 
       return this;
