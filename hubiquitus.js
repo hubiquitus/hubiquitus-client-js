@@ -33,20 +33,21 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
 
       this._transport.on('connect', function () {
         reconnecting = false;
-        _this.connected = true;
+        _this._connected = true;
         _this._login(_this._authData);
       });
 
       this._transport.on('reconnect', function () {
         reconnecting = true;
-        _this.connected = true;
+        _this._connected = true;
         _this._login(_this._authData);
       });
 
       this._transport.on('disconnect', function () {
         _this._authentified = false;
-        if (_this.connected) _this.emit('disconnect');
-        _this.connected = false;
+        if (_this._connected) _this.emit('disconnect');
+        if (_this._connected) _this.emit('disconnect');
+        _this._connected = false;
       });
 
       this._transport.on('message', function (msg) {
