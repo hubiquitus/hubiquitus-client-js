@@ -8,7 +8,7 @@
   <script>
     require(['hubiquitus'], function () {
       Hubiquitus.logger.enable('*', 'trace');
-      var hubiquitus = new Hubiquitus();
+      var hubiquitus = new Hubiquitus();//{autoReconnect:true});
 
       hubiquitus.on('connect', function () {
         console.log('> Connected !');
@@ -41,9 +41,9 @@
 
       hubiquitus.connect('http://localhost:8888/hubiquitus', {username: 'max'});
 
-      setTimeout(function () {
+      /*setTimeout(function () {
         hubiquitus.disconnect();
-      }, 10000);
+      }, 10000);*/
     });
   </script>
 </body>

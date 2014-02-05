@@ -46,7 +46,6 @@ define(['lodash', 'transport', 'util', 'events', 'logger'], function (_, Transpo
       this._transport.on('disconnect', function () {
         _this._authentified = false;
         if (_this._connected) _this.emit('disconnect');
-        if (_this._connected) _this.emit('disconnect');
         _this._connected = false;
       });
 
