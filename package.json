@@ -1,18 +1,13 @@
 {
   "name": "hubiquitus4js",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Client For the Hubiquitus framework.",
   "homepage": "http://www.hubiquitus.com",
   "dependencies": {
-    "requirejs": "2.1.*"
-  },
-  "devDependencies": {
+    "uglify-js": "2.4.*"
   },
   "main": "hubiquitus",
   "engines": {
     "node": ">= 0.10.0"
-  },
-  "scripts": {
-    "test": "mocha --compilers coffee:coffee-script -R spec test/*"
   }
 }
