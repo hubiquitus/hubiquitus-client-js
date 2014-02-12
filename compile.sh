@@ -23,7 +23,7 @@ parts=(
   "lib/logger.js"
   "lib/events.js"
   "lib/transport.js"
-  "lib/hubiquitus.js"
+  "lib/application.js"
 )
 for part in "${parts[@]}"
 do
