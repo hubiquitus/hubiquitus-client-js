@@ -33,4 +33,4 @@ do
 done
 
 echo "> building $minlib..."
-uglifyjs $lib -o $minlib
+$uglify $lib -o $minlib
