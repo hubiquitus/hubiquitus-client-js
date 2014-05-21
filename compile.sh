@@ -26,7 +26,7 @@ parts=(
   "lib/application.js"
 )
 
-echo "(function () { if (typeof define !== 'undefined') { define(function () { return window.hubiquitus; }); }" >> $lib
+echo "(function () { if (typeof define !== 'undefined') { define('hubiquitus', [], function () { return window.hubiquitus; }); }" >> $lib
 for part in "${parts[@]}"
 do
   echo "merging $part in $lib..."
