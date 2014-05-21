@@ -1,3 +1,4 @@
+(function () { if (typeof define !== 'undefined') { define(function () { return window.hubiquitus; }); }
 /* SockJS client, version 0.3.4, http://sockjs.org, MIT License
 
 Copyright (c) 2011-2012 VMware, Inc.
@@ -770,3 +771,4 @@ window.hubiquitus.Hubiquitus = (function () {
   return Hubiquitus;
 })();
 
+})();

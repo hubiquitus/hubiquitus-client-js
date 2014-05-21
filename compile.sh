@@ -25,12 +25,15 @@ parts=(
   "lib/transport.js"
   "lib/application.js"
 )
+
+echo "(function () { if (typeof define !== 'undefined') { define(function () { return window.hubiquitus; }); }" >> $lib
 for part in "${parts[@]}"
 do
   echo "merging $part in $lib..."
   cat $part >> $lib
   echo -e >> $lib
 done
+echo "})();" >> $lib
 
 echo "> building $minlib..."
 $uglify $lib -o $minlib
