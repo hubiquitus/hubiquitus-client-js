@@ -493,6 +493,7 @@ window.hubiquitus._Transport = (function () {
       logger.trace('received message', e.data);
       if (e.data === 'hb') {
         this._lastHeartbeat = Date.now();
+        this._sock.send('hb');
       } else {
         var msg = decode(e.data);
 
