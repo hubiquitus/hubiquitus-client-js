@@ -1,5 +1,7 @@
 #!/bin/bash
 
+version=0.8.1
+
 uglify=./node_modules/uglify-js/bin/uglifyjs
 if [ ! -f $uglify ]
 then
@@ -26,6 +28,7 @@ parts=(
   "lib/application.js"
 )
 
+echo "/* VERSION $version */" >> $lib
 echo "(function () { if (typeof define !== 'undefined') { define('hubiquitus', [], function () { return window.hubiquitus; }); }" >> $lib
 for part in "${parts[@]}"
 do
