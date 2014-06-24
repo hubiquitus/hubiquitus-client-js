@@ -1,3 +1,4 @@
+/* VERSION 0.8.1 */
 (function () { if (typeof define !== 'undefined') { define('hubiquitus', [], function () { return window.hubiquitus; }); }
 /* SockJS client, version 0.3.4, http://sockjs.org, MIT License
 
@@ -118,6 +119,19 @@ window.hubiquitus._util = (function () {
       uuid += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
     }
     return uuid;
+  };
+
+  util.once = function (fn) {
+    return (function () {
+      var _fn = fn;
+
+      return function () {
+        if (!_fn) return;
+        var tmp = _fn;
+        _fn = null;
+        tmp.apply(this, arguments);
+      }
+    })()
   };
 
   return util;
@@ -300,7 +314,7 @@ window.hubiquitus._EventEmitter = (function () {
     }
 
     for (i = 0; i < len; i++) {
-      list[i].apply(this, args);
+      list[i] && list[i].apply(this, args);
     }
 
     return this;
@@ -320,9 +334,14 @@ window.hubiquitus._Transport = (function () {
 
   var logger = loggerManager.getLogger('hubiquitus:transport');
   var connTimeout = 10000;
-  var reconnDelay = 3000;
-  var negoationTimeout = 2000;
+  var negotiationTimeout = 2000;
   var heartbeatFreq = 15000;
+
+  var Status = {
+    CONNECTED: 'CONNECTED',
+    DISCONNECTED: 'DISCONNECTED',
+    BUSY: 'BUSY'
+  };
 
   var Transport = (function () {
 
@@ -336,16 +355,17 @@ window.hubiquitus._Transport = (function () {
       this.endpoint = null;
       options = options || {};
       this._sock = null;
-      this._started = false;
-      this._locked = false;
       this._events = new EventEmitter();
-      this._autoReconnect = options.autoReconnect || false;
-      this._shouldReconnect = false;
-      this._reconnecting = false;
-      this._negotiating = false;
-      this._whitelist = ['websocket', 'xdr-streaming', 'xhr-streaming', 'iframe-eventsource', 'iframe-htmlfile', 'xdr-polling', 'xhr-polling', 'iframe-xhr-polling', 'jsonp-polling'];
-      this._heartbeatFreq = 15000;
+
+      this._whitelist = ['xdr-streaming', 'xhr-streaming', 'iframe-eventsource', 'iframe-htmlfile', 'xdr-polling', 'xhr-polling', 'iframe-xhr-polling', 'jsonp-polling'];
+      this._heartbeatFreq = options.heartbeatFreq || heartbeatFreq;
       this._lastHeartbeat = -1;
+      this._ws = true;
+      this._wsErr = false;
+      this._connTimeoutHandle = null;
+      this._negotiateTimeoutHandle = null;
+
+      this._status = Status.DISCONNECTED;
     }
 
     util.inherits(Transport, EventEmitter);
@@ -353,53 +373,51 @@ window.hubiquitus._Transport = (function () {
     /**
      * Connect to endpoint
      * @param {string} [endpoint]
-     * @param {function} [cb]
      */
-    Transport.prototype.connect = function (endpoint, cb) {
-      if (endpoint) this.endpoint = endpoint;
-      logger.trace('connecting ' + this.endpoint + '...');
-      if ((this._locked && !this._reconnecting && !this._negotiating) || this._started) {
-        logger.warn((this._locked ? 'busy' : 'already started'), '; cant connect ' + endpoint);
-        this.emit('error', {code: this._locked ? 'BUSY' : 'ALREADYCONN'});
+    Transport.prototype.connect = function (endpoint) {
+      logger.trace('connecting...');
+
+      if(this._status !== Status.DISCONNECTED) {
+        logger.debug(((this._status === Status.BUSY) ? 'busy' : 'already connected'), '; cant connect ' + endpoint);
         return;
       }
 
-      cb && this.once('connect', cb);
+      if (endpoint) this.endpoint = endpoint;
+      this._status = Status.BUSY;
+      this._connect(endpoint);
+    };
 
-      if (!this._reconnecting) {
-        this._locked = true;
-        if (this._autoReconnect) this._shouldReconnect = true;
+    /**
+     * Disconnect from endpoint
+     */
+    Transport.prototype.disconnect = function () {
+      logger.trace('disconnecting...');
+
+      if(this._status === Status.DISCONNECTED) {
+        logger.debug(((this._status === Status.BUSY) ? 'busy' : 'already disconnected'), '; cant disconnect ');
+        return;
       }
 
-      this._sock = new SockJS(this.endpoint, null, {protocols_whitelist: this._whitelist});
+      this._disconnect();
+    };
+
+    Transport.prototype._connect = function() {
+      this._lastHeartbeat = -1;
+      this._wsErr = false;
+      var protocolList = this._whitelist;
+      if (this._ws) protocolList = ['websocket'].concat(protocolList);
+      this._sock  = new SockJS(this.endpoint, null, {protocols_whitelist: protocolList});
 
       this._sock.onopen = this._onopen.bind(this);
       this._sock.onclose = this._onclose.bind(this);
       this._sock.onmessage = this._onmessage.bind(this);
 
       var _this = this;
-      setTimeout(function () {
-        if (!_this._started) _this.emit('error', {code: 'CONNTIMEOUT'})
+      this._connTimeoutHandle = setTimeout(function () {
+        if (_this._status === Status.BUSY) {
+          _this._disconnect({code: 'CONNTIMEOUT'});
+        }
       }, connTimeout);
-    };
-
-    /**
-     * Disconnect from endpoint
-     * @param {function} [cb]
-     */
-    Transport.prototype.disconnect = function (cb) {
-      logger.trace('disconnecting...');
-      if ((this._locked && !this._reconnecting && !this._negotiating) || !this._started) {
-        logger.warn((this._locked ? 'busy' : 'already stopped'), '; cant disconnect');
-        this.emit('error', {code: this._locked ? 'BUSY' : 'ALREADYDISCONN'});
-        return;
-      }
-
-      cb && this.once('disconnect', cb);
-
-      this._locked = true;
-      this._shouldReconnect = false;
-      this._sock && this._sock.close();
     };
 
     /**
@@ -408,14 +426,8 @@ window.hubiquitus._Transport = (function () {
      * @param {function} [cb]
      */
     Transport.prototype.send = function (msg, cb) {
-      if (this._locked || !this._started) {
-        logger.warn((this._locked ? 'busy' : 'not started'), '; cant send message', msg);
-        cb && cb({code: this._locked ? 'BUSY' : 'NOTCONN'});
-        return;
-      }
-
       var encodedMsg = encode(msg);
-      encodedMsg && this._sock.send(encodedMsg);
+      encodedMsg && this._sock && this._sock.send(encodedMsg);
       cb && cb();
     };
 
@@ -425,64 +437,59 @@ window.hubiquitus._Transport = (function () {
      */
     Transport.prototype._onopen = function () {
       var _this = this;
-      _this._started = true;
-      _this._locked = false;
+
       this._negotiate(function (err) {
         if (err) {
-          logger.warn("Protocol negotiation error");
-          _this._sock && _this._sock.close();
-          _this.emit('error', err);
+          logger.warn('Protocol negotiation error');
+          _this._disconnect('Protocol negotiation error');
           return;
         }
 
         //Start heartbeat timer
         _this._lastHeartbeat = Date.now();
-        _this._checkConn();
 
-        logger.info((_this._reconnecting ? 'reconnected' : 'connected') + ' using ' + _this._sock.protocol);
-        _this.emit(_this._reconnecting ? 'reconnect' : 'connect');
-        _this._reconnecting = false;
+        logger.info('connected using ' + _this._sock.protocol);
+        if (_this._status !== Status.CONNECTED) {
+          _this._status = Status.CONNECTED;
+          _this.emit('connected');
+        }
+
+        _this._checkConn();
       });
     };
 
     Transport.prototype._checkConn = function () {
       var _this = this;
-      if (_this._started) {
+      if (_this._status === Status.CONNECTED) {
         if (Date.now() - (_this._lastHeartbeat + _this._heartbeatFreq + (0.5 * _this._heartbeatFreq))  > 0) {
-          logger.debug("Last heartbeat too old : ", _this._lastHeartbeat, " freq : ", _this._heartbeatFreq);
-          _this._sock && _this._sock.close();
-          _this.emit('error', {code:"HBTIMEOUT"});
+          logger.debug('Last heartbeat too old : ', _this._lastHeartbeat, ' freq : ', _this._heartbeatFreq);
+          _this._disconnect('HBTIMEOUT');
         }
         setTimeout(function () {
           _this._checkConn();
         }, _this._heartbeatFreq);
       }
-    }
+    };
+
+    Transport.prototype._disconnect = function (err) {
+      if (err) logger.info('Disconnected with error : ', err);
+
+      this._sock && this._sock.close();
+      this._clear();
+
+      if (!this._wsErr) {
+        this._status = Status.DISCONNECTED;
+        this.emit('disconnected', err);
+      }
+    };
 
     /**
      * Sock close listener
      * @private
      */
     Transport.prototype._onclose = function () {
-      this._sock = null;
-      this._started = false;
-      this._lastHeartbeat = -1;
-
-      if (!this._shouldReconnect) {
-        this._locked = false;
-        logger.info('disconnected');
-        this.emit('disconnect');
-      } else if (!this._reconnecting) {
-        this.emit('disconnect'); // first time we try to reconnect
-        this._reconnecting = true;
-        var _this = this;
-        (function reconnect() {
-          if (_this._started || !_this._shouldReconnect) return;
-          logger.info('reconnecting...');
-          _this.connect();
-          setTimeout(reconnect, reconnDelay);
-        })();
-      }
+      logger.info('disconnected');
+      this._disconnect();
     };
 
     /**
@@ -493,7 +500,7 @@ window.hubiquitus._Transport = (function () {
       logger.trace('received message', e.data);
       if (e.data === 'hb') {
         this._lastHeartbeat = Date.now();
-        this._sock.send('hb');
+        this._sock && this._sock.send('hb');
       } else {
         var msg = decode(e.data);
 
@@ -516,34 +523,46 @@ window.hubiquitus._Transport = (function () {
       this._events.once('negotiate', function (err, msg) {
         if (err) {
           logger.trace('negotiation timeout');
-          _.remove(_this._whitelist, function (item) {
-            return item === 'websocket';
-          });
-          if (_this._sock.protocol === 'websocket') {
-            _this.disconnect(function () {
-              _this._negotiating = false;
-              _this.connect();
-            });
+          if (_this._ws) {
+            _this._wsErr = true;
+            _this._ws = false;
+            _this._disconnect();
+            _this._connect();
           } else {
             cb && cb({code: 'NEGOTIATIONERR'});
           }
-          this.emit('error', {code: _this._locked ? 'BUSY' : 'ALREADYDISCONN'});
           return;
         }
-        if (msg && typeof(msg.heartbeatFreq) === "number" && msg.heartbeatFreq > 0) _this._heartbeatFreq = msg.heartbeatFreq;
-        _this._negotiating = false;
+
+        if (msg && typeof(msg.heartbeatFreq) === 'number' && msg.heartbeatFreq > 0) _this._heartbeatFreq = msg.heartbeatFreq;
         logger.trace('negotiation sucessful');
         cb && cb();
       });
 
-      setTimeout(function () {
-        _this._events.emit('negotiate', {code: 'TIMEOUT'})
-      }, negoationTimeout);
+      this._negotiateTimeoutHandle = setTimeout(function () {
+        _this._events.emit('negotiate', {code: 'NEGOTIATIONTIMEOUT'});
+      }, negotiationTimeout);
 
-      _this._negotiating = true;
       logger.trace(this._sock.protocol + ' protocol; Protocol negotiation');
       var negotiate = encode({type: 'negotiate'});
-      this._sock.send(negotiate);
+      this._sock && this._sock.send(negotiate);
+    };
+
+    Transport.prototype._clear = function () {
+      if (this._sock) {
+        this._sock.onopen = null;
+        this._sock.onclose = null;
+        this._sock.onmessage = null;
+        this._sock = null;
+      }
+
+      clearTimeout(this._connTimeoutHandle);
+      this._connTimeoutHandle = null;
+      clearTimeout(this._negotiateTimeoutHandle);
+      this._negotiateTimeoutHandle = null;
+
+      this._lastHeartbeat = -1;
+      this._wsErr = false;
     };
 
     return Transport;
@@ -597,6 +616,7 @@ window.hubiquitus.Hubiquitus = (function () {
   var defaultSendTimeout = 30000;
   var maxSendTimeout = 5 * 3600000;
   var authTimeout = 3000;
+  var reconnectDelay = 2000;
 
   /**
    * Hubiquitus client
@@ -605,37 +625,35 @@ window.hubiquitus.Hubiquitus = (function () {
    */
   function Hubiquitus(options) {
     EventEmitter.call(this);
-    options = options || {};
-    this._transport = new Transport({autoReconnect: options.autoReconnect || false});
+    this._options = options || {};
+    this._transport = new Transport();
     this._events = new EventEmitter();
-    this._authentified = false;
+    this._authenticated = false;
     this._authData = null;
     this.id = null;
     this._connected = false;
+    this._autoReconnect = false;
+
+    this._loginTimeoutHandle = null;
+    this._autoReconnectTimeoutHandle = null;
+    this._reconnecting = false;
+
+    this._endpoint = null;
 
     var _this = this;
-    var reconnecting = false;
 
-    this._transport.on('error', function (err) {
-      _this.emit('error', err);
-    });
-
-    this._transport.on('connect', function () {
-      reconnecting = false;
+    this._transport.on('connected', function () {
       _this._connected = true;
       _this._login(_this._authData);
     });
 
-    this._transport.on('reconnect', function () {
-      reconnecting = true;
-      _this._connected = true;
-      _this._login(_this._authData);
-    });
+    this._transport.on('disconnected', function (err) {
+      var connected = _this._connected;
 
-    this._transport.on('disconnect', function () {
-      _this._authentified = false;
-      if (_this._connected) _this.emit('disconnect');
+      _this._authenticated = false;
       _this._connected = false;
+      _this._clear();
+      _this.emit('disconnect', err);
     });
 
     this._transport.on('message', function (msg) {
@@ -647,13 +665,25 @@ window.hubiquitus.Hubiquitus = (function () {
           _this._events.emit('res|' + msg.id, msg);
           break;
         case 'login':
-          _this._authentified = true;
+          _this._authenticated = true;
           _this.id = msg.content.id;
           logger.info('logged in; identifier is', _this.id);
+          var reconnecting = _this._reconnecting;
+          _this._reconnecting = false;
           _this.emit(reconnecting ? 'reconnect' : 'connect');
+
           break;
         default:
           logger.warn('received unknown message type', msg);
+      }
+    });
+
+    this.on('disconnect', function () {
+      if (_this._autoReconnect) {
+        setTimeout(function () {
+          _this._reconnecting = true;
+          _this.connect(_this._endpoint, _this._authData);
+        },reconnectDelay)
       }
     });
   }
@@ -672,6 +702,8 @@ window.hubiquitus.Hubiquitus = (function () {
    */
   Hubiquitus.prototype.connect = function (endpoint, authData) {
     this._authData = authData;
+    this._endpoint = endpoint;
+    if (this._options.autoReconnect) this._autoReconnect = true;
     this._transport.connect(endpoint);
     return this;
   };
@@ -681,6 +713,9 @@ window.hubiquitus.Hubiquitus = (function () {
    * @returns {Hubiquitus}
    */
   Hubiquitus.prototype.disconnect = function () {
+    this._autoReconnect = false;
+    this._reconnecting = false;
+    this._clear();
     this._transport.disconnect();
     return this;
   };
@@ -759,8 +794,8 @@ window.hubiquitus.Hubiquitus = (function () {
    */
   Hubiquitus.prototype._login = function (authData) {
     var _this = this;
-    setTimeout(function () {
-      if (!_this._authentified) {
+    this._loginTimeoutHandle = setTimeout(function () {
+      if (!_this._authenticated) {
         _this.emit('error', {code: 'AUTHTIMEOUT'});
         _this.disconnect();
       }
@@ -769,6 +804,13 @@ window.hubiquitus.Hubiquitus = (function () {
     logger.trace('try to login', msg);
     this._transport.send(msg);
   };
+
+  Hubiquitus.prototype._clear = function () {
+    clearTimeout(this._loginTimeoutHandle);
+    this._loginTimeoutHandle = null;
+    clearTimeout(this._autoReconnectTimeoutHandle);
+    this._autoReconnectTimeoutHandle = null;
+  }
 
   return Hubiquitus;
 })();
