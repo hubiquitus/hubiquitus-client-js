@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=0.8.2
+version=0.8.3
 
 uglify=./node_modules/uglify-js/bin/uglifyjs
 if [ ! -f $uglify ]

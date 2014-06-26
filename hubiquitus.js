@@ -1,4 +1,4 @@
-/* VERSION 0.8.2 */
+/* VERSION 0.8.3 */
 (function () { if (typeof define !== 'undefined') { define('hubiquitus', [], function () { return window.hubiquitus; }); }
 /* SockJS client, version 0.3.4, http://sockjs.org, MIT License
 
