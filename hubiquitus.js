@@ -340,6 +340,7 @@ window.hubiquitus._Transport = (function () {
     function Transport(options) {
       EventEmitter.call(this);
       this.endpoint = null;
+      var self = this;
       options = options || {};
       this._sock = null;
       this._events = new EventEmitter();
@@ -347,7 +348,9 @@ window.hubiquitus._Transport = (function () {
       this._whitelist = ['xdr-streaming', 'xhr-streaming', 'iframe-eventsource', 'iframe-htmlfile', 'xdr-polling', 'xhr-polling', 'iframe-xhr-polling', 'jsonp-polling'];
       this._heartbeatFreq = options.heartbeatFreq || heartbeatFreq;
       this._lastHeartbeat = -1;
-      this._ws = true;
+      this._wsSupport = (isMobile.iOS()) ? false : true;
+      this._wsSupport = (options.websocket === true || options.websocket === false) ? options.websocket : self._wsSupport;
+      this._ws = self._wsSupport;
       this._wsErr = false;
       this._connTimeoutHandle = null;
       this._negotiateTimeoutHandle = null;
@@ -585,6 +588,31 @@ window.hubiquitus._Transport = (function () {
     return decodedData;
   }
 
+  /**
+   * Check if it's a mobile device
+   * @type {{Android: Android, BlackBerry: BlackBerry, iOS: iOS, Opera: Opera, Windows: Windows, any: any}}
+   */
+  var isMobile = {
+    Android: function() {
+      return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+      return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+      return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+      return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+      return navigator.userAgent.match(/IEMobile/i);
+    },
+    any: function() {
+      return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+  };
+
   return Transport;
 })();
 
@@ -612,8 +640,10 @@ window.hubiquitus.Hubiquitus = (function () {
    */
   function Hubiquitus(options) {
     EventEmitter.call(this);
+    var self = this;
     this._options = options || {};
-    this._transport = new Transport();
+    this._websocket = (options.websocket === true || options.websocket === false) ? options.websocket : null;
+    this._transport = new Transport({websocket: self._websocket});
     this._events = new EventEmitter();
     this._authenticated = false;
     this._authData = null;
