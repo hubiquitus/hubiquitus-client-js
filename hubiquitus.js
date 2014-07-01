@@ -1,4 +1,4 @@
-/* VERSION 0.8.3 */
+/* VERSION 0.8.4 */
 (function () { if (typeof define !== 'undefined') { define('hubiquitus', [], function () { return window.hubiquitus; }); }
 /* SockJS client, version 0.3.4, http://sockjs.org, MIT License
 
@@ -416,6 +416,11 @@ window.hubiquitus._Transport = (function () {
      * @param {function} [cb]
      */
     Transport.prototype.send = function (msg, cb) {
+      if (this._status !== Status.CONNECTED) {
+        cb && cb({code: 'SENDERR'});
+        return;
+      }
+
       var encodedMsg = encode(msg);
       encodedMsg && this._sock && this._sock.send(encodedMsg);
       cb && cb();
