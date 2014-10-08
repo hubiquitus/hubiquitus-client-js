@@ -1,6 +1,6 @@
 {
   "name": "hubiquitus4js",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "description": "Client For the Hubiquitus framework.",
   "homepage": "http://www.hubiquitus.com",
   "dependencies": {
