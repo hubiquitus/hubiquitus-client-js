@@ -340,7 +340,6 @@ window.hubiquitus._Transport = (function () {
     function Transport(options) {
       EventEmitter.call(this);
       this.endpoint = null;
-      var self = this;
       options = options || {};
       this._sock = null;
       this._events = new EventEmitter();
@@ -349,8 +348,8 @@ window.hubiquitus._Transport = (function () {
       this._heartbeatFreq = options.heartbeatFreq || heartbeatFreq;
       this._lastHeartbeat = -1;
       this._wsSupport = (isMobile.iOS()) ? false : true;
-      this._wsSupport = (options.websocket === true || options.websocket === false) ? options.websocket : self._wsSupport;
-      this._ws = self._wsSupport;
+      this._wsSupport = (options.websocket === true || options.websocket === false) ? options.websocket : this._wsSupport;
+      this._ws = this._wsSupport;
       this._wsErr = false;
       this._connTimeoutHandle = null;
       this._negotiateTimeoutHandle = null;
@@ -645,10 +644,9 @@ window.hubiquitus.Hubiquitus = (function () {
    */
   function Hubiquitus(options) {
     EventEmitter.call(this);
-    var self = this;
     this._options = options || {};
-    this._websocket = (options.websocket === true || options.websocket === false) ? options.websocket : null;
-    this._transport = new Transport({websocket: self._websocket});
+    this._websocket = (this._options.websocket === true || this._options.websocket === false) ? this._options.websocket : null;
+    this._transport = new Transport({websocket: this._websocket});
     this._events = new EventEmitter();
     this._authenticated = false;
     this._authData = null;
